@@ -1,8 +1,31 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 
+interface Attributes {
+  intelligence: number
+  comprehension: number
+  resoluteness: number
+  magic: number
+  luck: number
+  bodyControl: number
+  impressiveness: number
+  manipulation: number
+  poise: number
+}
+
 function App() {
   const [characterName, setCharacterName] = useState<string>('')
+  const [attributes, setAttributes] = useState<Attributes>({
+    intelligence: 1,
+    comprehension: 1,
+    resoluteness: 1,
+    magic: 1,
+    luck: 1,
+    bodyControl: 1,
+    impressiveness: 1,
+    manipulation: 1,
+    poise: 1,
+  })
 
   // Load character name from localStorage on component mount
   useEffect(() => {
@@ -12,13 +35,38 @@ function App() {
     }
   }, [])
 
+  // Load attributes from localStorage on component mount
+  useEffect(() => {
+    const savedAttributes = localStorage.getItem('worldstriders-character-attributes')
+    if (savedAttributes) {
+      try {
+        const parsedAttributes = JSON.parse(savedAttributes)
+        setAttributes(parsedAttributes)
+      } catch (error) {
+        console.error('Failed to parse saved attributes:', error)
+      }
+    }
+  }, [])
+
   // Save character name to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('worldstriders-character-name', characterName)
   }, [characterName])
 
+  // Save attributes to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('worldstriders-character-attributes', JSON.stringify(attributes))
+  }, [attributes])
+
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCharacterName(event.target.value)
+  }
+
+  const handleAttributeChange = (attribute: keyof Attributes, value: number) => {
+    setAttributes(prev => ({
+      ...prev,
+      [attribute]: Math.max(1, Math.min(5, value))
+    }))
   }
 
   return (
@@ -41,6 +89,128 @@ function App() {
             placeholder="Enter your character's name"
             autoFocus
           />
+        </div>
+
+        <div className="attributes-section">
+          <h2 className="attributes-title">Attributes</h2>
+          <div className="attributes-grid">
+            <div className="attributes-column">
+              <div className="attribute-item">
+                <label htmlFor="intelligence" className="attribute-label">Intelligence:</label>
+                <input
+                  id="intelligence"
+                  type="number"
+                  min="1"
+                  max="5"
+                  className="attribute-input"
+                  value={attributes.intelligence}
+                  onChange={(e) => handleAttributeChange('intelligence', parseInt(e.target.value) || 1)}
+                />
+              </div>
+              <div className="attribute-item">
+                <label htmlFor="comprehension" className="attribute-label">Comprehension:</label>
+                <input
+                  id="comprehension"
+                  type="number"
+                  min="1"
+                  max="5"
+                  className="attribute-input"
+                  value={attributes.comprehension}
+                  onChange={(e) => handleAttributeChange('comprehension', parseInt(e.target.value) || 1)}
+                />
+              </div>
+              <div className="attribute-item">
+                <label htmlFor="resoluteness" className="attribute-label">Resoluteness:</label>
+                <input
+                  id="resoluteness"
+                  type="number"
+                  min="1"
+                  max="5"
+                  className="attribute-input"
+                  value={attributes.resoluteness}
+                  onChange={(e) => handleAttributeChange('resoluteness', parseInt(e.target.value) || 1)}
+                />
+              </div>
+            </div>
+
+            <div className="attributes-column">
+              <div className="attribute-item">
+                <label htmlFor="magic" className="attribute-label">Magic:</label>
+                <input
+                  id="magic"
+                  type="number"
+                  min="1"
+                  max="5"
+                  className="attribute-input"
+                  value={attributes.magic}
+                  onChange={(e) => handleAttributeChange('magic', parseInt(e.target.value) || 1)}
+                />
+              </div>
+              <div className="attribute-item">
+                <label htmlFor="luck" className="attribute-label">Luck:</label>
+                <input
+                  id="luck"
+                  type="number"
+                  min="1"
+                  max="5"
+                  className="attribute-input"
+                  value={attributes.luck}
+                  onChange={(e) => handleAttributeChange('luck', parseInt(e.target.value) || 1)}
+                />
+              </div>
+              <div className="attribute-item">
+                <label htmlFor="bodyControl" className="attribute-label">Body Control:</label>
+                <input
+                  id="bodyControl"
+                  type="number"
+                  min="1"
+                  max="5"
+                  className="attribute-input"
+                  value={attributes.bodyControl}
+                  onChange={(e) => handleAttributeChange('bodyControl', parseInt(e.target.value) || 1)}
+                />
+              </div>
+            </div>
+
+            <div className="attributes-column">
+              <div className="attribute-item">
+                <label htmlFor="impressiveness" className="attribute-label">Impressiveness:</label>
+                <input
+                  id="impressiveness"
+                  type="number"
+                  min="1"
+                  max="5"
+                  className="attribute-input"
+                  value={attributes.impressiveness}
+                  onChange={(e) => handleAttributeChange('impressiveness', parseInt(e.target.value) || 1)}
+                />
+              </div>
+              <div className="attribute-item">
+                <label htmlFor="manipulation" className="attribute-label">Manipulation:</label>
+                <input
+                  id="manipulation"
+                  type="number"
+                  min="1"
+                  max="5"
+                  className="attribute-input"
+                  value={attributes.manipulation}
+                  onChange={(e) => handleAttributeChange('manipulation', parseInt(e.target.value) || 1)}
+                />
+              </div>
+              <div className="attribute-item">
+                <label htmlFor="poise" className="attribute-label">Poise:</label>
+                <input
+                  id="poise"
+                  type="number"
+                  min="1"
+                  max="5"
+                  className="attribute-input"
+                  value={attributes.poise}
+                  onChange={(e) => handleAttributeChange('poise', parseInt(e.target.value) || 1)}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </main>
     </div>
