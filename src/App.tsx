@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import './App.css'
 import { TranslationProvider, useTranslation } from './contexts/TranslationContext'
 import { LanguageSwitcher } from './components/LanguageSwitcher'
+import { AttributeCircles } from './components/AttributeCircles'
 
 interface Attributes {
   intelligence: number
@@ -19,15 +20,15 @@ function CharacterForm() {
   const { t } = useTranslation()
   const [characterName, setCharacterName] = useState<string>('')
   const [attributes, setAttributes] = useState<Attributes>({
-    intelligence: 1,
-    comprehension: 1,
-    resoluteness: 1,
-    magic: 1,
-    luck: 1,
-    bodyControl: 1,
-    impressiveness: 1,
-    manipulation: 1,
-    poise: 1,
+    intelligence: 0,
+    comprehension: 0,
+    resoluteness: 0,
+    magic: 0,
+    luck: 0,
+    bodyControl: 0,
+    impressiveness: 0,
+    manipulation: 0,
+    poise: 0,
   })
 
   // Load character name from localStorage on component mount
@@ -68,7 +69,7 @@ function CharacterForm() {
   const handleAttributeChange = (attribute: keyof Attributes, value: number) => {
     setAttributes(prev => ({
       ...prev,
-      [attribute]: Math.max(1, Math.min(5, value))
+      [attribute]: Math.max(0, Math.min(5, value))
     }))
   }
 
@@ -100,117 +101,72 @@ function CharacterForm() {
           <div className="attributes-grid">
             <div className="attributes-column">
               <div className="attribute-item">
-                <label htmlFor="intelligence" className="attribute-label">{t('attributes.intelligence')}</label>
-                <input
-                  id="intelligence"
-                  type="number"
-                  min="1"
-                  max="5"
-                  className="attribute-input"
+                <AttributeCircles
                   value={attributes.intelligence}
-                  onChange={(e) => handleAttributeChange('intelligence', parseInt(e.target.value) || 1)}
+                  onChange={(value) => handleAttributeChange('intelligence', value)}
+                  label={t('attributes.intelligence')}
                 />
               </div>
               <div className="attribute-item">
-                <label htmlFor="comprehension" className="attribute-label">{t('attributes.comprehension')}</label>
-                <input
-                  id="comprehension"
-                  type="number"
-                  min="1"
-                  max="5"
-                  className="attribute-input"
+                <AttributeCircles
                   value={attributes.comprehension}
-                  onChange={(e) => handleAttributeChange('comprehension', parseInt(e.target.value) || 1)}
+                  onChange={(value) => handleAttributeChange('comprehension', value)}
+                  label={t('attributes.comprehension')}
                 />
               </div>
               <div className="attribute-item">
-                <label htmlFor="resoluteness" className="attribute-label">{t('attributes.resoluteness')}</label>
-                <input
-                  id="resoluteness"
-                  type="number"
-                  min="1"
-                  max="5"
-                  className="attribute-input"
+                <AttributeCircles
                   value={attributes.resoluteness}
-                  onChange={(e) => handleAttributeChange('resoluteness', parseInt(e.target.value) || 1)}
+                  onChange={(value) => handleAttributeChange('resoluteness', value)}
+                  label={t('attributes.resoluteness')}
                 />
               </div>
             </div>
 
             <div className="attributes-column">
               <div className="attribute-item">
-                <label htmlFor="magic" className="attribute-label">{t('attributes.magic')}</label>
-                <input
-                  id="magic"
-                  type="number"
-                  min="1"
-                  max="5"
-                  className="attribute-input"
+                <AttributeCircles
                   value={attributes.magic}
-                  onChange={(e) => handleAttributeChange('magic', parseInt(e.target.value) || 1)}
+                  onChange={(value) => handleAttributeChange('magic', value)}
+                  label={t('attributes.magic')}
                 />
               </div>
               <div className="attribute-item">
-                <label htmlFor="luck" className="attribute-label">{t('attributes.luck')}</label>
-                <input
-                  id="luck"
-                  type="number"
-                  min="1"
-                  max="5"
-                  className="attribute-input"
+                <AttributeCircles
                   value={attributes.luck}
-                  onChange={(e) => handleAttributeChange('luck', parseInt(e.target.value) || 1)}
+                  onChange={(value) => handleAttributeChange('luck', value)}
+                  label={t('attributes.luck')}
                 />
               </div>
               <div className="attribute-item">
-                <label htmlFor="bodyControl" className="attribute-label">{t('attributes.bodyControl')}</label>
-                <input
-                  id="bodyControl"
-                  type="number"
-                  min="1"
-                  max="5"
-                  className="attribute-input"
+                <AttributeCircles
                   value={attributes.bodyControl}
-                  onChange={(e) => handleAttributeChange('bodyControl', parseInt(e.target.value) || 1)}
+                  onChange={(value) => handleAttributeChange('bodyControl', value)}
+                  label={t('attributes.bodyControl')}
                 />
               </div>
             </div>
 
             <div className="attributes-column">
               <div className="attribute-item">
-                <label htmlFor="impressiveness" className="attribute-label">{t('attributes.impressiveness')}</label>
-                <input
-                  id="impressiveness"
-                  type="number"
-                  min="1"
-                  max="5"
-                  className="attribute-input"
+                <AttributeCircles
                   value={attributes.impressiveness}
-                  onChange={(e) => handleAttributeChange('impressiveness', parseInt(e.target.value) || 1)}
+                  onChange={(value) => handleAttributeChange('impressiveness', value)}
+                  label={t('attributes.impressiveness')}
                 />
               </div>
               <div className="attribute-item">
-                <label htmlFor="manipulation" className="attribute-label">{t('attributes.manipulation')}</label>
-                <input
-                  id="manipulation"
-                  type="number"
-                  min="1"
-                  max="5"
-                  className="attribute-input"
+                <AttributeCircles
                   value={attributes.manipulation}
-                  onChange={(e) => handleAttributeChange('manipulation', parseInt(e.target.value) || 1)}
+                  onChange={(value) => handleAttributeChange('manipulation', value)}
+                  label={t('attributes.manipulation')}
                 />
               </div>
               <div className="attribute-item">
-                <label htmlFor="poise" className="attribute-label">{t('attributes.poise')}</label>
-                <input
-                  id="poise"
-                  type="number"
-                  min="1"
-                  max="5"
-                  className="attribute-input"
+                <AttributeCircles
                   value={attributes.poise}
-                  onChange={(e) => handleAttributeChange('poise', parseInt(e.target.value) || 1)}
+                  onChange={(value) => handleAttributeChange('poise', value)}
+                  label={t('attributes.poise')}
                 />
               </div>
             </div>
