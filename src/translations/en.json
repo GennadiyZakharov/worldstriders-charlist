@@ -1,0 +1,26 @@
+{
+  "app": {
+    "title": "Worldstriders Character List"
+  },
+  "character": {
+    "nameLabel": "Character Name:",
+    "namePlaceholder": "Enter your character's name"
+  },
+  "attributes": {
+    "title": "Attributes",
+    "intelligence": "Intelligence:",
+    "comprehension": "Comprehension:",
+    "resoluteness": "Resoluteness:",
+    "magic": "Magic:",
+    "luck": "Luck:",
+    "bodyControl": "Body Control:",
+    "impressiveness": "Impressiveness:",
+    "manipulation": "Manipulation:",
+    "poise": "Poise:"
+  },
+  "ui": {
+    "language": "Language:",
+    "english": "English",
+    "russian": "Russian"
+  }
+}

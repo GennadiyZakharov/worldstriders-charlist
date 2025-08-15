@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import './App.css'
+import { TranslationProvider, useTranslation } from './contexts/TranslationContext'
+import { LanguageSwitcher } from './components/LanguageSwitcher'
 
 interface Attributes {
   intelligence: number
@@ -13,7 +15,8 @@ interface Attributes {
   poise: number
 }
 
-function App() {
+function CharacterForm() {
+  const { t } = useTranslation()
   const [characterName, setCharacterName] = useState<string>('')
   const [attributes, setAttributes] = useState<Attributes>({
     intelligence: 1,
@@ -72,13 +75,14 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Worldstriders Character List</h1>
+        <h1>{t('app.title')}</h1>
+        <LanguageSwitcher />
       </header>
       
       <main className="app-main">
         <div className="character-name-section">
           <label htmlFor="character-name" className="character-name-label">
-            Character Name:
+            {t('character.nameLabel')}
           </label>
           <input
             id="character-name"
@@ -86,17 +90,17 @@ function App() {
             className="character-name-input"
             value={characterName}
             onChange={handleNameChange}
-            placeholder="Enter your character's name"
+            placeholder={t('character.namePlaceholder')}
             autoFocus
           />
         </div>
 
         <div className="attributes-section">
-          <h2 className="attributes-title">Attributes</h2>
+          <h2 className="attributes-title">{t('attributes.title')}</h2>
           <div className="attributes-grid">
             <div className="attributes-column">
               <div className="attribute-item">
-                <label htmlFor="intelligence" className="attribute-label">Intelligence:</label>
+                <label htmlFor="intelligence" className="attribute-label">{t('attributes.intelligence')}</label>
                 <input
                   id="intelligence"
                   type="number"
@@ -108,7 +112,7 @@ function App() {
                 />
               </div>
               <div className="attribute-item">
-                <label htmlFor="comprehension" className="attribute-label">Comprehension:</label>
+                <label htmlFor="comprehension" className="attribute-label">{t('attributes.comprehension')}</label>
                 <input
                   id="comprehension"
                   type="number"
@@ -120,7 +124,7 @@ function App() {
                 />
               </div>
               <div className="attribute-item">
-                <label htmlFor="resoluteness" className="attribute-label">Resoluteness:</label>
+                <label htmlFor="resoluteness" className="attribute-label">{t('attributes.resoluteness')}</label>
                 <input
                   id="resoluteness"
                   type="number"
@@ -135,7 +139,7 @@ function App() {
 
             <div className="attributes-column">
               <div className="attribute-item">
-                <label htmlFor="magic" className="attribute-label">Magic:</label>
+                <label htmlFor="magic" className="attribute-label">{t('attributes.magic')}</label>
                 <input
                   id="magic"
                   type="number"
@@ -147,7 +151,7 @@ function App() {
                 />
               </div>
               <div className="attribute-item">
-                <label htmlFor="luck" className="attribute-label">Luck:</label>
+                <label htmlFor="luck" className="attribute-label">{t('attributes.luck')}</label>
                 <input
                   id="luck"
                   type="number"
@@ -159,7 +163,7 @@ function App() {
                 />
               </div>
               <div className="attribute-item">
-                <label htmlFor="bodyControl" className="attribute-label">Body Control:</label>
+                <label htmlFor="bodyControl" className="attribute-label">{t('attributes.bodyControl')}</label>
                 <input
                   id="bodyControl"
                   type="number"
@@ -174,7 +178,7 @@ function App() {
 
             <div className="attributes-column">
               <div className="attribute-item">
-                <label htmlFor="impressiveness" className="attribute-label">Impressiveness:</label>
+                <label htmlFor="impressiveness" className="attribute-label">{t('attributes.impressiveness')}</label>
                 <input
                   id="impressiveness"
                   type="number"
@@ -186,7 +190,7 @@ function App() {
                 />
               </div>
               <div className="attribute-item">
-                <label htmlFor="manipulation" className="attribute-label">Manipulation:</label>
+                <label htmlFor="manipulation" className="attribute-label">{t('attributes.manipulation')}</label>
                 <input
                   id="manipulation"
                   type="number"
@@ -198,7 +202,7 @@ function App() {
                 />
               </div>
               <div className="attribute-item">
-                <label htmlFor="poise" className="attribute-label">Poise:</label>
+                <label htmlFor="poise" className="attribute-label">{t('attributes.poise')}</label>
                 <input
                   id="poise"
                   type="number"
@@ -214,6 +218,14 @@ function App() {
         </div>
       </main>
     </div>
+  )
+}
+
+function App() {
+  return (
+    <TranslationProvider>
+      <CharacterForm />
+    </TranslationProvider>
   )
 }
 
