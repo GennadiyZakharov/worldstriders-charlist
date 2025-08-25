@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import enTranslations from '../translations/en.json'
 import ruTranslations from '../translations/ru.json'
+import { STORAGE_KEYS } from '../constants'
 
 export type Language = 'en' | 'ru'
 
@@ -26,7 +27,7 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
 
   // Load language preference from localStorage on mount
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('worldstriders-language') as Language
+    const savedLanguage = localStorage.getItem(STORAGE_KEYS.LANGUAGE) as Language
     if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'ru')) {
       setLanguage(savedLanguage)
     }
@@ -34,7 +35,7 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
 
   // Save language preference to localStorage when it changes
   useEffect(() => {
-    localStorage.setItem('worldstriders-language', language)
+    localStorage.setItem(STORAGE_KEYS.LANGUAGE, language)
   }, [language])
 
   // Translation function

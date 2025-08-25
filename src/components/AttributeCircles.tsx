@@ -1,5 +1,6 @@
 import React from 'react'
 import './AttributeCircles.css'
+import { UI_CONSTANTS } from '../constants'
 
 interface AttributeCirclesProps {
   value: number
@@ -23,7 +24,7 @@ export const AttributeCircles: React.FC<AttributeCirclesProps> = ({
     <div className="attribute-circles">
       <label className="attribute-circles-label">{label}</label>
       <div className="circles-container">
-        {Array.from({ length: 5 }, (_, index) => (
+        {Array.from({ length: UI_CONSTANTS.CIRCLES_COUNT }, (_, index) => (
           <button
             key={index}
             type="button"

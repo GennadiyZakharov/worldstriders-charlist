@@ -4,6 +4,7 @@ import { TranslationProvider, useTranslation } from './contexts/TranslationConte
 import { LanguageSwitcher } from './components/LanguageSwitcher'
 import { AttributeCircles } from './components/AttributeCircles'
 import useLocalStorage from './hooks/useLocalStorage'
+import { STORAGE_KEYS, ATTRIBUTE_CONSTRAINTS } from './constants'
 
 interface Attributes {
   intelligence: number
@@ -19,17 +20,17 @@ interface Attributes {
 
 function CharacterForm() {
   const { t } = useTranslation()
-  const [characterName, setCharacterName] = useLocalStorage<string>('worldstriders-character-name', '')
-  const [attributes, setAttributes] = useLocalStorage<Attributes>('worldstriders-character-attributes', {
-    intelligence: 1,
-    comprehension: 1,
-    resoluteness: 1,
-    magic: 1,
-    luck: 1,
-    bodyControl: 1,
-    impressiveness: 1,
-    manipulation: 1,
-    poise: 1,
+  const [characterName, setCharacterName] = useLocalStorage<string>(STORAGE_KEYS.CHARACTER_NAME, '')
+  const [attributes, setAttributes] = useLocalStorage<Attributes>(STORAGE_KEYS.CHARACTER_ATTRIBUTES, {
+    intelligence: ATTRIBUTE_CONSTRAINTS.DEFAULT_VALUE,
+    comprehension: ATTRIBUTE_CONSTRAINTS.DEFAULT_VALUE,
+    resoluteness: ATTRIBUTE_CONSTRAINTS.DEFAULT_VALUE,
+    magic: ATTRIBUTE_CONSTRAINTS.DEFAULT_VALUE,
+    luck: ATTRIBUTE_CONSTRAINTS.DEFAULT_VALUE,
+    bodyControl: ATTRIBUTE_CONSTRAINTS.DEFAULT_VALUE,
+    impressiveness: ATTRIBUTE_CONSTRAINTS.DEFAULT_VALUE,
+    manipulation: ATTRIBUTE_CONSTRAINTS.DEFAULT_VALUE,
+    poise: ATTRIBUTE_CONSTRAINTS.DEFAULT_VALUE,
   })
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,7 +40,7 @@ function CharacterForm() {
   const handleAttributeChange = (attribute: keyof Attributes, value: number) => {
     setAttributes(prev => ({
       ...prev,
-      [attribute]: Math.max(0, Math.min(5, value))
+      [attribute]: Math.max(ATTRIBUTE_CONSTRAINTS.MIN_VALUE, Math.min(ATTRIBUTE_CONSTRAINTS.MAX_VALUE, value))
     }))
   }
 
