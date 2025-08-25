@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+// import { useState } from 'react'
 import './App.css'
 import { TranslationProvider, useTranslation } from './contexts/TranslationContext'
 import { LanguageSwitcher } from './components/LanguageSwitcher'
 import { AttributeCircles } from './components/AttributeCircles'
+import useLocalStorage from './hooks/useLocalStorage'
 
 interface Attributes {
   intelligence: number
@@ -18,49 +19,18 @@ interface Attributes {
 
 function CharacterForm() {
   const { t } = useTranslation()
-  const [characterName, setCharacterName] = useState<string>('')
-  const [attributes, setAttributes] = useState<Attributes>({
-    intelligence: 0,
-    comprehension: 0,
-    resoluteness: 0,
-    magic: 0,
-    luck: 0,
-    bodyControl: 0,
-    impressiveness: 0,
-    manipulation: 0,
-    poise: 0,
+  const [characterName, setCharacterName] = useLocalStorage<string>('worldstriders-character-name', '')
+  const [attributes, setAttributes] = useLocalStorage<Attributes>('worldstriders-character-attributes', {
+    intelligence: 1,
+    comprehension: 1,
+    resoluteness: 1,
+    magic: 1,
+    luck: 1,
+    bodyControl: 1,
+    impressiveness: 1,
+    manipulation: 1,
+    poise: 1,
   })
-
-  // Load character name from localStorage on component mount
-  useEffect(() => {
-    const savedName = localStorage.getItem('worldstriders-character-name')
-    if (savedName) {
-      setCharacterName(savedName)
-    }
-  }, [])
-
-  // Load attributes from localStorage on component mount
-  useEffect(() => {
-    const savedAttributes = localStorage.getItem('worldstriders-character-attributes')
-    if (savedAttributes) {
-      try {
-        const parsedAttributes = JSON.parse(savedAttributes)
-        setAttributes(parsedAttributes)
-      } catch (error) {
-        console.error('Failed to parse saved attributes:', error)
-      }
-    }
-  }, [])
-
-  // Save character name to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('worldstriders-character-name', characterName)
-  }, [characterName])
-
-  // Save attributes to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('worldstriders-character-attributes', JSON.stringify(attributes))
-  }, [attributes])
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCharacterName(event.target.value)

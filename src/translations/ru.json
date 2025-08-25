@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Список Персонажей Worldstriders"
+    "title": "Worldstriders Character List"
   },
   "character": {
     "nameLabel": "Имя Персонажа:",
@@ -9,13 +9,13 @@
   "attributes": {
     "title": "Атрибуты",
     "intelligence": "Интеллект:",
-    "comprehension": "Понимание:",
+    "comprehension": "Сообразительность:",
     "resoluteness": "Решительность:",
     "magic": "Магия:",
     "luck": "Удача:",
     "bodyControl": "Контроль Тела:",
-    "impressiveness": "Впечатляющность:",
-    "manipulation": "Манипуляция:",
+    "impressiveness": "Внушительность:",
+    "manipulation": "Манипулирование:",
     "poise": "Самообладание:"
   },
   "ui": {
