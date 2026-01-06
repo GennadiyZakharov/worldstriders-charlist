@@ -3,11 +3,10 @@
   export let value: number = 0;
   export let max: number = 5;
 
-  // Optional: allow editing by clicking
   export let readonly: boolean = false;
-
-  // Optional: show numeric value like "3/6"
   export let showValue: boolean = true;
+
+  export let shape: "circle" | "square" = "circle";
 
   function clamp(n: number): number {
     if (!Number.isFinite(n)) return 0;
@@ -19,9 +18,6 @@
 
   function setByIndex(i: number) {
     if (readonly) return;
-
-    // circles are 1..max
-    // UX: clicking the current value decreases by 1
     if (i === value) value = clamp(i - 1);
     else value = clamp(i);
   }
@@ -64,15 +60,18 @@
     {#each Array(max) as _, idx (idx)}
       {@const i = idx + 1}
       <button
-        type="button"
-        class="dot"
-        class:filled={i <= value}
-        class:readonly={readonly}
-        aria-label={`${label}: ${i}`}
-        aria-pressed={i <= value}
-        disabled={readonly}
-        on:click={() => setByIndex(i)}
+          type="button"
+          class="dot"
+          class:filled={i <= value}
+          class:readonly={readonly}
+          class:circle={shape === "circle"}
+          class:square={shape === "square"}
+          aria-label={`${label}: ${i}`}
+          aria-pressed={i <= value}
+          disabled={readonly}
+          on:click={() => setByIndex(i)}
       />
+
     {/each}
 
     {#if showValue}
@@ -104,24 +103,31 @@
     user-select: none;
   }
 
-  .dot {
-    width: 18px;
-    height: 18px;
-    border-radius: 999px;
-    border: 2px solid rgba(0,0,0,0.35);
-    background: transparent;
-    cursor: pointer;
-    padding: 0;
-  }
+.dot {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(0,0,0,0.35);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
 
-  .dot.filled {
-    background: rgba(0,0,0,0.65);
-    border-color: rgba(0,0,0,0.65);
-  }
+.dot.circle {
+  border-radius: 999px;
+}
 
-  .dot.readonly {
-    cursor: default;
-  }
+.dot.square {
+  border-radius: 4px;
+}
+
+.dot.filled {
+  background: rgba(0,0,0,0.65);
+  border-color: rgba(0,0,0,0.65);
+}
+
+.dot.readonly {
+  cursor: default;
+}
 
   .num {
     font-size: 12px;

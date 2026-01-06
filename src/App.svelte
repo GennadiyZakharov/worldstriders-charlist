@@ -154,9 +154,10 @@
           <DotRating
             label={labelFor(entry)}
             bind:value={character.attributes[entry[0]]}
-            min={0}
+            min={1}
             max={10}
             step={1}
+            shape="circle"
           />
         {/each}
       </div>
@@ -166,12 +167,13 @@
       <h2>{t(character.lang, "skills")}</h2>
       <div class="list">
         {#each SKILLS as entry (entry[0])}
-          <StatStepper
+          <DotRating
             label={labelFor(entry)}
             bind:value={character.skills[entry[0]]}
             min={0}
             max={20}
             step={1}
+            shape="square"
           />
         {/each}
       </div>
