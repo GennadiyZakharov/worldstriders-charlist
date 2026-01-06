@@ -1,11 +1,13 @@
 <script>
   import StatStepper from "./components/StatStepper.svelte";
+  import DotRating from "./components/DotRating.svelte";
   import TextAreaField from "./components/TextAreaField.svelte";
 
   import { t } from "./lib/i18n.ts";
   import { defaultCharacter, normalizeCharacter } from "./lib/model.ts";
   import { loadFromStorage, saveToStorage, clearStorage } from "./lib/storage.ts";
   import { toYaml, fromYaml } from "./lib/yaml.ts";
+
 
   let character = defaultCharacter();
   let saveStatus = "notSaved"; // "saved" | "notSaved"
@@ -149,7 +151,7 @@
       <h2>{t(character.lang, "attributes")}</h2>
       <div class="list">
         {#each ATTR as entry (entry[0])}
-          <StatStepper
+          <DotRating
             label={labelFor(entry)}
             bind:value={character.attributes[entry[0]]}
             min={0}
