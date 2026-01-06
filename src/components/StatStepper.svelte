@@ -1,27 +1,28 @@
-<script>
-  export let label = "";
-  export let value = 0;
-  export let min = Number.NEGATIVE_INFINITY;
-  export let max = Number.POSITIVE_INFINITY;
-  export let step = 1;
+<script lang="ts">
+  export let label: string = "";
+  export let value: number = 0;
+  export let min: number = Number.NEGATIVE_INFINITY;
+  export let max: number = Number.POSITIVE_INFINITY;
+  export let step: number = 1;
 
-  export let disabled = false;
+  export let disabled: boolean = false;
 
-  function clamp(n) {
+  function clamp(n: number): number {
     if (Number.isNaN(n)) return value;
     return Math.min(max, Math.max(min, n));
   }
 
-  function dec() {
+  function dec(): void {
     value = clamp((Number(value) || 0) - step);
   }
 
-  function inc() {
+  function inc(): void {
     value = clamp((Number(value) || 0) + step);
   }
 
-  function onInput(e) {
-    const n = Number(e.target.value);
+  function onInput(e: Event): void {
+    const target = e.target as HTMLInputElement;
+    const n = Number(target.value);
     value = clamp(n);
   }
 </script>

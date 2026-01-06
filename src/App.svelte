@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import StatStepper from "./components/StatStepper.svelte";
   import DotRating from "./components/DotRating.svelte";
   import TextAreaField from "./components/TextAreaField.svelte";
@@ -7,10 +7,11 @@
   import { defaultCharacter, normalizeCharacter } from "./lib/model.ts";
   import { loadFromStorage, saveToStorage, clearStorage } from "./lib/storage.ts";
   import { toYaml, fromYaml } from "./lib/yaml.ts";
+  import type { Character, Lang } from "./lib/types.ts";
 
 
-  let character = defaultCharacter();
-  let saveStatus = "notSaved"; // "saved" | "notSaved"
+  let character: Character = defaultCharacter();
+  let saveStatus: "saved" | "notSaved" = "notSaved";
 
   // Load on startup
   {
@@ -26,11 +27,11 @@
     // mark it "notSaved" briefly before next save? optional
   }
 
-  function setLang(lang) {
+  function setLang(lang: Lang): void {
     character.lang = lang;
   }
 
-  function exportYamlFile() {
+  function exportYamlFile(): void {
     const yaml = toYaml(character);
     const blob = new Blob([yaml], { type: "text/yaml;charset=utf-8" });
 
@@ -49,8 +50,9 @@
     URL.revokeObjectURL(a.href);
   }
 
-  async function importYamlFile(event) {
-    const file = event.target.files?.[0];
+  async function importYamlFile(event: Event): Promise<void> {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
     if (!file) return;
 
     try {
@@ -59,28 +61,31 @@
       character = normalizeCharacter(parsed);
       saveStatus = "saved";
     } catch (err) {
-      alert("Failed to import YAML: " + (err?.message || String(err)));
+      alert("Failed to import YAML: " + (err instanceof Error ? err.message : String(err)));
     } finally {
       // allow importing the same file again by resetting the input
-      event.target.value = "";
+      target.value = "";
     }
   }
 
-  function resetAll() {
+  function resetAll(): void {
     if (!confirm("Reset character to defaults?")) return;
     character = defaultCharacter();
     clearStorage();
   }
 
   // Labels for fields
-  const ATTR = [
+  type Translation = { en: string; ru: string };
+  type Entry = [string, Translation];
+
+  const ATTR: Entry[] = [
     ["strength", { en: "Strength", ru: "Сила" }],
     ["agility", { en: "Agility", ru: "Ловкость" }],
     ["intellect", { en: "Intellect", ru: "Интеллект" }],
     ["willpower", { en: "Willpower", ru: "Воля" }]
   ];
 
-  const SKILLS = [
+  const SKILLS: Entry[] = [
     ["melee", { en: "Melee", ru: "Ближний бой" }],
     ["ranged", { en: "Ranged", ru: "Дальний бой" }],
     ["stealth", { en: "Stealth", ru: "Скрытность" }],
@@ -88,7 +93,7 @@
     ["medicine", { en: "Medicine", ru: "Медицина" }]
   ];
 
-  function labelFor(entry) {
+  function labelFor(entry: Entry): string {
     return entry[1][character.lang] ?? entry[1].en;
   }
 </script>

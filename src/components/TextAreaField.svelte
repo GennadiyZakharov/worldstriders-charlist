@@ -1,8 +1,8 @@
-<script>
-  export let label = "";
-  export let value = "";
-  export let rows = 5;
-  export let placeholder = "";
+<script lang="ts">
+  export let label: string = "";
+  export let value: string = "";
+  export let rows: number = 5;
+  export let placeholder: string = "";
 </script>
 
 <label class="field">
