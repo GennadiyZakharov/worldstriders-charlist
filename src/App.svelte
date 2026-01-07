@@ -1,16 +1,13 @@
 <script lang="ts">
-  import StatStepper from "./components/StatStepper.svelte";
   import DotRating from "./components/DotRating.svelte";
-  import TextAreaField from "./components/TextAreaField.svelte";
 
-  import { t } from "./lib/i18n.ts";
-  import { defaultCharacter, normalizeCharacter } from "./lib/model.ts";
-  import { loadFromStorage, saveToStorage, clearStorage } from "./lib/storage.ts";
-  import { toYaml, fromYaml } from "./lib/yaml.ts";
-  import type { Character, Lang } from "./lib/types.ts";
+  import { t } from "./lib/i18n";
+  import { defaultCharacter, normalizeCharacter } from "./lib/model";
+  import { loadFromStorage, saveToStorage, clearStorage } from "./lib/storage";
+  import { toYaml, fromYaml } from "./lib/yaml";
+  import type { Lang } from "./lib/types";
 
-
-  let character: Character = defaultCharacter();
+  let character = defaultCharacter();
   let saveStatus: "saved" | "notSaved" = "notSaved";
 
   // Load on startup
@@ -21,24 +18,21 @@
 
   // Autosave whenever character changes
   $: {
-    // Any mutation triggers this reactive statement
     saveToStorage(character);
     saveStatus = "saved";
-    // mark it "notSaved" briefly before next save? optional
   }
 
-  function setLang(lang: Lang): void {
+  function setLang(lang: Lang) {
     character.lang = lang;
   }
 
-  function exportYamlFile(): void {
+  function exportYamlFile() {
     const yaml = toYaml(character);
     const blob = new Blob([yaml], { type: "text/yaml;charset=utf-8" });
 
     const safeName = (character.meta.characterName || "character")
       .trim()
       .replace(/[^\p{L}\p{N}_-]+/gu, "_");
-
     const filename = `${safeName || "character"}.yaml`;
 
     const a = document.createElement("a");
@@ -50,9 +44,9 @@
     URL.revokeObjectURL(a.href);
   }
 
-  async function importYamlFile(event: Event): Promise<void> {
-    const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
+  async function importYamlFile(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
     if (!file) return;
 
     try {
@@ -60,242 +54,307 @@
       const parsed = fromYaml(text);
       character = normalizeCharacter(parsed);
       saveStatus = "saved";
-    } catch (err) {
-      alert("Failed to import YAML: " + (err instanceof Error ? err.message : String(err)));
+    } catch (err: any) {
+      alert("Failed to import YAML: " + (err?.message || String(err)));
     } finally {
-      // allow importing the same file again by resetting the input
-      target.value = "";
+      input.value = "";
     }
   }
 
-  function resetAll(): void {
+  function resetAll() {
     if (!confirm("Reset character to defaults?")) return;
     character = defaultCharacter();
     clearStorage();
   }
 
-  // Labels for fields
-  type Translation = { en: string; ru: string };
-  type Entry = [string, Translation];
+  type AttrId = keyof typeof character.attributes;
 
-  const ATTR: Entry[] = [
-    ["strength", { en: "Strength", ru: "Сила" }],
-    ["agility", { en: "Agility", ru: "Ловкость" }],
-    ["intellect", { en: "Intellect", ru: "Интеллект" }],
-    ["willpower", { en: "Willpower", ru: "Воля" }]
+  const COL1: Array<{ soft?: string; key: AttrId }> = [
+    { soft: "power", key: "intellect" },
+    { soft: "grace", key: "quickWits" },
+    { soft: "resistance", key: "determination" }
   ];
 
-  const SKILLS: Entry[] = [
-    ["melee", { en: "Melee", ru: "Ближний бой" }],
-    ["ranged", { en: "Ranged", ru: "Дальний бой" }],
-    ["stealth", { en: "Stealth", ru: "Скрытность" }],
-    ["diplomacy", { en: "Diplomacy", ru: "Дипломатия" }],
-    ["medicine", { en: "Medicine", ru: "Медицина" }]
+  const COL2: Array<{ key: AttrId }> = [
+    { key: "magic" },
+    { key: "luck" },
+    { key: "bodyControl" }
   ];
 
-  function labelFor(entry: Entry): string {
-    return entry[1][character.lang] ?? entry[1].en;
-  }
+  const COL3: Array<{ key: AttrId }> = [
+    { key: "impressiveness" },
+    { key: "manipulation" },
+    { key: "composure" }
+  ];
 </script>
 
 <div class="page">
-  <header class="topbar">
-    <div class="title">
-      <h1>{t(character.lang, "title")}</h1>
-      <div class="status">
-        {t(character.lang, "autosave")}: <strong>{saveStatus === "saved" ? t(character.lang, "saved") : t(character.lang, "notSaved")}</strong>
+  <!-- Header strip (logo + meta) -->
+  <div class="sheet">
+    <div class="logoRow">
+      <div class="logoMark">🛡️</div>
+      <div class="logoText">{t(character.lang, "title")}</div>
+    </div>
+
+    <div class="topGrid">
+      <!-- Left block -->
+      <div class="block">
+        <div class="field">
+          <div class="lbl">{t(character.lang, "name")}:</div>
+          <input type="text" bind:value={character.meta.characterName} />
+        </div>
+        <div class="field">
+          <div class="lbl">{t(character.lang, "player")}:</div>
+          <input type="text" bind:value={character.meta.playerName} />
+        </div>
+        <div class="field">
+          <div class="lbl">{t(character.lang, "journey")}:</div>
+          <input type="text" bind:value={character.meta.journey} />
+        </div>
+      </div>
+
+      <!-- Middle block -->
+      <div class="block">
+        <div class="field">
+          <div class="lbl">{t(character.lang, "bigKey")}:</div>
+          <input type="text" bind:value={character.meta.bigKey} />
+        </div>
+        <div class="field">
+          <div class="lbl">{t(character.lang, "smallKey")}:</div>
+          <input type="text" bind:value={character.meta.smallKey} />
+        </div>
+        <div class="field">
+          <div class="lbl">{t(character.lang, "vice")}:</div>
+          <input type="text" bind:value={character.meta.vice} />
+        </div>
+      </div>
+
+      <!-- Right block -->
+      <div class="block">
+        <div class="field">
+          <div class="lbl">{t(character.lang, "concept")}:</div>
+          <input type="text" bind:value={character.meta.concept} />
+        </div>
+        <div class="field">
+          <div class="lbl">{t(character.lang, "home")}:</div>
+          <input type="text" bind:value={character.meta.home} />
+        </div>
+        <div class="field">
+          <div class="lbl">{t(character.lang, "stratoc")}:</div>
+          <input type="text" bind:value={character.meta.stratoc} />
+        </div>
       </div>
     </div>
 
-    <div class="actions">
+    <div class="toolbar">
       <div class="lang">
-        <span class="label">{t(character.lang, "language")}:</span>
+        <span class="muted">{t(character.lang, "language")}:</span>
         <button type="button" class:active={character.lang === "en"} on:click={() => setLang("en")}>EN</button>
         <button type="button" class:active={character.lang === "ru"} on:click={() => setLang("ru")}>RU</button>
       </div>
 
-      <button type="button" on:click={exportYamlFile}>{t(character.lang, "exportYaml")}</button>
+      <div class="rightTools">
+        <span class="muted">
+          {t(character.lang, "autosave")}:
+          <strong>{saveStatus === "saved" ? t(character.lang, "saved") : t(character.lang, "notSaved")}</strong>
+        </span>
 
-      <label class="filebtn">
-        {t(character.lang, "importYaml")}
-        <input type="file" accept=".yaml,.yml,text/yaml" on:change={importYamlFile} />
-      </label>
+        <button type="button" on:click={exportYamlFile}>{t(character.lang, "exportYaml")}</button>
 
-      <button type="button" class="danger" on:click={resetAll}>{t(character.lang, "reset")}</button>
-    </div>
-  </header>
-
-  <main class="grid">
-    <section class="card">
-      <h2>{t(character.lang, "meta")}</h2>
-
-      <div class="form">
-        <label>
-          <div class="lbl">{t(character.lang, "characterName")}</div>
-          <input type="text" bind:value={character.meta.characterName} />
+        <label class="filebtn">
+          {t(character.lang, "importYaml")}
+          <input type="file" accept=".yaml,.yml,text/yaml" on:change={importYamlFile} />
         </label>
 
-        <label>
-          <div class="lbl">{t(character.lang, "playerName")}</div>
-          <input type="text" bind:value={character.meta.playerName} />
-        </label>
-
-        <label>
-          <div class="lbl">{t(character.lang, "faction")}</div>
-          <input type="text" bind:value={character.meta.faction} />
-        </label>
-
-        <label class="full">
-          <div class="lbl">{t(character.lang, "concept")}</div>
-          <input type="text" bind:value={character.meta.concept} />
-        </label>
+        <button type="button" class="danger" on:click={resetAll}>{t(character.lang, "reset")}</button>
       </div>
-    </section>
+    </div>
+  </div>
 
-    <section class="card">
-      <h2>{t(character.lang, "attributes")}</h2>
-      <div class="list">
-        {#each ATTR as entry (entry[0])}
-          <DotRating
-            label={labelFor(entry)}
-            bind:value={character.attributes[entry[0]]}
-            min={1}
-            max={10}
-            step={1}
-            shape="circle"
-          />
+  <!-- Attributes box -->
+  <div class="sheet">
+    <div class="sectionTitle">{t(character.lang, "attributesTitle")}</div>
+
+    <div class="attrsGrid">
+      <div class="attrCol">
+        {#each COL1 as row (row.key)}
+          <div class="attrRow">
+            <div class="attrText">
+              <div class="soft">{row.soft ? t(character.lang, row.soft) : ""}</div>
+              <div class="hard">{t(character.lang, row.key)}</div>
+            </div>
+
+            <DotRating
+              label={t(character.lang, row.key)}
+              bind:value={character.attributes[row.key]}
+              max={5}
+              showValue={false}
+              shape="circle"
+            />
+          </div>
         {/each}
       </div>
-    </section>
 
-    <section class="card">
-      <h2>{t(character.lang, "skills")}</h2>
-      <div class="list">
-        {#each SKILLS as entry (entry[0])}
-          <DotRating
-            label={labelFor(entry)}
-            bind:value={character.skills[entry[0]]}
-            min={0}
-            max={20}
-            step={1}
-            shape="square"
-          />
+      <div class="divider"></div>
+
+      <div class="attrCol">
+        {#each COL2 as row (row.key)}
+          <div class="attrRow">
+            <div class="attrText single">
+              <div class="hard">{t(character.lang, row.key)}</div>
+            </div>
+
+            <DotRating
+              label={t(character.lang, row.key)}
+              bind:value={character.attributes[row.key]}
+              max={5}
+              showValue={false}
+              shape="circle"
+            />
+          </div>
         {/each}
       </div>
-    </section>
 
-    <section class="card">
-      <h2>{t(character.lang, "notes")}</h2>
+      <div class="divider"></div>
 
-      <div class="notes">
-        <TextAreaField
-          label={t(character.lang, "background")}
-          bind:value={character.notes.background}
-          rows={6}
-        />
+      <div class="attrCol">
+        {#each COL3 as row (row.key)}
+          <div class="attrRow">
+            <div class="attrText single">
+              <div class="hard">{t(character.lang, row.key)}</div>
+            </div>
 
-        <TextAreaField
-          label={t(character.lang, "inventory")}
-          bind:value={character.notes.inventory}
-          rows={6}
-        />
-
-        <TextAreaField
-          label={t(character.lang, "contacts")}
-          bind:value={character.notes.contacts}
-          rows={6}
-        />
+            <DotRating
+              label={t(character.lang, row.key)}
+              bind:value={character.attributes[row.key]}
+              max={5}
+              showValue={false}
+              shape="circle"
+            />
+          </div>
+        {/each}
       </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="small">
-      schemaVersion: {character.schemaVersion} · updatedAt: {character.updatedAt}
     </div>
-  </footer>
+  </div>
 </div>
 
 <style>
   :global(body) {
     margin: 0;
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
-    background: #f4f6fb;
+    background: white; /* as requested */
     color: #111;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans",
+      sans-serif;
   }
 
   .page {
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 18px;
     display: grid;
-    gap: 14px;
+    gap: 16px;
   }
 
-  .topbar {
-    display: grid;
-    gap: 12px;
-    padding: 14px 14px;
-    border: 1px solid rgba(0,0,0,0.10);
-    border-radius: 16px;
-    background: rgba(255,255,255,0.85);
-    box-shadow: 0 6px 24px rgba(0,0,0,0.06);
+  .sheet {
+    border: 2px solid rgba(0, 70, 95, 0.9);
+    border-radius: 10px;
+    padding: 14px 16px;
   }
 
-  .title {
-    display: grid;
-    gap: 4px;
-  }
-
-  h1 {
-    margin: 0;
-    font-size: 22px;
-    line-height: 1.15;
-  }
-
-  .status {
-    font-size: 13px;
-    opacity: 0.85;
-  }
-
-  .actions {
+  .logoRow {
     display: flex;
-    flex-wrap: wrap;
     gap: 10px;
     align-items: center;
+    justify-content: center;
+    padding-bottom: 10px;
+  }
+
+  .logoMark {
+    font-size: 22px;
+  }
+
+  .logoText {
+    font-weight: 800;
+    letter-spacing: 1px;
+    font-size: 20px;
+  }
+
+  .topGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+
+  @media (max-width: 980px) {
+    .topGrid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .block {
+    display: grid;
+    gap: 10px;
+  }
+
+  .field {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .lbl {
+    font-size: 14px;
+    opacity: 0.9;
+    white-space: nowrap;
+  }
+
+  input[type="text"] {
+    height: 34px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    background: white;
+    font-size: 14px;
+  }
+
+  .toolbar {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .muted {
+    font-size: 13px;
+    opacity: 0.8;
   }
 
   .lang {
     display: inline-flex;
     gap: 8px;
     align-items: center;
-    padding-right: 8px;
-    margin-right: 6px;
-    border-right: 1px solid rgba(0,0,0,0.12);
   }
 
-  .lang .label {
-    font-size: 13px;
-    opacity: 0.85;
-  }
-
-  button, .filebtn {
-    border: 1px solid rgba(0,0,0,0.16);
+  button,
+  .filebtn {
+    border: 1px solid rgba(0, 0, 0, 0.25);
     background: white;
-    border-radius: 12px;
-    padding: 10px 12px;
+    border-radius: 8px;
+    padding: 8px 10px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1;
     user-select: none;
   }
 
-  button:hover, .filebtn:hover {
-    background: rgba(255,255,255,0.65);
-  }
-
   button.active {
-    outline: 2px solid rgba(0,0,0,0.25);
+    outline: 2px solid rgba(0, 70, 95, 0.35);
   }
 
   .danger {
@@ -306,77 +365,73 @@
     display: none;
   }
 
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-  }
-
-  @media (max-width: 900px) {
-    .grid { grid-template-columns: 1fr; }
-  }
-
-  .card {
-    padding: 14px;
-    border: 1px solid rgba(0,0,0,0.10);
-    border-radius: 16px;
-    background: rgba(255,255,255,0.85);
-    box-shadow: 0 6px 24px rgba(0,0,0,0.06);
-    display: grid;
-    gap: 12px;
-  }
-
-  .card h2 {
-    margin: 0;
-    font-size: 16px;
-  }
-
-  .form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+  .rightTools {
+    display: inline-flex;
     gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
-  .form label {
+  .sectionTitle {
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: 2px;
+    padding: 4px 0 10px;
+  }
+
+  .attrsGrid {
     display: grid;
-    gap: 6px;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 16px;
+    align-items: start;
   }
 
-  .form label.full {
-    grid-column: 1 / -1;
+  @media (max-width: 980px) {
+    .attrsGrid {
+      grid-template-columns: 1fr;
+    }
+    .divider {
+      display: none;
+    }
   }
 
-  .lbl {
-    font-size: 13px;
-    opacity: 0.85;
-    font-weight: 600;
+  .divider {
+    width: 2px;
+    background: rgba(0, 70, 95, 0.9);
+    border-radius: 2px;
   }
 
-  input[type="text"] {
-    height: 38px;
-    padding: 8px 10px;
-    border-radius: 12px;
-    border: 1px solid rgba(0,0,0,0.16);
-    background: white;
-    font-size: 14px;
-  }
-
-  .list {
+  .attrCol {
     display: grid;
     gap: 10px;
   }
 
-  .notes {
+  .attrRow {
     display: grid;
-    gap: 12px;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 6px 0;
   }
 
-  .footer {
-    padding: 8px 2px;
-    opacity: 0.75;
+  .attrText {
+    display: grid;
+    gap: 2px;
   }
 
-  .small {
+  .attrText.single {
+    padding-top: 8px; /* visually aligns with other rows that have soft label */
+  }
+
+  .soft {
     font-size: 12px;
+    opacity: 0.55;
+    letter-spacing: 0.5px;
+  }
+
+  .hard {
+    font-size: 16px;
+    font-weight: 700;
   }
 </style>

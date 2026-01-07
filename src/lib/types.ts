@@ -3,23 +3,29 @@ export type Lang = "en" | "ru";
 export interface CharacterMeta {
   characterName: string;
   playerName: string;
-  faction: string;
+  journey: string;
+
+  bigKey: string;
+  smallKey: string;
+  vice: string;
+
   concept: string;
+  home: string;
+  stratoc: string;
 }
 
 export interface Attributes {
-  strength: number;
-  agility: number;
   intellect: number;
-  willpower: number;
-}
+  quickWits: number;
+  determination: number;
 
-export interface Skills {
-  melee: number;
-  ranged: number;
-  stealth: number;
-  diplomacy: number;
-  medicine: number;
+  magic: number;
+  luck: number;
+  bodyControl: number;
+
+  impressiveness: number;
+  manipulation: number;
+  composure: number;
 }
 
 export interface Notes {
@@ -33,7 +39,6 @@ export interface Character {
   lang: Lang;
   meta: CharacterMeta;
   attributes: Attributes;
-  skills: Skills;
   notes: Notes;
   updatedAt: string;
 }

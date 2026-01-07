@@ -10,23 +10,29 @@ export function defaultCharacter(): Character {
     meta: {
       characterName: "",
       playerName: "",
-      faction: "",
-      concept: ""
+      journey: "",
+
+      bigKey: "",
+      smallKey: "",
+      vice: "",
+
+      concept: "",
+      home: "",
+      stratoc: ""
     },
 
     attributes: {
-      strength: 1,
-      agility: 1,
-      intellect: 1,
-      willpower: 1
-    },
+      intellect: 0,
+      quickWits: 0,
+      determination: 0,
 
-    skills: {
-      melee: 0,
-      ranged: 0,
-      stealth: 0,
-      diplomacy: 0,
-      medicine: 0
+      magic: 0,
+      luck: 0,
+      bodyControl: 0,
+
+      impressiveness: 0,
+      manipulation: 0,
+      composure: 0
     },
 
     notes: {
@@ -41,7 +47,6 @@ export function defaultCharacter(): Character {
 
 export function normalizeCharacter(input: unknown): Character {
   const base = defaultCharacter();
-
   if (typeof input !== "object" || input === null) return base;
   const obj = input as Partial<Character>;
 
@@ -50,7 +55,6 @@ export function normalizeCharacter(input: unknown): Character {
     ...obj,
     meta: { ...base.meta, ...obj.meta },
     attributes: { ...base.attributes, ...obj.attributes },
-    skills: { ...base.skills, ...obj.skills },
     notes: { ...base.notes, ...obj.notes },
     schemaVersion: SCHEMA_VERSION,
     updatedAt: new Date().toISOString()

@@ -2,46 +2,85 @@ import type { Lang } from "./types";
 
 export const DICT: Record<Lang, Record<string, string>> = {
   en: {
-    title: "Character Sheet",
+    title: "WorldStriders",
     language: "Language",
     autosave: "Autosave",
     saved: "Saved",
     notSaved: "Not saved",
-    meta: "Meta",
-    attributes: "Attributes",
-    skills: "Skills",
-    notes: "Notes",
+
     exportYaml: "Export YAML",
     importYaml: "Import YAML",
     reset: "Reset",
-    characterName: "Character name",
-    playerName: "Player name",
-    faction: "Faction",
+
+    name: "Name",
+    player: "Player",
+    journey: "Journey",
+
+    bigKey: "Big key",
+    smallKey: "Small key",
+    vice: "Vice",
+
     concept: "Concept",
-    background: "Background",
-    inventory: "Inventory",
-    contacts: "Contacts"
+    home: "Home",
+    stratoc: "Stratoc",
+
+    attributesTitle: "ATTRIBUTES",
+
+    // Attributes (bold labels)
+    intellect: "Intellect",
+    quickWits: "Quick wits",
+    determination: "Determination",
+    magic: "Magic",
+    luck: "Luck",
+    bodyControl: "Body control",
+    impressiveness: "Impressiveness",
+    manipulation: "Manipulation",
+    composure: "Composure",
+
+    // Left “soft” labels (the grey words in screenshot)
+    power: "Power",
+    grace: "Grace",
+    resistance: "Resistance"
   },
+
   ru: {
-    title: "Лист персонажа",
+    title: "МироХодцы",
     language: "Язык",
     autosave: "Автосохранение",
     saved: "Сохранено",
     notSaved: "Не сохранено",
-    meta: "Данные",
-    attributes: "Атрибуты",
-    skills: "Навыки",
-    notes: "Заметки",
+
     exportYaml: "Экспорт YAML",
     importYaml: "Импорт YAML",
     reset: "Сброс",
-    characterName: "Имя персонажа",
-    playerName: "Игрок",
-    faction: "Фракция",
+
+    name: "Имя",
+    player: "Игрок",
+    journey: "Путешествие",
+
+    bigKey: "Большой ключ",
+    smallKey: "Малый ключ",
+    vice: "Порок",
+
     concept: "Концепт",
-    background: "Предыстория",
-    inventory: "Инвентарь",
-    contacts: "Контакты"
+    home: "Дом",
+    stratoc: "Стратос",
+
+    attributesTitle: "АТРИБУТЫ",
+
+    intellect: "Интеллект",
+    quickWits: "Сообразительность",
+    determination: "Решительность",
+    magic: "Магия",
+    luck: "Удача",
+    bodyControl: "Контроль тела",
+    impressiveness: "Внушительность",
+    manipulation: "Манипулирование",
+    composure: "Самообладание",
+
+    power: "Мощь",
+    grace: "Грация",
+    resistance: "Сопротивление"
   }
 };
 
