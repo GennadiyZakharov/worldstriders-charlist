@@ -56,18 +56,17 @@
   tabindex={readonly ? undefined : 0}
   on:keydown={onKeyDown}
 >
-  {#each Array(max - min) as _, idx (idx)}
-    {@const i = idx + min + 1}
+  {#each Array(max) as _, idx (idx)}
     <button
       type="button"
       class="dot"
-      class:filled={i <= value}
+      class:filled={idx < value}
       class:readonly={readonly}
       class:circle={shape === "circle"}
       class:square={shape === "square"}
-      aria-pressed={i <= value}
+      aria-pressed={idx < value}
       disabled={readonly}
-      on:click={() => setByIndex(i)}
+      on:click={() => setByIndex(idx+1)}
     />
   {/each}
 

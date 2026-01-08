@@ -1,5 +1,6 @@
 <script lang="ts">
   import DotRating from "./components/DotRating.svelte";
+  import Attribute from "./components/Attribute.svelte";
 
   import { t } from "./lib/i18n";
   import { defaultCharacter, normalizeCharacter } from "./lib/model";
@@ -176,22 +177,13 @@
     <div class="sectionTitle">{t(character.lang, "attributesTitle")}</div>
 
     <div class="attrsGrid">
+
       <div class="attrCol">
         {#each COL1 as row (row.key)}
-          <div class="attrRow">
-            <div class="attrText">
-              <div class="soft">{row.soft ? t(character.lang, row.soft) : ""}</div>
-              <div class="hard">{t(character.lang, row.key)}</div>
-            </div>
-
-            <DotRating
-              label={t(character.lang, row.key)}
+            <Attribute
+              name={t(character.lang, row.key)}
               bind:value={character.attributes[row.key]}
-              max={5}
-              showValue={false}
-              shape="circle"
             />
-          </div>
         {/each}
       </div>
 
@@ -199,19 +191,10 @@
 
       <div class="attrCol">
         {#each COL2 as row (row.key)}
-          <div class="attrRow">
-            <div class="attrText single">
-              <div class="hard">{t(character.lang, row.key)}</div>
-            </div>
-
-            <DotRating
-              label={t(character.lang, row.key)}
+            <Attribute
+              name={t(character.lang, row.key)}
               bind:value={character.attributes[row.key]}
-              max={5}
-              showValue={false}
-              shape="circle"
             />
-          </div>
         {/each}
       </div>
 
@@ -219,19 +202,10 @@
 
       <div class="attrCol">
         {#each COL3 as row (row.key)}
-          <div class="attrRow">
-            <div class="attrText single">
-              <div class="hard">{t(character.lang, row.key)}</div>
-            </div>
-
-            <DotRating
-              label={t(character.lang, row.key)}
+            <Attribute
+              name={t(character.lang, row.key)}
               bind:value={character.attributes[row.key]}
-              max={5}
-              showValue={false}
-              shape="circle"
             />
-          </div>
         {/each}
       </div>
     </div>
