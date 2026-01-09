@@ -1,6 +1,8 @@
 <script lang="ts">
   import DotRating from "./components/DotRating.svelte";
+  import CharacterMeta from "./components/CharacterMeta.svelte";
   import Attribute from "./components/Attribute.svelte";
+  import Skill from "./components/Skill.svelte";
 
   import { t } from "./lib/i18n";
   import { defaultCharacter, normalizeCharacter } from "./lib/model";
@@ -89,7 +91,7 @@
   ];
 </script>
 
-<div class="page">
+<div class="page ws">
   <!-- Header strip (logo + meta) -->
   <div class="sheet">
     <div class="logoRow">
@@ -97,55 +99,26 @@
       <div class="logoText">{t(character.lang, "title")}</div>
     </div>
 
-    <div class="topGrid">
-      <!-- Left block -->
-      <div class="block">
-        <div class="field">
-          <div class="lbl">{t(character.lang, "name")}:</div>
-          <input type="text" bind:value={character.meta.characterName} />
-        </div>
-        <div class="field">
-          <div class="lbl">{t(character.lang, "player")}:</div>
-          <input type="text" bind:value={character.meta.playerName} />
-        </div>
-        <div class="field">
-          <div class="lbl">{t(character.lang, "journey")}:</div>
-          <input type="text" bind:value={character.meta.journey} />
-        </div>
-      </div>
-
-      <!-- Middle block -->
-      <div class="block">
-        <div class="field">
-          <div class="lbl">{t(character.lang, "bigKey")}:</div>
-          <input type="text" bind:value={character.meta.bigKey} />
-        </div>
-        <div class="field">
-          <div class="lbl">{t(character.lang, "smallKey")}:</div>
-          <input type="text" bind:value={character.meta.smallKey} />
-        </div>
-        <div class="field">
-          <div class="lbl">{t(character.lang, "vice")}:</div>
-          <input type="text" bind:value={character.meta.vice} />
-        </div>
-      </div>
-
-      <!-- Right block -->
-      <div class="block">
-        <div class="field">
-          <div class="lbl">{t(character.lang, "concept")}:</div>
-          <input type="text" bind:value={character.meta.concept} />
-        </div>
-        <div class="field">
-          <div class="lbl">{t(character.lang, "home")}:</div>
-          <input type="text" bind:value={character.meta.home} />
-        </div>
-        <div class="field">
-          <div class="lbl">{t(character.lang, "stratoc")}:</div>
-          <input type="text" bind:value={character.meta.stratoc} />
-        </div>
-      </div>
-    </div>
+    <CharacterMeta
+            labels={{
+    player: t(character.lang, "player"),
+    journey: t(character.lang, "journey"),
+    bigKey: t(character.lang, "bigKey"),
+    smallKey: t(character.lang, "smallKey"),
+    vice: t(character.lang, "vice"),
+    concept: t(character.lang, "concept"),
+    home: t(character.lang, "home"),
+    stratoc: t(character.lang, "stratoc")
+    }}
+            bind:player={character.meta.playerName}
+            bind:journey={character.meta.journey}
+            bind:bigKey={character.meta.bigKey}
+            bind:smallKey={character.meta.smallKey}
+            bind:vice={character.meta.vice}
+            bind:concept={character.meta.concept}
+            bind:home={character.meta.home}
+            bind:stratoc={character.meta.stratoc}
+    />
 
     <div class="toolbar">
       <div class="lang">
@@ -210,6 +183,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Skill box -->
+
 </div>
 
 <style>

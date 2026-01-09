@@ -1,0 +1,53 @@
+:root {
+    --ws-font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial,
+    "Noto Sans", "Liberation Sans", sans-serif;
+
+    --ws-text-size: 14px;
+    --ws-h1-size: 18px;
+    --ws-h2-size: 14px;
+
+    --ws-h1-letter: 2px;
+    --ws-h2-letter: 1px;
+}
+
+/* Root text context */
+.ws {
+    font-family: var(--ws-font);
+    font-size: var(--ws-text-size);
+    color: #111;
+}
+
+/* Header level 1 (ATTRIBUTES, SKILLS, etc) */
+.ws-h1 {
+    font-size: var(--ws-h1-size);
+    font-weight: 800;
+    letter-spacing: var(--ws-h1-letter);
+    text-transform: uppercase;
+    text-align: center;
+    margin: 0;
+}
+
+/* Header level 2 (Mental skills, Permanent traits, etc) */
+.ws-h2 {
+    font-size: var(--ws-h2-size);
+    font-weight: 800;
+    letter-spacing: var(--ws-h2-letter);
+    text-transform: uppercase;
+    text-align: center;
+    margin: 0;
+}
+
+/* Plain text */
+.ws-text {
+    font-weight: 400;
+}
+
+/* Emphasized text */
+.ws-strong {
+    font-weight: 700;
+}
+
+/* Muted helper */
+.ws-muted {
+    opacity: 0.75;
+}
