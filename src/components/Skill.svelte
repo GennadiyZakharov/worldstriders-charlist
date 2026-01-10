@@ -76,8 +76,8 @@
     }
 
     .name {
-        font-weight: 700;
-        font-size: 14px;
+        font-weight: 300;
+        font-size: 12px;
     }
 
     .note {

@@ -2,6 +2,7 @@
   import DotRating from "./components/DotRating.svelte";
   import CharacterMeta from "./components/CharacterMeta.svelte";
   import CharacterAttributes from "./components/CharacterAttributes.svelte";
+  import CharacterSkills from "./components/CharacterSkills.svelte";
 
   import Attribute from "./components/Attribute.svelte";
   import Skill from "./components/Skill.svelte";
@@ -27,7 +28,7 @@
     saveStatus = "saved";
   }
 
-  // Prepare lables for components basign on the curent languadge
+  // Prepare labels for components basing on the current language
   $: attributeLabels = {
     intellect: t(character.lang, "intellect"),
     quickWits: t(character.lang, "quickWits"),
@@ -42,6 +43,34 @@
     composure: t(character.lang, "composure")
   };
 
+  $: skillLabels = {
+    humanities: t(character.lang, "skill_humanities"),
+    technical: t(character.lang, "skill_technical"),
+    business: t(character.lang, "skill_business"),
+    investigation: t(character.lang, "skill_investigation"),
+    medicine: t(character.lang, "skill_medicine"),
+    occult: t(character.lang, "skill_occult"),
+    politics: t(character.lang, "skill_politics"),
+    natural: t(character.lang, "skill_natural"),
+
+    athletics: t(character.lang, "skill_athletics"),
+    fight: t(character.lang, "skill_fight"),
+    driving: t(character.lang, "skill_driving"),
+    firearms: t(character.lang, "skill_firearms"),
+    craft: t(character.lang, "skill_craft"),
+    stealth: t(character.lang, "skill_stealth"),
+    survival: t(character.lang, "skill_survival"),
+    coldWeapons: t(character.lang, "skill_coldWeapons"),
+
+    animalHandling: t(character.lang, "skill_animalHandling"),
+    empathy: t(character.lang, "skill_empathy"),
+    expression: t(character.lang, "skill_expression"),
+    etiquette: t(character.lang, "skill_etiquette"),
+    seduction: t(character.lang, "skill_seduction"),
+    communication: t(character.lang, "skill_communication"),
+    faces: t(character.lang, "skill_faces"),
+    deception: t(character.lang, "skill_deception")
+  };
 
 
 
@@ -155,6 +184,21 @@
   </div>
 
   <!-- Skill box -->
+  <div class="sheet">
+    <CharacterSkills
+            title={t(character.lang, "skillsTitle")}
+            mentalTitle={t(character.lang, "mentalTitle")}
+            mentalSub={t(character.lang, "mentalSub")}
+            physicalTitle={t(character.lang, "physicalTitle")}
+            physicalSub={t(character.lang, "physicalSub")}
+            socialTitle={t(character.lang, "socialTitle")}
+            socialSub={t(character.lang, "socialSub")}
+            labels={skillLabels}
+            mental={character.skills.mental}
+            physical={character.skills.physical}
+            social={character.skills.social}
+    />
+  </div>
 
 </div>
 
