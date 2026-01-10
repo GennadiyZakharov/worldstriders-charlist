@@ -1,6 +1,8 @@
 <script lang="ts">
   import DotRating from "./components/DotRating.svelte";
   import CharacterMeta from "./components/CharacterMeta.svelte";
+  import CharacterAttributes from "./components/CharacterAttributes.svelte";
+
   import Attribute from "./components/Attribute.svelte";
   import Skill from "./components/Skill.svelte";
 
@@ -24,6 +26,24 @@
     saveToStorage(character);
     saveStatus = "saved";
   }
+
+  // Prepare lables for components basign on the curent languadge
+  $: attributeLabels = {
+    intellect: t(character.lang, "intellect"),
+    quickWits: t(character.lang, "quickWits"),
+    determination: t(character.lang, "determination"),
+
+    magic: t(character.lang, "magic"),
+    luck: t(character.lang, "luck"),
+    bodyControl: t(character.lang, "bodyControl"),
+
+    impressiveness: t(character.lang, "impressiveness"),
+    manipulation: t(character.lang, "manipulation"),
+    composure: t(character.lang, "composure")
+  };
+
+
+
 
   function setLang(lang: Lang) {
     character.lang = lang;
@@ -69,26 +89,6 @@
     character = defaultCharacter();
     clearStorage();
   }
-
-  type AttrId = keyof typeof character.attributes;
-
-  const COL1: Array<{ soft?: string; key: AttrId }> = [
-    { soft: "power", key: "intellect" },
-    { soft: "grace", key: "quickWits" },
-    { soft: "resistance", key: "determination" }
-  ];
-
-  const COL2: Array<{ key: AttrId }> = [
-    { key: "magic" },
-    { key: "luck" },
-    { key: "bodyControl" }
-  ];
-
-  const COL3: Array<{ key: AttrId }> = [
-    { key: "impressiveness" },
-    { key: "manipulation" },
-    { key: "composure" }
-  ];
 </script>
 
 <div class="page ws">
@@ -147,41 +147,11 @@
 
   <!-- Attributes box -->
   <div class="sheet">
-    <div class="sectionTitle">{t(character.lang, "attributesTitle")}</div>
-
-    <div class="attrsGrid">
-
-      <div class="attrCol">
-        {#each COL1 as row (row.key)}
-            <Attribute
-              name={t(character.lang, row.key)}
-              bind:value={character.attributes[row.key]}
-            />
-        {/each}
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="attrCol">
-        {#each COL2 as row (row.key)}
-            <Attribute
-              name={t(character.lang, row.key)}
-              bind:value={character.attributes[row.key]}
-            />
-        {/each}
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="attrCol">
-        {#each COL3 as row (row.key)}
-            <Attribute
-              name={t(character.lang, row.key)}
-              bind:value={character.attributes[row.key]}
-            />
-        {/each}
-      </div>
-    </div>
+    <CharacterAttributes
+            title={t(character.lang, "attributesTitle")}
+            labels={attributeLabels}
+            values={character.attributes}
+    />
   </div>
 
   <!-- Skill box -->
@@ -227,46 +197,6 @@
     font-weight: 800;
     letter-spacing: 1px;
     font-size: 20px;
-  }
-
-  .topGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 18px;
-    align-items: start;
-  }
-
-  @media (max-width: 980px) {
-    .topGrid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .block {
-    display: grid;
-    gap: 10px;
-  }
-
-  .field {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 10px;
-    align-items: center;
-  }
-
-  .lbl {
-    font-size: 14px;
-    opacity: 0.9;
-    white-space: nowrap;
-  }
-
-  input[type="text"] {
-    height: 34px;
-    padding: 6px 8px;
-    border-radius: 6px;
-    border: 1px solid rgba(0, 0, 0, 0.25);
-    background: white;
-    font-size: 14px;
   }
 
   .toolbar {
@@ -323,65 +253,4 @@
     justify-content: flex-end;
   }
 
-  .sectionTitle {
-    text-align: center;
-    font-weight: 800;
-    letter-spacing: 2px;
-    padding: 4px 0 10px;
-  }
-
-  .attrsGrid {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr auto 1fr;
-    gap: 16px;
-    align-items: start;
-  }
-
-  @media (max-width: 980px) {
-    .attrsGrid {
-      grid-template-columns: 1fr;
-    }
-    .divider {
-      display: none;
-    }
-  }
-
-  .divider {
-    width: 2px;
-    background: rgba(0, 70, 95, 0.9);
-    border-radius: 2px;
-  }
-
-  .attrCol {
-    display: grid;
-    gap: 10px;
-  }
-
-  .attrRow {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 10px;
-    align-items: center;
-    padding: 6px 0;
-  }
-
-  .attrText {
-    display: grid;
-    gap: 2px;
-  }
-
-  .attrText.single {
-    padding-top: 8px; /* visually aligns with other rows that have soft label */
-  }
-
-  .soft {
-    font-size: 12px;
-    opacity: 0.55;
-    letter-spacing: 0.5px;
-  }
-
-  .hard {
-    font-size: 16px;
-    font-weight: 700;
-  }
 </style>
