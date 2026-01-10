@@ -4,9 +4,6 @@
   import CharacterAttributes from "./components/CharacterAttributes.svelte";
   import CharacterSkills from "./components/CharacterSkills.svelte";
 
-  import Attribute from "./components/Attribute.svelte";
-  import Skill from "./components/Skill.svelte";
-
   import { t } from "./lib/i18n";
   import { defaultCharacter, normalizeCharacter } from "./lib/model";
   import { loadFromStorage, saveToStorage, clearStorage } from "./lib/storage";
@@ -29,6 +26,19 @@
   }
 
   // Prepare labels for components basing on the current language
+
+  $: metadataLabels = {
+    name: t(character.lang, "name"),
+    player: t(character.lang, "player"),
+    journey: t(character.lang, "journey"),
+    bigKey: t(character.lang, "bigKey"),
+    smallKey: t(character.lang, "smallKey"),
+    vice: t(character.lang, "vice"),
+    concept: t(character.lang, "concept"),
+    home: t(character.lang, "home"),
+    stratoc: t(character.lang, "stratoc")
+  }
+
   $: attributeLabels = {
     intellect: t(character.lang, "intellect"),
     quickWits: t(character.lang, "quickWits"),
@@ -71,8 +81,6 @@
     faces: t(character.lang, "skill_faces"),
     deception: t(character.lang, "skill_deception")
   };
-
-
 
   function setLang(lang: Lang) {
     character.lang = lang;
@@ -129,16 +137,8 @@
     </div>
 
     <CharacterMeta
-            labels={{
-    player: t(character.lang, "player"),
-    journey: t(character.lang, "journey"),
-    bigKey: t(character.lang, "bigKey"),
-    smallKey: t(character.lang, "smallKey"),
-    vice: t(character.lang, "vice"),
-    concept: t(character.lang, "concept"),
-    home: t(character.lang, "home"),
-    stratoc: t(character.lang, "stratoc")
-    }}
+            labels={metadataLabels}
+            bind:name={character.meta.characterName}
             bind:player={character.meta.playerName}
             bind:journey={character.meta.journey}
             bind:bigKey={character.meta.bigKey}

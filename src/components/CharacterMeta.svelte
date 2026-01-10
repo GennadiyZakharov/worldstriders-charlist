@@ -1,5 +1,6 @@
 <script lang="ts">
     export let labels: {
+        name: string,
         player: string;
         journey: string;
         bigKey: string;
@@ -10,6 +11,7 @@
         stratoc: string;
     };
 
+    export let name: string;
     export let player: string;
     export let journey: string;
 
@@ -25,6 +27,11 @@
 <div class="metaGrid">
 
     <div class="col">
+        <div class="row">
+            <div class="label ws-strong">{labels.name}:</div>
+            <input type="text" bind:value={name} />
+        </div>
+
         <div class="row">
             <div class="label ws-strong">{labels.player}:</div>
             <input type="text" bind:value={player} />

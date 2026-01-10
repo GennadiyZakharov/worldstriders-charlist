@@ -68,9 +68,9 @@ export const DICT: Record<Lang, Record<string, string>> = {
     skill_empathy: "Empathy",
     skill_expression: "Expression",
     skill_etiquette: "Etiquette",
-    skill_seduction: "Seduction",
+    skill_seduction: "Persuation",
     skill_communication: "Communication",
-    skill_faces: "Faces",
+    skill_faces: "Streets",
     skill_deception: "Deception",
 
     // Left “soft” labels (the grey words in screenshot)
@@ -103,7 +103,6 @@ export const DICT: Record<Lang, Record<string, string>> = {
     stratoc: "Стратос",
 
     attributesTitle: "АТРИБУТЫ",
-
     intellect: "Интеллект",
     quickWits: "Сообразительность",
     determination: "Решительность",
@@ -144,9 +143,9 @@ export const DICT: Record<Lang, Record<string, string>> = {
     skill_empathy: "Эмпатия",
     skill_expression: "Экспрессия",
     skill_etiquette: "Этикет",
-    skill_seduction: "Искушение",
+    skill_seduction: "Persuasion",
     skill_communication: "Общение",
-    skill_faces: "Зн. лиц",
+    skill_faces: "Зн. yлиц",
     skill_deception: "Обман",
 
     power: "Мощь",
