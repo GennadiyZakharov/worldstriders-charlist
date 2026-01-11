@@ -115,11 +115,11 @@ export const DICT: Record<Lang, Record<string, string>> = {
 
     skillsTitle: "НАВЫКИ",
     mentalTitle: "МЕНТАЛЬНЫЕ",
-    mentalSub: "(-3 не )",
+    mentalSub: "(-3 не изучено)",
     physicalTitle: "ФИЗИЧЕСКИЕ",
-    physicalSub: "(-1 не лечится)",
+    physicalSub: "(-1 не изучено)",
     socialTitle: "СОЦИАЛЬНЫЕ",
-    socialSub: "(-1 не лечится)",
+    socialSub: "(-1 не изучено)",
 
     skill_humanities: "Гуманитарные н.",
     skill_technical: "Технические н.",

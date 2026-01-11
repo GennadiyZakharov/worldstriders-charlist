@@ -1,5 +1,6 @@
 <script lang="ts">
-  import DotRating from "./components/DotRating.svelte";
+  import Toolbar from "./components/Toolbar.svelte";
+
   import CharacterMeta from "./components/CharacterMeta.svelte";
   import CharacterAttributes from "./components/CharacterAttributes.svelte";
   import CharacterSkills from "./components/CharacterSkills.svelte";
@@ -26,7 +27,7 @@
   }
 
   // Prepare labels for components basing on the current language
-
+  // Main character metadata
   $: metadataLabels = {
     name: t(character.lang, "name"),
     player: t(character.lang, "player"),
@@ -38,6 +39,16 @@
     home: t(character.lang, "home"),
     stratoc: t(character.lang, "stratoc")
   }
+
+  $: toolbarLabels = {
+    language: t(character.lang, "language"),
+    autosave: t(character.lang, "autosave"),
+    saved: t(character.lang, "saved"),
+    notSaved: t(character.lang, "notSaved"),
+    exportYaml: t(character.lang, "exportYaml"),
+    importYaml: t(character.lang, "importYaml"),
+    reset: t(character.lang, "reset")
+  };
 
   $: attributeLabels = {
     intellect: t(character.lang, "intellect"),
@@ -149,29 +160,16 @@
             bind:stratoc={character.meta.stratoc}
     />
 
-    <div class="toolbar">
-      <div class="lang">
-        <span class="muted">{t(character.lang, "language")}:</span>
-        <button type="button" class:active={character.lang === "en"} on:click={() => setLang("en")}>EN</button>
-        <button type="button" class:active={character.lang === "ru"} on:click={() => setLang("ru")}>RU</button>
-      </div>
+    <Toolbar
+            lang={character.lang}
+            saveStatus={saveStatus}
+            labels={toolbarLabels}
+            onSetLang={setLang}
+            onExportYaml={exportYamlFile}
+            onImportYaml={importYamlFile}
+            onReset={resetAll}
+    />
 
-      <div class="rightTools">
-        <span class="muted">
-          {t(character.lang, "autosave")}:
-          <strong>{saveStatus === "saved" ? t(character.lang, "saved") : t(character.lang, "notSaved")}</strong>
-        </span>
-
-        <button type="button" on:click={exportYamlFile}>{t(character.lang, "exportYaml")}</button>
-
-        <label class="filebtn">
-          {t(character.lang, "importYaml")}
-          <input type="file" accept=".yaml,.yml,text/yaml" on:change={importYamlFile} />
-        </label>
-
-        <button type="button" class="danger" on:click={resetAll}>{t(character.lang, "reset")}</button>
-      </div>
-    </div>
   </div>
 
   <!-- Attributes box -->
@@ -241,60 +239,6 @@
     font-weight: 800;
     letter-spacing: 1px;
     font-size: 20px;
-  }
-
-  .toolbar {
-    margin-top: 12px;
-    padding-top: 10px;
-    border-top: 1px solid rgba(0, 0, 0, 0.12);
-    display: flex;
-    gap: 12px;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .muted {
-    font-size: 13px;
-    opacity: 0.8;
-  }
-
-  .lang {
-    display: inline-flex;
-    gap: 8px;
-    align-items: center;
-  }
-
-  button,
-  .filebtn {
-    border: 1px solid rgba(0, 0, 0, 0.25);
-    background: white;
-    border-radius: 8px;
-    padding: 8px 10px;
-    cursor: pointer;
-    font-size: 13px;
-    line-height: 1;
-    user-select: none;
-  }
-
-  button.active {
-    outline: 2px solid rgba(0, 70, 95, 0.35);
-  }
-
-  .danger {
-    border-color: rgba(160, 0, 0, 0.35);
-  }
-
-  .filebtn input {
-    display: none;
-  }
-
-  .rightTools {
-    display: inline-flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: flex-end;
   }
 
 </style>

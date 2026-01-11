@@ -1,16 +1,16 @@
 # WorldStriders Character List — Project Rules for AI
-You are helping with the development of **worldstriders-charlist** -
-A single-page character list application for the live role-playing game **WorldStriders**.
+You are helping with the development of **Worldstriders Charlist** -
+a single-page character list for the live role-playing game **WorldStriders**.
 
 Always follow these rules unless explicitly told otherwise.
 
 ## Project goal
 The application must:
-- work fully offline
-- build into a single HTML file
-- store and exchange character data safely
+- Work fully offline
+- Build into a single HTML file
+- Store and exchange character data safely
 
-## Technology stack (fixed)
+## Technology stack
 - Svelte + Vite + TypeScript
 - `vite-plugin-singlefile` for production build
 - No backend, no server, no runtime network access
@@ -19,7 +19,7 @@ The application must:
 
 DO NOT use alternative frameworks or servers.
 
-## Critical constraints (non-negotiable)
+## Critical constraints
 
 1.**Stable data model**
    - Canonical types live in `src/lib/types.ts`
@@ -37,10 +37,13 @@ DO NOT use alternative frameworks or servers.
 ## Coding rules
 - TypeScript `strict: true`
 - Avoid `any`; prefer `unknown` + explicit narrowing
-- Prefer explicitness over cleverness
+- Prefer explicitness to cleverness
 - Keep all mutable state inside one `character: Character` object
-- Use global styles from `src/styles/typography.css` for all font styles
+- Each block of character data is implemented as a separate component with the name starting from `Character`
+- Character data components use shared components, like `Attribute`, `Skill`, etc.
+- Use global styles from `src/styles/typography.css` for all shared styles
 - Keep component-specific styles in `.svelte` files
+- Don't create styles until necessary 
 
 ## UX rules
 - All numeric stats must be clamped (min/max)
@@ -50,6 +53,4 @@ DO NOT use alternative frameworks or servers.
 Before writing code:
 1. Briefly state what will change and why
 2. List affected files
-
-When writing code:
-- Mention schema changes explicitly
+3. Mention schema changes explicitly
