@@ -28,16 +28,16 @@
   }
 
   // Prepare labels for components basing on the current language
-  function getLabels<T extends Record<string, string>>(keys: T): T {
+  function getLabels<T extends Record<string, string>>(_lang: Lang, keys: T): T {
     const res = {} as Record<string, string>;
     for (const k in keys) {
-      res[k] = t(character.lang, keys[k]);
+      res[k] = t(_lang, keys[k]);
     }
     return res as T;
   }
 
   // Main character metadata
-  $: metadataLabels = getLabels({
+  $: metadataLabels = getLabels(character.lang, {
     name: "name",
     player: "player",
     journey: "journey",
@@ -49,7 +49,7 @@
     stratoc: "stratoc"
   });
 
-  $: toolbarLabels = getLabels({
+  $: toolbarLabels = getLabels(character.lang, {
     language: "language",
     autosave: "autosave",
     saved: "saved",
@@ -59,7 +59,7 @@
     reset: "reset"
   });
 
-  $: attributeLabels = getLabels({
+  $: attributeLabels = getLabels(character.lang, {
     intellect: "intellect",
     quickWits: "quickWits",
     determination: "determination",
@@ -71,7 +71,7 @@
     composure: "composure"
   });
 
-  $: skillLabels = getLabels({
+  $: skillLabels = getLabels(character.lang, {
     humanities: "skill_humanities",
     technical: "skill_technical",
     business: "skill_business",
@@ -108,6 +108,7 @@
 
   function setLang(lang: Lang) {
     character.lang = lang;
+    character = character;
   }
 
   function exportYamlFile() {
