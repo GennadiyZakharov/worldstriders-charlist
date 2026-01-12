@@ -177,7 +177,7 @@
     <CharacterAttributes
             title={t(character.lang, "attributesTitle")}
             labels={attributeLabels}
-            values={character.attributes}
+            bind:values={character.attributes}
     />
   </div>
 
@@ -192,9 +192,9 @@
             socialTitle={t(character.lang, "socialTitle")}
             socialSub={t(character.lang, "socialSub")}
             labels={skillLabels}
-            mental={character.skills.mental}
-            physical={character.skills.physical}
-            social={character.skills.social}
+            bind:mental={character.skills.mental}
+            bind:physical={character.skills.physical}
+            bind:social={character.skills.social}
     />
   </div>
 
