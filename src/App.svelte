@@ -216,9 +216,17 @@
   <!-- Perks -->
   <div class="sheet">
     <PerkList
-            title={t(character.lang, "perksTitle")}
+            title={t(character.lang, "permanentPerksTitle")}
             labels={perkListLabels}
-            bind:perks={character.perks}
+            bind:perks={character.permanentPerks}
+    />
+  </div>
+
+  <div class="sheet">
+    <PerkList
+            title={t(character.lang, "temporaryPerksTitle")}
+            labels={perkListLabels}
+            bind:perks={character.temporaryPerks}
     />
   </div>
 

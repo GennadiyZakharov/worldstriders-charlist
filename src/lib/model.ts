@@ -68,7 +68,8 @@ export function defaultCharacter(): Character {
       ]
     },
 
-    perks: [],
+    permanentPerks: [],
+    temporaryPerks: [],
 
     notes: {
       background: "",
@@ -87,7 +88,8 @@ export function normalizeCharacter(input: unknown): Character {
   const meta = normalizeMeta(input.meta, base.meta);
   const attributes = normalizeAttributes(input.attributes, base.attributes);
   const skills = normalizeSkills(input.skills, base.skills);
-  const perks = normalizePerks(input.perks);
+  const permanentPerks = normalizePerks(input.permanentPerks);
+  const temporaryPerks = normalizePerks(input.temporaryPerks);
   const notes = normalizeNotes(input.notes, base.notes);
 
   // Only allow known scalar fields; don't spread whole input.
@@ -99,7 +101,8 @@ export function normalizeCharacter(input: unknown): Character {
     meta,
     attributes,
     skills,
-    perks,
+    permanentPerks,
+    temporaryPerks,
     notes,
     updatedAt: new Date().toISOString()
   };
@@ -214,24 +217,24 @@ function normalizeSkills(
   };
 }
 
-function normalizePerks(v: unknown): Character["perks"] {
+function normalizePerks(v: unknown): Character["permanentPerks"] {
   if (!Array.isArray(v)) return [];
 
-  return v
-      .filter((x): x is unknown => true)
-      .map((x) => {
-        if (typeof x !== "object" || x === null) return { text: "", level: 0 };
-        const r = x as Record<string, unknown>;
+  return v.map((x) => {
+    if (typeof x !== "object" || x === null) {
+      return { text: "", level: 0 };
+    }
 
-        const text = typeof r.text === "string" ? r.text : "";
-        const level =
-            typeof r.level === "number" && Number.isFinite(r.level)
-                ? Math.min(5, Math.max(0, Math.trunc(r.level)))
-                : 0;
+    const r = x as Record<string, unknown>;
 
-        return { text, level };
-      })
-      .filter((p) => p.text.trim() !== "" || p.level !== 0); // optional: drop empty noise
+    const text = typeof r.text === "string" ? r.text : "";
+    const level =
+        typeof r.level === "number" && Number.isFinite(r.level)
+            ? Math.min(5, Math.max(0, Math.trunc(r.level)))
+            : 0;
+
+    return { text, level };
+  });
 }
 
 function normalizeNotes(

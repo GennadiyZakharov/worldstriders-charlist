@@ -78,7 +78,8 @@ export const DICT: Record<Lang, Record<string, string>> = {
     grace: "Grace",
     resistance: "Resistance",
 
-    perksTitle: "PERKS",
+    permanentPerksTitle: "PERMANENT PERKS",
+    temporaryPerksTitle: "TEMPORARY PERKS",
     add: "Add",
     delete: "Delete"
 
@@ -158,7 +159,8 @@ export const DICT: Record<Lang, Record<string, string>> = {
     grace: "Грация",
     resistance: "Сопротивление",
 
-    perksTitle: "ПЕРКИ",
+    permanentPerksTitle: "ПОСТОЯННЫЕ ПЕРКИ",
+    temporaryPerksTitle: "ВРЕМЕННЫЕ ПЕРКИ",
     add: "Добавить",
     delete: "Удалить"
   }

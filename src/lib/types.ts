@@ -93,7 +93,8 @@ export interface Character {
   meta: CharacterMeta;
   attributes: Attributes;
   skills: CharacterSkills;
-  perks: PerkEntry[];
+  permanentPerks: PerkEntry[];
+  temporaryPerks: PerkEntry[];
   notes: Notes;
   updatedAt: string;
 }
