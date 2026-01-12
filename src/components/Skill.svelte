@@ -8,7 +8,7 @@
     export let enabled: boolean = false;
 
     /** Free-text specialization / note (the underlined line). */
-    export let note: string = "-";
+    export let note: string = "";
 
     /** Skill rating (0..5 dots). Default 0. */
     export let value: number = 0;

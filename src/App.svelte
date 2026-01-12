@@ -27,71 +27,77 @@
   }
 
   // Prepare labels for components basing on the current language
-  // Main character metadata
-  $: metadataLabels = {
-    name: t(character.lang, "name"),
-    player: t(character.lang, "player"),
-    journey: t(character.lang, "journey"),
-    bigKey: t(character.lang, "bigKey"),
-    smallKey: t(character.lang, "smallKey"),
-    vice: t(character.lang, "vice"),
-    concept: t(character.lang, "concept"),
-    home: t(character.lang, "home"),
-    stratoc: t(character.lang, "stratoc")
+  function getLabels<T extends Record<string, string>>(keys: T): T {
+    const res = {} as Record<string, string>;
+    for (const k in keys) {
+      res[k] = t(character.lang, keys[k]);
+    }
+    return res as T;
   }
 
-  $: toolbarLabels = {
-    language: t(character.lang, "language"),
-    autosave: t(character.lang, "autosave"),
-    saved: t(character.lang, "saved"),
-    notSaved: t(character.lang, "notSaved"),
-    exportYaml: t(character.lang, "exportYaml"),
-    importYaml: t(character.lang, "importYaml"),
-    reset: t(character.lang, "reset")
-  };
+  // Main character metadata
+  $: metadataLabels = getLabels({
+    name: "name",
+    player: "player",
+    journey: "journey",
+    bigKey: "bigKey",
+    smallKey: "smallKey",
+    vice: "vice",
+    concept: "concept",
+    home: "home",
+    stratoc: "stratoc"
+  });
 
-  $: attributeLabels = {
-    intellect: t(character.lang, "intellect"),
-    quickWits: t(character.lang, "quickWits"),
-    determination: t(character.lang, "determination"),
+  $: toolbarLabels = getLabels({
+    language: "language",
+    autosave: "autosave",
+    saved: "saved",
+    notSaved: "notSaved",
+    exportYaml: "exportYaml",
+    importYaml: "importYaml",
+    reset: "reset"
+  });
 
-    magic: t(character.lang, "magic"),
-    luck: t(character.lang, "luck"),
-    bodyControl: t(character.lang, "bodyControl"),
+  $: attributeLabels = getLabels({
+    intellect: "intellect",
+    quickWits: "quickWits",
+    determination: "determination",
+    magic: "magic",
+    luck: "luck",
+    bodyControl: "bodyControl",
+    impressiveness: "impressiveness",
+    manipulation: "manipulation",
+    composure: "composure"
+  });
 
-    impressiveness: t(character.lang, "impressiveness"),
-    manipulation: t(character.lang, "manipulation"),
-    composure: t(character.lang, "composure")
-  };
+  $: skillLabels = getLabels({
+    humanities: "skill_humanities",
+    technical: "skill_technical",
+    business: "skill_business",
+    investigation: "skill_investigation",
+    medicine: "skill_medicine",
+    occult: "skill_occult",
+    politics: "skill_politics",
+    natural: "skill_natural",
 
-  $: skillLabels = {
-    humanities: t(character.lang, "skill_humanities"),
-    technical: t(character.lang, "skill_technical"),
-    business: t(character.lang, "skill_business"),
-    investigation: t(character.lang, "skill_investigation"),
-    medicine: t(character.lang, "skill_medicine"),
-    occult: t(character.lang, "skill_occult"),
-    politics: t(character.lang, "skill_politics"),
-    natural: t(character.lang, "skill_natural"),
+    athletics: "skill_athletics",
+    fight: "skill_fight",
+    driving: "skill_driving",
+    firearms: "skill_firearms",
+    craft: "skill_craft",
+    stealth: "skill_stealth",
+    survival: "skill_survival",
+    coldWeapons: "skill_coldWeapons",
 
-    athletics: t(character.lang, "skill_athletics"),
-    fight: t(character.lang, "skill_fight"),
-    driving: t(character.lang, "skill_driving"),
-    firearms: t(character.lang, "skill_firearms"),
-    craft: t(character.lang, "skill_craft"),
-    stealth: t(character.lang, "skill_stealth"),
-    survival: t(character.lang, "skill_survival"),
-    coldWeapons: t(character.lang, "skill_coldWeapons"),
-
-    animalHandling: t(character.lang, "skill_animalHandling"),
-    empathy: t(character.lang, "skill_empathy"),
-    expression: t(character.lang, "skill_expression"),
-    etiquette: t(character.lang, "skill_etiquette"),
-    seduction: t(character.lang, "skill_seduction"),
-    communication: t(character.lang, "skill_communication"),
-    faces: t(character.lang, "skill_faces"),
-    deception: t(character.lang, "skill_deception")
-  };
+    animalHandling: "skill_animalHandling",
+    empathy: "skill_empathy",
+    expression: "skill_expression",
+    etiquette: "skill_etiquette",
+    seduction: "skill_seduction",
+    communication: "skill_communication",
+    faces: "skill_faces",
+    deception: "skill_deception"
+  });
 
   function setLang(lang: Lang) {
     character.lang = lang;
@@ -104,7 +110,8 @@
     const safeName = (character.meta.characterName || "character")
       .trim()
       .replace(/[^\p{L}\p{N}_-]+/gu, "_");
-    const filename = `${safeName || "character"}.yaml`;
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    const filename = `${safeName || "character"}_${timestamp}.yaml`;
 
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -125,8 +132,9 @@
       const parsed = fromYaml(text);
       character = normalizeCharacter(parsed);
       saveStatus = "saved";
-    } catch (err: any) {
-      alert("Failed to import YAML: " + (err?.message || String(err)));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      alert("Failed to import YAML: " + message);
     } finally {
       input.value = "";
     }

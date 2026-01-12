@@ -80,41 +80,149 @@ export function defaultCharacter(): Character {
 
 export function normalizeCharacter(input: unknown): Character {
   const base = defaultCharacter();
-  if (typeof input !== "object" || input === null) return base;
-  const obj = input as Partial<Character>;
+  if (!isRecord(input)) return base;
 
-  const baseSkills = base.skills;
-  const objSkills = (obj as any).skills;
+  const meta = normalizeMeta(input.meta, base.meta);
+  const attributes = normalizeAttributes(input.attributes, base.attributes);
+  const skills = normalizeSkills(input.skills, base.skills);
+  const notes = normalizeNotes(input.notes, base.notes);
 
-  function normGroup(group: any, baseGroup: any) {
-    if (!Array.isArray(group)) return baseGroup;
-    return group.map((e: any, i: number) => ({
-      id: typeof e?.id === "string" ? e.id : baseGroup[i]?.id,
-      line: {
-        enabled: !!e?.line?.enabled,
-        note: typeof e?.line?.note === "string" ? e.line.note : "",
-        rating: typeof e?.line?.rating === "number" ? e.line.rating : 0
-      }
-    }));
-  }
-
-  const skills =
-      objSkills && typeof objSkills === "object"
-          ? {
-            mental: normGroup(objSkills.mental, baseSkills.mental),
-            physical: normGroup(objSkills.physical, baseSkills.physical),
-            social: normGroup(objSkills.social, baseSkills.social)
-          }
-          : baseSkills;
+  // Only allow known scalar fields; don't spread whole input.
+  const lang = input.lang === "ru" || input.lang === "en" ? input.lang : base.lang;
 
   return {
-    ...base,
-    ...obj,
-    meta: { ...base.meta, ...obj.meta },
-    attributes: { ...base.attributes, ...obj.attributes },
-    skills: { ...base.skills, ...obj.skills },
-    notes: { ...base.notes, ...obj.notes },
     schemaVersion: SCHEMA_VERSION,
+    lang,
+    meta,
+    attributes,
+    skills,
+    notes,
     updatedAt: new Date().toISOString()
+  };
+}
+
+/** Type guard: plain object record */
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null;
+}
+
+function asRecord(v: unknown): Record<string, unknown> | null {
+  return isRecord(v) ? v : null;
+}
+
+function normalizeMeta(
+    v: unknown,
+    base: Character["meta"]
+): Character["meta"] {
+  const r = asRecord(v);
+  if (!r) return base;
+
+  // helper
+  const str = (k: keyof Character["meta"]) =>
+      typeof r[k] === "string" ? (r[k] as string) : base[k];
+
+  return {
+    characterName: str("characterName"),
+    playerName: str("playerName"),
+    journey: str("journey"),
+
+    bigKey: str("bigKey"),
+    smallKey: str("smallKey"),
+    vice: str("vice"),
+
+    concept: str("concept"),
+    home: str("home"),
+    stratoc: str("stratoc")
+  };
+}
+
+function clampInt(n: unknown, min: number, max: number, fallback: number): number {
+  if (typeof n !== "number" || !Number.isFinite(n)) return fallback;
+  const x = Math.trunc(n);
+  return Math.min(max, Math.max(min, x));
+}
+
+function normalizeAttributes(
+    v: unknown,
+    base: Character["attributes"]
+): Character["attributes"] {
+  const r = asRecord(v);
+  if (!r) return base;
+
+  // attributes are 1..5 in your design
+  const attr = (k: keyof Character["attributes"]) =>
+      clampInt(r[k], 1, 5, base[k]);
+
+  return {
+    intellect: attr("intellect"),
+    quickWits: attr("quickWits"),
+    determination: attr("determination"),
+
+    magic: attr("magic"),
+    luck: attr("luck"),
+    bodyControl: attr("bodyControl"),
+
+    impressiveness: attr("impressiveness"),
+    manipulation: attr("manipulation"),
+    composure: attr("composure")
+  };
+}
+
+type SkillEntry = Character["skills"]["mental"][number];
+type SkillGroup = SkillEntry[];
+
+function normalizeSkillGroup(group: unknown, baseGroup: SkillGroup): SkillGroup {
+  if (!Array.isArray(group)) return baseGroup;
+
+  // Keep ordering from baseGroup. If imported file has fewer items, use base for missing.
+  return baseGroup.map((baseItem, i) => {
+    const raw = group[i];
+    if (!isRecord(raw)) return baseItem;
+
+    const id =
+        typeof raw.id === "string"
+            ? raw.id
+            : baseItem.id;
+
+    const line = asRecord(raw.line);
+    const enabled = line ? !!line.enabled : baseItem.line.enabled;
+    const note = line && typeof line.note === "string" ? (line.note as string) : baseItem.line.note;
+    const rating = line ? clampInt(line.rating, 0, 5, baseItem.line.rating) : baseItem.line.rating;
+
+    return {
+      id,
+      line: { enabled, note, rating }
+    };
+  });
+}
+
+function normalizeSkills(
+    v: unknown,
+    base: Character["skills"]
+): Character["skills"] {
+  const r = asRecord(v);
+  if (!r) return base;
+
+  return {
+    mental: normalizeSkillGroup(r.mental, base.mental),
+    physical: normalizeSkillGroup(r.physical, base.physical),
+    social: normalizeSkillGroup(r.social, base.social)
+  };
+}
+
+function normalizeNotes(
+    v: unknown,
+    base: Character["notes"]
+): Character["notes"] {
+  const r = asRecord(v);
+  if (!r) return base;
+
+  const str = (k: keyof Character["notes"]) =>
+      typeof r[k] === "string" ? (r[k] as string) : base[k];
+
+  return {
+    background: str("background"),
+    inventory: str("inventory"),
+    contacts: str("contacts")
   };
 }
