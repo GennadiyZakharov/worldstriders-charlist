@@ -4,6 +4,7 @@
   import CharacterMeta from "./components/CharacterMeta.svelte";
   import CharacterAttributes from "./components/CharacterAttributes.svelte";
   import CharacterSkills from "./components/CharacterSkills.svelte";
+  import PerkList from "./components/PerkList.svelte";
 
   import { t } from "./lib/i18n";
   import { defaultCharacter, normalizeCharacter } from "./lib/model";
@@ -98,6 +99,12 @@
     faces: "skill_faces",
     deception: "skill_deception"
   });
+
+  $: perkListLabels = {
+    add: t(character.lang, "add"),
+    delete: t(character.lang, "delete")
+  };
+
 
   function setLang(lang: Lang) {
     character.lang = lang;
@@ -203,6 +210,15 @@
             bind:mental={character.skills.mental}
             bind:physical={character.skills.physical}
             bind:social={character.skills.social}
+    />
+  </div>
+
+  <!-- Perks -->
+  <div class="sheet">
+    <PerkList
+            title={t(character.lang, "perksTitle")}
+            labels={perkListLabels}
+            bind:perks={character.perks}
     />
   </div>
 

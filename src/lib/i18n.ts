@@ -76,7 +76,13 @@ export const DICT: Record<Lang, Record<string, string>> = {
     // Left “soft” labels (the grey words in screenshot)
     power: "Power",
     grace: "Grace",
-    resistance: "Resistance"
+    resistance: "Resistance",
+
+    perksTitle: "PERKS",
+    add: "Add",
+    delete: "Delete"
+
+
   },
 
   ru: {
@@ -150,7 +156,11 @@ export const DICT: Record<Lang, Record<string, string>> = {
 
     power: "Мощь",
     grace: "Грация",
-    resistance: "Сопротивление"
+    resistance: "Сопротивление",
+
+    perksTitle: "ПЕРКИ",
+    add: "Добавить",
+    delete: "Удалить"
   }
 };
 

@@ -1,5 +1,10 @@
 export type Lang = "en" | "ru";
 
+export interface PerkEntry {
+  text: string;
+  level: number; // 0..5
+}
+
 export interface CharacterMeta {
   characterName: string;
   playerName: string;
@@ -88,6 +93,7 @@ export interface Character {
   meta: CharacterMeta;
   attributes: Attributes;
   skills: CharacterSkills;
+  perks: PerkEntry[];
   notes: Notes;
   updatedAt: string;
 }

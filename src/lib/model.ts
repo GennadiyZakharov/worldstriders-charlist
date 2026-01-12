@@ -1,4 +1,4 @@
-import type { Character } from "./types";
+import type {Character, PerkEntry} from "./types";
 
 export const SCHEMA_VERSION = 1;
 
@@ -68,6 +68,8 @@ export function defaultCharacter(): Character {
       ]
     },
 
+    perks: [],
+
     notes: {
       background: "",
       inventory: "",
@@ -85,6 +87,7 @@ export function normalizeCharacter(input: unknown): Character {
   const meta = normalizeMeta(input.meta, base.meta);
   const attributes = normalizeAttributes(input.attributes, base.attributes);
   const skills = normalizeSkills(input.skills, base.skills);
+  const perks = normalizePerks(input.perks);
   const notes = normalizeNotes(input.notes, base.notes);
 
   // Only allow known scalar fields; don't spread whole input.
@@ -96,6 +99,7 @@ export function normalizeCharacter(input: unknown): Character {
     meta,
     attributes,
     skills,
+    perks,
     notes,
     updatedAt: new Date().toISOString()
   };
@@ -208,6 +212,26 @@ function normalizeSkills(
     physical: normalizeSkillGroup(r.physical, base.physical),
     social: normalizeSkillGroup(r.social, base.social)
   };
+}
+
+function normalizePerks(v: unknown): Character["perks"] {
+  if (!Array.isArray(v)) return [];
+
+  return v
+      .filter((x): x is unknown => true)
+      .map((x) => {
+        if (typeof x !== "object" || x === null) return { text: "", level: 0 };
+        const r = x as Record<string, unknown>;
+
+        const text = typeof r.text === "string" ? r.text : "";
+        const level =
+            typeof r.level === "number" && Number.isFinite(r.level)
+                ? Math.min(5, Math.max(0, Math.trunc(r.level)))
+                : 0;
+
+        return { text, level };
+      })
+      .filter((p) => p.text.trim() !== "" || p.level !== 0); // optional: drop empty noise
 }
 
 function normalizeNotes(
