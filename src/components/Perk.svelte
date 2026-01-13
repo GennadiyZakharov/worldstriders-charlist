@@ -2,20 +2,22 @@
   import DotRating from "./DotRating.svelte";
 
   /** Free text perk name/description */
-  export let text: string = "";
-
-  /** Perk level: 0..5 */
-  export let level: number = 0;
-
-  /** Optional: disable editing */
-  export let readonly: boolean = false;
+  let { text = $bindable(""), level = $bindable(0), readonly = false } = $props<{
+    text?: string;
+    level?: number;
+    readonly?: boolean;
+  }>();
 
   function clamp05(n: number): number {
     if (!Number.isFinite(n)) return 0;
     return Math.min(5, Math.max(0, Math.trunc(n)));
   }
 
-  $: level = clamp05(level);
+  // Keep `level` always clamped, including when updated via bind:value
+  $effect(() => {
+    const clamped = clamp05(level);
+    if (clamped !== level) level = clamped;
+  });
 </script>
 
 <div class="row" class:readonly>
