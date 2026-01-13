@@ -22,10 +22,10 @@
   }
 
   // Autosave whenever character changes
-  // $: {
-  //   saveToStorage(character);
-  //   saveStatus = "saved";
-  // }
+  $effect(() => {
+    saveToStorage(character);
+    saveStatus = "saved";
+  });
 
   // Prepare labels for components basing on the current language
   function getLabels<T extends Record<string, string>>(_lang: Lang, keys: T): T {
