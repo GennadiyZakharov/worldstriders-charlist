@@ -12,7 +12,7 @@
   import { toYaml, fromYaml } from "./lib/yaml";
   import type { Lang } from "./lib/types";
 
-  let character = defaultCharacter();
+  let character = $state(defaultCharacter());
   let saveStatus: "saved" | "notSaved" = "notSaved";
 
   // Load on startup
@@ -22,10 +22,10 @@
   }
 
   // Autosave whenever character changes
-  $: {
-    saveToStorage(character);
-    saveStatus = "saved";
-  }
+  // $: {
+  //   saveToStorage(character);
+  //   saveStatus = "saved";
+  // }
 
   // Prepare labels for components basing on the current language
   function getLabels<T extends Record<string, string>>(_lang: Lang, keys: T): T {
@@ -37,7 +37,7 @@
   }
 
   // Main character metadata
-  $: metadataLabels = getLabels(character.lang, {
+  let metadataLabels = $derived(getLabels(character.lang, {
     name: "name",
     player: "player",
     journey: "journey",
@@ -47,9 +47,9 @@
     concept: "concept",
     home: "home",
     stratoc: "stratoc"
-  });
+  }));
 
-  $: toolbarLabels = getLabels(character.lang, {
+  let toolbarLabels = $derived(getLabels(character.lang, {
     language: "language",
     autosave: "autosave",
     saved: "saved",
@@ -57,9 +57,9 @@
     exportYaml: "exportYaml",
     importYaml: "importYaml",
     reset: "reset"
-  });
+  }));
 
-  $: attributeLabels = getLabels(character.lang, {
+  let attributeLabels = $derived(getLabels(character.lang, {
     intellect: "intellect",
     quickWits: "quickWits",
     determination: "determination",
@@ -69,9 +69,9 @@
     impressiveness: "impressiveness",
     manipulation: "manipulation",
     composure: "composure"
-  });
+  }));
 
-  $: skillLabels = getLabels(character.lang, {
+  let skillLabels = $derived(getLabels(character.lang, {
     humanities: "skill_humanities",
     technical: "skill_technical",
     business: "skill_business",
@@ -98,17 +98,16 @@
     communication: "skill_communication",
     faces: "skill_faces",
     deception: "skill_deception"
-  });
+  }));
 
-  $: perkListLabels = {
+  let perkListLabels = $derived({
     add: t(character.lang, "add"),
     delete: t(character.lang, "delete")
-  };
+  });
 
 
   function setLang(lang: Lang) {
     character.lang = lang;
-    character = character;
   }
 
   function exportYamlFile() {
