@@ -4,9 +4,6 @@ export const DICT: Record<Lang, Record<string, string>> = {
   en: {
     title: "WorldStriders",
     language: "Language",
-    autosave: "Autosave",
-    saved: "Saved",
-    notSaved: "Not saved",
 
     exportYaml: "Export YAML",
     importYaml: "Import YAML",
@@ -89,9 +86,6 @@ export const DICT: Record<Lang, Record<string, string>> = {
   ru: {
     title: "Мироxодцы",
     language: "Язык",
-    autosave: "Автосохранение",
-    saved: "Сохранено",
-    notSaved: "Не сохранено",
 
     exportYaml: "Экспорт YAML",
     importYaml: "Импорт YAML",

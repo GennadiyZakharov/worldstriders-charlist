@@ -2,13 +2,9 @@
     import type { Lang } from "../lib/types";
 
     export let lang: Lang;
-    export let saveStatus: "saved" | "notSaved" = "notSaved";
 
     export let labels: {
         language: string;
-        autosave: string;
-        saved: string;
-        notSaved: string;
         exportYaml: string;
         importYaml: string;
         reset: string;
@@ -45,12 +41,6 @@
     </div>
 
     <div class="rightTools">
-    <span class="ws-muted">
-      {labels.autosave}:
-      <span class="ws-strong">
-        {saveStatus === "saved" ? labels.saved : labels.notSaved}
-      </span>
-    </span>
 
         <button type="button" on:click={onExportYaml} disabled={disabled}>
             {labels.exportYaml}

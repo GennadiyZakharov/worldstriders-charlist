@@ -24,7 +24,6 @@
   // Autosave whenever character changes
   $effect(() => {
     saveToStorage(character);
-    saveStatus = "saved";
   });
 
   // Prepare labels for components basing on the current language
@@ -51,9 +50,6 @@
 
   let toolbarLabels = $derived(getLabels(character.lang, {
     language: "language",
-    autosave: "autosave",
-    saved: "saved",
-    notSaved: "notSaved",
     exportYaml: "exportYaml",
     importYaml: "importYaml",
     reset: "reset"
