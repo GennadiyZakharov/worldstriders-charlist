@@ -63,7 +63,7 @@
         aria-valuemax={max}
         aria-valuenow={value}
         tabindex={readonly ? undefined : 0}
-        on:keydown={onKeyDown}
+        onkeydown={onKeyDown}
 >
   {#each Array(max) as _, idx (idx)}
     <button
@@ -75,7 +75,7 @@
             class:square={shape === "square"}
             aria-pressed={idx < value}
             disabled={readonly}
-            on:click={() => setByIndex(idx + 1)}
+            onclick={() => setByIndex(idx + 1)}
     />
   {/each}
 
@@ -87,14 +87,14 @@
 <style>
   .dots {
     display: inline-flex;
-    gap: 8px;
+    gap: 4px;
     align-items: center;
     user-select: none;
   }
 
   .dot {
-    width: 18px;
-    height: 18px;
+    width: 12px;
+    height: 12px;
     border: 2px solid rgba(0, 0, 0, 0.35);
     background: transparent;
     cursor: pointer;
@@ -106,7 +106,7 @@
   }
 
   .dot.square {
-    border-radius: 4px;
+    border-radius: 1px;
   }
 
   .dot.filled {
