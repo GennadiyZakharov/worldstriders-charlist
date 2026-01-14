@@ -11,7 +11,7 @@ The application must:
 - Store and exchange character data safely
 
 ## Technology stack
-- Svelte + Vite + TypeScript
+- Svelte5 + Vite + TypeScript
 - `vite-plugin-singlefile` for production build
 - No backend, no server, no runtime network access
 - YAML import/export using `js-yaml`

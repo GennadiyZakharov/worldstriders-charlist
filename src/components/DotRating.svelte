@@ -1,20 +1,29 @@
 <script lang="ts">
-  export let value: number = 0;
-  export let min: number = 0;
-  export let max: number = 5;
-
-  export let readonly: boolean = false;
-  export let showValue: boolean = true;
-
-  export let shape: "circle" | "square" = "circle";
+  let {
+    value = $bindable(0),
+    min = 0,
+    max = 5,
+    readonly = false,
+    showValue = true,
+    shape = "circle"
+  } = $props<{
+    value?: number;
+    min?: number;
+    max?: number;
+    readonly?: boolean;
+    showValue?: boolean;
+    shape?: "circle" | "square";
+  }>();
 
   function clamp(n: number): number {
     return Math.min(max, Math.max(min, Math.trunc(n)));
   }
 
-  $: min = Math.trunc(min);
-  $: max = Math.trunc(max);
-  $: value = clamp(value);
+  // Keep props consistent (integer min/max; value clamped to [min..max])
+  $effect(() => {
+    const nextValue = clamp(value);
+    if (nextValue !== value) value = nextValue;
+  });
 
   function setByIndex(i: number) {
     if (readonly) return;
@@ -48,25 +57,25 @@
 </script>
 
 <div
-  class="dots"
-  role="slider"
-  aria-valuemin={min}
-  aria-valuemax={max}
-  aria-valuenow={value}
-  tabindex={readonly ? undefined : 0}
-  on:keydown={onKeyDown}
+        class="dots"
+        role="slider"
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={value}
+        tabindex={readonly ? undefined : 0}
+        on:keydown={onKeyDown}
 >
   {#each Array(max) as _, idx (idx)}
     <button
-      type="button"
-      class="dot"
-      class:filled={idx < value}
-      class:readonly={readonly}
-      class:circle={shape === "circle"}
-      class:square={shape === "square"}
-      aria-pressed={idx < value}
-      disabled={readonly}
-      on:click={() => setByIndex(idx+1)}
+            type="button"
+            class="dot"
+            class:filled={idx < value}
+            class:readonly={readonly}
+            class:circle={shape === "circle"}
+            class:square={shape === "square"}
+            aria-pressed={idx < value}
+            disabled={readonly}
+            on:click={() => setByIndex(idx + 1)}
     />
   {/each}
 
@@ -86,7 +95,7 @@
   .dot {
     width: 18px;
     height: 18px;
-    border: 2px solid rgba(0,0,0,0.35);
+    border: 2px solid rgba(0, 0, 0, 0.35);
     background: transparent;
     cursor: pointer;
     padding: 0;
@@ -101,8 +110,8 @@
   }
 
   .dot.filled {
-    background: rgba(0,0,0,0.65);
-    border-color: rgba(0,0,0,0.65);
+    background: rgba(0, 0, 0, 0.65);
+    border-color: rgba(0, 0, 0, 0.65);
   }
 
   .dot.readonly {
