@@ -1,27 +1,43 @@
 <script lang="ts">
-    export let labels: {
-        name: string,
+    let {
+        labels,
+
+        name = $bindable(""),
+        player = $bindable(""),
+        journey = $bindable(""),
+
+        bigKey = $bindable(""),
+        smallKey = $bindable(""),
+        vice = $bindable(""),
+
+        concept = $bindable(""),
+        home = $bindable(""),
+        stratoc = $bindable("")
+    } = $props<{
+        labels: {
+            name: string;
+            player: string;
+            journey: string;
+            bigKey: string;
+            smallKey: string;
+            vice: string;
+            concept: string;
+            home: string;
+            stratoc: string;
+        };
+
+        name: string;
         player: string;
         journey: string;
+
         bigKey: string;
         smallKey: string;
         vice: string;
+
         concept: string;
         home: string;
         stratoc: string;
-    };
-
-    export let name: string;
-    export let player: string;
-    export let journey: string;
-
-    export let bigKey: string;
-    export let smallKey: string;
-    export let vice: string;
-
-    export let concept: string;
-    export let home: string;
-    export let stratoc: string;
+    }>();
 </script>
 
 <div class="metaGrid">
@@ -110,11 +126,11 @@
     }
 
     input {
-        height: 32px;
+        height: 18px;
         padding: 4px 6px;
         border-radius: 6px;
         border: 1px solid rgba(0, 0, 0, 0.25);
         background: white;
-        font-size: 14px;
+        font-size: 12px;
     }
 </style>
