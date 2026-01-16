@@ -1,22 +1,26 @@
 <script lang="ts">
   import DotRating from "./DotRating.svelte";
 
-  /** Display name (already translated before passing in). */
-  export let name: string;
+  let {
+    name,
+    value = $bindable(1),
+    readonly = false
+  } = $props<{
+    name: string;
+    value?: number;
+    readonly?: boolean;
+  }>();
 
-  /** Attribute value. */
-  export let value: number = 1;
-
-  /** Optional: disable editing */
-  export let readonly: boolean = false;
-
-  function clamp15(n: number): number {
-    if (!Number.isFinite(n)) return 1;
-    const x = Math.trunc(n);
-    return Math.min(5, Math.max(1, x));
+  function clamp1to5(n: number): number {
+    return Math.min(5, Math.max(1, Math.trunc(n)));
   }
 
-  $: value = clamp15(value);
+  // Keep value in [1..5] at all times
+  $effect(() => {
+    const v = clamp1to5(value);
+    if (v !== value) value = v;
+  });
+
 </script>
 
 <div class="attr">
@@ -28,7 +32,7 @@
     max={5}
     shape="circle"
     showValue={false}
-    {readonly}
+    readonly={readonly}
   />
 </div>
 

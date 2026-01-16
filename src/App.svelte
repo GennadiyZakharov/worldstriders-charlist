@@ -188,7 +188,7 @@
     <CharacterAttributes
             title={t(character.lang, "attributesTitle")}
             labels={attributeLabels}
-            bind:values={character.attributes}
+            bind:attributes={character.attributes}
     />
   </div>
 

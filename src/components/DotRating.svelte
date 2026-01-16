@@ -15,12 +15,26 @@
     shape?: "circle" | "square";
   }>();
 
-  function clamp(n: number): number {
-    return Math.min(max, Math.max(min, Math.trunc(n)));
+  function assertInteger(name: string, n: number) {
+    if (!Number.isInteger(n)) throw new Error(`[Dots] ${name} must be an integer. Got: ${n}`);
   }
 
-  // Keep props consistent (integer min/max; value clamped to [min..max])
+  function assertValid() {
+    assertInteger("min", min);
+    assertInteger("max", max);
+    assertInteger("value", value);
+
+    if (max <= 1) throw new Error(`[Dots] max must be > 1. Got: ${max}`);
+    if (min < 0) throw new Error(`[Dots] min must be >= 0. Got: ${min}`);
+    if (min >= max) throw new Error(`[Dots] min must be < max. Got min=${min}, max=${max}`);
+  }
+
+  function clamp(n: number): number {
+    return Math.min(max, Math.max(min, n));
+  }
+
   $effect(() => {
+    assertValid();
     const nextValue = clamp(value);
     if (nextValue !== value) value = nextValue;
   });
@@ -34,12 +48,12 @@
   function onKeyDown(e: KeyboardEvent) {
     if (readonly) return;
 
-    if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+    if (e.key === "ArrowLeft") {
       e.preventDefault();
       value = clamp(value - 1);
     }
 
-    if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+    if (e.key === "ArrowRight") {
       e.preventDefault();
       value = clamp(value + 1);
     }

@@ -1,22 +1,20 @@
 <script lang="ts">
     import Attribute from "./Attribute.svelte";
+    import type { Attributes } from "../types"; // adjust path
 
-    export type AttrKey =
-        | "intellect"
-        | "quickWits"
-        | "determination"
-        | "magic"
-        | "luck"
-        | "bodyControl"
-        | "impressiveness"
-        | "manipulation"
-        | "composure";
+    type Props = {
+        title: string;
+        labels: Record<keyof Attributes, string>;
+        attributes?: Attributes;
+        readonly?: boolean;
+    };
 
-    export let title: string;
-
-    export let labels: Record<AttrKey, string>;
-
-    export let values: Record<AttrKey, number>;
+    let {
+        title,
+        labels,
+        attributes = $bindable<Attributes>(),
+        readonly = false
+    } = $props<Props>();
 </script>
 
 <section class="attrs">
@@ -25,50 +23,23 @@
     <div class="grid">
         <!-- Column 1 -->
         <div class="col">
-            <Attribute
-                    name={labels.intellect}
-                    bind:value={values.intellect}
-            />
-            <Attribute
-                    name={labels.quickWits}
-                    bind:value={values.quickWits}
-            />
-            <Attribute
-                    name={labels.determination}
-                    bind:value={values.determination}
-            />
+            <Attribute name={labels.intellect} bind:value={attributes.intellect} {readonly} />
+            <Attribute name={labels.quickWits} bind:value={attributes.quickWits} {readonly} />
+            <Attribute name={labels.determination} bind:value={attributes.determination} {readonly} />
         </div>
 
         <!-- Column 2 -->
         <div class="col">
-            <Attribute
-                    name={labels.magic}
-                    bind:value={values.magic}
-            />
-            <Attribute
-                    name={labels.luck}
-                    bind:value={values.luck}
-            />
-            <Attribute
-                    name={labels.bodyControl}
-                    bind:value={values.bodyControl}
-            />
+            <Attribute name={labels.magic} bind:value={attributes.magic} {readonly} />
+            <Attribute name={labels.luck} bind:value={attributes.luck} {readonly} />
+            <Attribute name={labels.bodyControl} bind:value={attributes.bodyControl} {readonly} />
         </div>
 
         <!-- Column 3 -->
         <div class="col">
-            <Attribute
-                    name={labels.impressiveness}
-                    bind:value={values.impressiveness}
-            />
-            <Attribute
-                    name={labels.manipulation}
-                    bind:value={values.manipulation}
-            />
-            <Attribute
-                    name={labels.composure}
-                    bind:value={values.composure}
-            />
+            <Attribute name={labels.impressiveness} bind:value={attributes.impressiveness} {readonly} />
+            <Attribute name={labels.manipulation} bind:value={attributes.manipulation} {readonly} />
+            <Attribute name={labels.composure} bind:value={attributes.composure} {readonly} />
         </div>
     </div>
 </section>
