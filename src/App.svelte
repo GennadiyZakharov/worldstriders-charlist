@@ -203,9 +203,7 @@
             socialTitle={t(character.lang, "socialTitle")}
             socialSub={t(character.lang, "socialSub")}
             labels={skillLabels}
-            bind:mental={character.skills.mental}
-            bind:physical={character.skills.physical}
-            bind:social={character.skills.social}
+            bind:skills={character.skills}
     />
   </div>
 

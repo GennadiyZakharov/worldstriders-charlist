@@ -1,11 +1,6 @@
 <script lang="ts">
     import DotRating from "./DotRating.svelte";
 
-    function clamp05(n: number): number {
-        if (!Number.isFinite(n)) return 0;
-        return Math.min(5, Math.max(0, Math.trunc(n)));
-    }
-
     let {
         name,
         enabled = $bindable(false),
@@ -20,13 +15,19 @@
         readonly?: boolean;
     }>();
 
-    // Keep value always clamped 0..5 (same behavior as your $: line)
+    function clamp0to5(n: number): number {
+        return Math.min(5, Math.max(0, Math.trunc(n)));
+    }
+
+
+    // Keep value clamped 0..5, avoid unnecessary write-backs
     $effect(() => {
-        value = clamp05(value);
+        const v = clamp0to5(value);
+        if (v !== value) value = v;
     });
 </script>
 
-<div class="row" class:readonly>
+<div class="row" class:readonly={readonly}>
     <input
             class="check"
             type="checkbox"
@@ -44,7 +45,6 @@
             type="text"
             bind:value={note}
             disabled={readonly}
-            placeholder=""
             aria-label={`${name} note`}
     />
 
@@ -55,7 +55,7 @@
             max={5}
             shape="circle"
             showValue={false}
-            {readonly}
+            readonly={readonly}
     />
 </div>
 

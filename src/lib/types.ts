@@ -33,51 +33,25 @@ export interface Attributes {
   composure: number;
 }
 
-export interface SkillLine {
-  enabled: boolean;
-  note: string;
-  rating: number; // 0..5
-}
+type MentalSkillId =
+    | "humanities" | "technical" | "business" | "investigation"
+    | "medicine" | "occult" | "politics" | "natural";
 
-export type MentalSkillId =
-    | "humanities"
-    | "technical"
-    | "business"
-    | "investigation"
-    | "medicine"
-    | "occult"
-    | "politics"
-    | "natural";
+type PhysicalSkillId =
+    | "athletics" | "fight" | "driving" | "firearms"
+    | "craft" | "stealth" | "survival" | "coldWeapons";
 
-export type PhysicalSkillId =
-    | "athletics"
-    | "fight"
-    | "driving"
-    | "firearms"
-    | "craft"
-    | "stealth"
-    | "survival"
-    | "coldWeapons";
+type SocialSkillId =
+    | "animalHandling" | "empathy" | "expression" | "etiquette"
+    | "seduction" | "communication" | "faces" | "deception";
 
-export type SocialSkillId =
-    | "animalHandling"
-    | "empathy"
-    | "expression"
-    | "etiquette"
-    | "seduction"
-    | "communication"
-    | "faces"
-    | "deception";
-
-export interface SkillEntry {
-  id: string;         // one of the ids above
-  line: SkillLine;
-}
+export type SkillLine = { enabled: boolean; note: string; rating: number };
+export type SkillEntry<ID extends string> = { id: ID; line: SkillLine };
 
 export interface CharacterSkills {
-  mental: SkillEntry[];
-  physical: SkillEntry[];
-  social: SkillEntry[];
+  mental: SkillEntry<MentalSkillId>[];
+  physical: SkillEntry<PhysicalSkillId>[];
+  social: SkillEntry<SocialSkillId>[];
 }
 
 

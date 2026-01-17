@@ -1,4 +1,4 @@
-import type {Character, PerkEntry} from "./types";
+import type {Character, SkillLine, SkillEntry} from "./types";
 
 export const SCHEMA_VERSION = 1;
 
@@ -175,30 +175,38 @@ function normalizeAttributes(
   };
 }
 
-type SkillEntry = Character["skills"]["mental"][number];
-type SkillGroup = SkillEntry[];
+function normalizeSkillLine(raw: unknown, base: SkillLine): SkillLine {
+  const r = asRecord(raw);
+  if (!r) return base;
 
-function normalizeSkillGroup(group: unknown, baseGroup: SkillGroup): SkillGroup {
+  return {
+    enabled: !!r.enabled,
+    note: typeof r.note === "string" ? (r.note as string) : base.note,
+    rating: clampInt(r.rating, 0, 5, base.rating)
+  };
+}
+
+function normalizeSkillGroup<ID extends string>(
+    group: unknown,
+    baseGroup: SkillEntry<ID>[]
+): SkillEntry<ID>[] {
   if (!Array.isArray(group)) return baseGroup;
 
-  // Keep ordering from baseGroup. If imported file has fewer items, use base for missing.
-  return baseGroup.map((baseItem, i) => {
-    const raw = group[i];
-    if (!isRecord(raw)) return baseItem;
+  // Build lookup from imported data by id
+  const byId = new Map<string, unknown>();
+  for (const item of group) {
+    const r = asRecord(item);
+    if (!r) continue;
+    if (typeof r.id !== "string") continue;
+    byId.set(r.id, r.line);
+  }
 
-    const id =
-        typeof raw.id === "string"
-            ? raw.id
-            : baseItem.id;
-
-    const line = asRecord(raw.line);
-    const enabled = line ? !!line.enabled : baseItem.line.enabled;
-    const note = line && typeof line.note === "string" ? (line.note as string) : baseItem.line.note;
-    const rating = line ? clampInt(line.rating, 0, 5, baseItem.line.rating) : baseItem.line.rating;
-
+  // Keep base order and base ids; only take line data if id matches
+  return baseGroup.map((baseItem) => {
+    const rawLine = byId.get(baseItem.id);
     return {
-      id,
-      line: { enabled, note, rating }
+      id: baseItem.id,
+      line: normalizeSkillLine(rawLine, baseItem.line)
     };
   });
 }

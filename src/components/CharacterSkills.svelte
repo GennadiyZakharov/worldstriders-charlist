@@ -1,31 +1,45 @@
 <script lang="ts">
     import Skill from "./Skill.svelte";
-    import type { SkillEntry } from "../lib/types";
+    import type { CharacterSkills } from "../lib/types";
 
-    export let title: string;
+    let {
+        title,
+        mentalTitle,
+        mentalSub,
+        physicalTitle,
+        physicalSub,
+        socialTitle,
+        socialSub,
+        labels,
+        skills = $bindable<CharacterSkills>(),
+        readonly = false
+    } = $props<{
+        title: string;
 
-    export let mentalTitle: string;
-    export let mentalSub: string;
+        mentalTitle: string;
+        mentalSub: string;
 
-    export let physicalTitle: string;
-    export let physicalSub: string;
+        physicalTitle: string;
+        physicalSub: string;
 
-    export let socialTitle: string;
-    export let socialSub: string;
+        socialTitle: string;
+        socialSub: string;
 
-    // Labels by skill id (already localized)
-    export let labels: Record<string, string>;
+        // localized labels by id
+        labels: Record<string, string>;
 
-    // Data (bindable arrays)
-    export let mental: SkillEntry[];
-    export let physical: SkillEntry[];
-    export let social: SkillEntry[];
+        // bindable "slice" of the character object
+        skills?: CharacterSkills;
+
+        readonly?: boolean;
+    }>();
 </script>
 
 <section class="skills">
     <h1 class="ws-h1">{title}</h1>
 
     <div class="grid">
+        <!-- Mental -->
         <div class="block">
             <div class="blockHeader">
                 <h2 class="ws-h2">{mentalTitle}</h2>
@@ -33,17 +47,19 @@
             </div>
 
             <div class="list">
-                {#each mental as s, idx (s.id)}
+                {#each skills.mental as s, idx (s.id)}
                     <Skill
                             name={labels[s.id] ?? s.id}
-                            bind:enabled={mental[idx].line.enabled}
-                            bind:note={mental[idx].line.note}
-                            bind:value={mental[idx].line.rating}
+                            bind:enabled={skills.mental[idx].line.enabled}
+                            bind:note={skills.mental[idx].line.note}
+                            bind:value={skills.mental[idx].line.rating}
+                            {readonly}
                     />
                 {/each}
             </div>
         </div>
 
+        <!-- Physical -->
         <div class="block">
             <div class="blockHeader">
                 <h2 class="ws-h2">{physicalTitle}</h2>
@@ -51,17 +67,19 @@
             </div>
 
             <div class="list">
-                {#each physical as s, idx (s.id)}
+                {#each skills.physical as s, idx (s.id)}
                     <Skill
                             name={labels[s.id] ?? s.id}
-                            bind:enabled={physical[idx].line.enabled}
-                            bind:note={physical[idx].line.note}
-                            bind:value={physical[idx].line.rating}
+                            bind:enabled={skills.physical[idx].line.enabled}
+                            bind:note={skills.physical[idx].line.note}
+                            bind:value={skills.physical[idx].line.rating}
+                            {readonly}
                     />
                 {/each}
             </div>
         </div>
 
+        <!-- Social -->
         <div class="block">
             <div class="blockHeader">
                 <h2 class="ws-h2">{socialTitle}</h2>
@@ -69,12 +87,13 @@
             </div>
 
             <div class="list">
-                {#each social as s, idx (s.id)}
+                {#each skills.social as s, idx (s.id)}
                     <Skill
                             name={labels[s.id] ?? s.id}
-                            bind:enabled={social[idx].line.enabled}
-                            bind:note={social[idx].line.note}
-                            bind:value={social[idx].line.rating}
+                            bind:enabled={skills.social[idx].line.enabled}
+                            bind:note={skills.social[idx].line.note}
+                            bind:value={skills.social[idx].line.rating}
+                            {readonly}
                     />
                 {/each}
             </div>
