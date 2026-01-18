@@ -75,7 +75,12 @@
     soul: "soul",
     qi: "qi",
     willpower: "willpower",
-    charge: "charge"
+    charge: "charge",
+
+    body: "body",
+    strength: "strength",
+    agility: "agility",
+    endurance: "endurance"
   }));
 
 

@@ -40,11 +40,15 @@ export interface CharacterCharacteristics {
   soul: CharacteristicPair;
   qi: CharacteristicPair;
 
-  // max depends on attributes
-  willpower: CharacteristicPair;
+  willpower: CharacteristicPair; // max depends on attributes
+  charge: number;                // max depends on magic
 
-  // max depends on magic
-  charge: number; // 0..chargeMax
+  body: {
+    strength: number;
+    agility: number;
+    endurance: number;
+  };
+
 }
 
 type MentalSkillId =

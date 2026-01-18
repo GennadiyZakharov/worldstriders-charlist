@@ -42,7 +42,14 @@ export function defaultCharacter(): Character {
       soul: { dots: 1, boxes: 5 },
       qi: { dots: 1, boxes: 5 },
       willpower: { dots: 2, boxes: 2 },
-      charge: 4
+      charge: 4,
+
+      body: {
+        strength: 1,
+        agility: 1,
+        endurance: 1
+      }
+
     },
 
     skills: {
@@ -211,7 +218,22 @@ function normalizeCharacteristics(
     soul: normalizePair(r.soul, base.soul),
     qi: normalizePair(r.qi, base.qi),
     willpower: normalizePair(r.willpower, base.willpower),
-    charge: clampInt(r.charge, 0, 200, base.charge)
+    charge: clampInt(r.charge, 0, 200, base.charge),
+
+    body: {
+      strength: clampInt(
+          r.body && isRecord(r.body) ? r.body.strength : undefined,
+          1, 5, base.body.strength
+      ),
+      agility: clampInt(
+          r.body && isRecord(r.body) ? r.body.agility : undefined,
+          1, 5, base.body.agility
+      ),
+      endurance: clampInt(
+          r.body && isRecord(r.body) ? r.body.endurance : undefined,
+          1, 5, base.body.endurance
+      )
+    }
   };
 }
 

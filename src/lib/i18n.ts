@@ -44,6 +44,11 @@ export const DICT: Record<Lang, Record<string, string>> = {
     willpower: "Willpower",
     charge: "Charge",
 
+    body: "Body",
+    strength: "Strength",
+    agility: "Agility",
+    endurance: "Endurance",
+
     // Skills
     skillsTitle: "SKILLS",
     mentalTitle: "MENTAL",
@@ -130,10 +135,16 @@ export const DICT: Record<Lang, Record<string, string>> = {
     health: "Здоровье",
     aura: "Аура",
     soul: "Душа",
-    qi: "GI",
+    qi: "ГИ",
     willpower: "Сила воли",
     charge: "Заряд",
 
+    body: "Тело",
+    strength: "Сила",
+    agility: "Ловкость",
+    endurance: "Выносливость",
+
+    // Skills
     skillsTitle: "НАВЫКИ",
     mentalTitle: "МЕНТАЛЬНЫЕ",
     mentalSub: "(-3 не изучено)",
