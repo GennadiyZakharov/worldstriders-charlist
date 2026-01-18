@@ -2,18 +2,17 @@
     import Perk from "./Perk.svelte";
     import type { PerkEntry } from "../lib/types";
 
-    export let title: string;
-
-    // Localized button labels
-    export let labels: {
-        add: string;
-        delete: string;
-    };
-
-    // Bindable list
-    export let perks: PerkEntry[] = [];
-
-    export let readonly: boolean = false;
+    let {
+        title,
+        labels,
+        perks = $bindable<PerkEntry[]>([]),
+        readonly = false
+    } = $props<{
+        title: string;
+        labels: { add: string; delete: string };
+        perks?: PerkEntry[];
+        readonly?: boolean;
+    }>();
 
     function addPerk() {
         if (readonly) return;
@@ -24,13 +23,14 @@
         if (readonly) return;
         perks = perks.filter((_, i) => i !== idx);
     }
+
 </script>
 
 <section class="perkList">
     <div class="header">
         <h1 class="ws-h1">{title}</h1>
 
-        <button type="button" on:click={addPerk} disabled={readonly}>
+        <button type="button" onclick={addPerk} disabled={readonly}>
             {labels.add}
         </button>
     </div>
@@ -39,15 +39,15 @@
         {#each perks as p, idx (idx)}
             <div class="row">
                 <Perk
-                        bind:text={perks[idx].text}
-                        bind:level={perks[idx].level}
-                        {readonly}
+                        bind:text={p.text}
+                        bind:level={p.level}
+                        readonly={readonly}
                 />
 
                 <button
                         type="button"
                         class="danger"
-                        on:click={() => removePerk(idx)}
+                        onclick={() => removePerk(idx)}
                         disabled={readonly}
                         aria-label={`${labels.delete} perk`}
                 >
@@ -59,10 +59,7 @@
 </section>
 
 <style>
-    .perkList {
-        display: grid;
-        gap: 12px;
-    }
+    .perkList { display: grid; gap: 12px; }
 
     .header {
         display: flex;
@@ -72,11 +69,7 @@
         flex-wrap: wrap;
     }
 
-    .list {
-        display: grid;
-        gap: 10px;
-        align-content: start;
-    }
+    .list { display: grid; gap: 10px; align-content: start; }
 
     .row {
         display: grid;
@@ -96,7 +89,5 @@
         user-select: none;
     }
 
-    .danger {
-        border-color: rgba(160, 0, 0, 0.35);
-    }
+    .danger { border-color: rgba(160, 0, 0, 0.35); }
 </style>

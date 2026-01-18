@@ -13,6 +13,12 @@
     return Math.min(5, Math.max(0, Math.trunc(n)));
   }
 
+  function onBlurText() {
+    // Optional: normalize user input without fighting them while typing
+    const t = text.trim();
+    if (t !== text) text = t;
+  }
+
   // Keep `level` always clamped, including when updated via bind:value
   $effect(() => {
     const clamped = clamp05(level);
@@ -20,14 +26,14 @@
   });
 </script>
 
-<div class="row" class:readonly>
+<div class="row" class:readonly={readonly}>
   <input
     class="perkText ws-text"
     type="text"
     bind:value={text}
     disabled={readonly}
-    placeholder=""
-    aria-label="Perk text"
+    aria-label={`Perk text${text ? `: ${text}` : ""}`}
+    onblur={onBlurText}
   />
 
   <DotRating
@@ -56,6 +62,7 @@
     padding: 0 4px;
     background: transparent;
     font-size: 13px;
+    min-width: 0;
   }
 
   .readonly {
