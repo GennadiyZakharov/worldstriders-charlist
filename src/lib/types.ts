@@ -1,10 +1,5 @@
 export type Lang = "en" | "ru";
 
-export interface PerkEntry {
-  text: string;
-  level: number; // 0..5
-}
-
 export interface CharacterMeta {
   characterName: string;
   playerName: string;
@@ -33,6 +28,25 @@ export interface Attributes {
   composure: number;
 }
 
+export interface CharacteristicPair {
+  dots: number;  // 0..max
+  boxes: number; // 0..max
+}
+
+export interface CharacterCharacteristics {
+  confidence: CharacteristicPair;
+  health: CharacteristicPair;
+  aura: CharacteristicPair;
+  soul: CharacteristicPair;
+  qi: CharacteristicPair;
+
+  // max depends on attributes
+  willpower: CharacteristicPair;
+
+  // max depends on magic
+  charge: number; // 0..chargeMax
+}
+
 type MentalSkillId =
     | "humanities" | "technical" | "business" | "investigation"
     | "medicine" | "occult" | "politics" | "natural";
@@ -55,6 +69,11 @@ export interface CharacterSkills {
 }
 
 
+export interface PerkEntry {
+  text: string;
+  level: number; // 0..5
+}
+
 export interface Notes {
   background: string;
   inventory: string;
@@ -66,6 +85,7 @@ export interface Character {
   lang: Lang;
   meta: CharacterMeta;
   attributes: Attributes;
+  characteristics: CharacterCharacteristics;
   skills: CharacterSkills;
   permanentPerks: PerkEntry[];
   temporaryPerks: PerkEntry[];

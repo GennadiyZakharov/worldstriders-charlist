@@ -3,6 +3,7 @@
 
   import CharacterMeta from "./components/CharacterMeta.svelte";
   import CharacterAttributes from "./components/CharacterAttributes.svelte";
+  import CharacterCharacteristics from "./components/CharacterCharacteristics.svelte";
   import CharacterSkills from "./components/CharacterSkills.svelte";
   import PerkList from "./components/PerkList.svelte";
 
@@ -66,6 +67,17 @@
     manipulation: "manipulation",
     composure: "composure"
   }));
+
+  let characteristicsLabels = $derived(getLabels(character.lang, {
+    confidence: "confidence",
+    health: "health",
+    aura: "aura",
+    soul: "soul",
+    qi: "qi",
+    willpower: "willpower",
+    charge: "charge"
+  }));
+
 
   let skillLabels = $derived(getLabels(character.lang, {
     humanities: "skill_humanities",
@@ -190,6 +202,17 @@
             labels={attributeLabels}
             bind:attributes={character.attributes}
     />
+  </div>
+
+  <div class="sheet">
+  <CharacterCharacteristics
+          title={t(character.lang, "characteristicsTitle")}
+          labels={characteristicsLabels}
+          determination={character.attributes.determination}
+          composure={character.attributes.composure}
+          magic={character.attributes.magic}
+          bind:characteristics={character.characteristics}
+  />
   </div>
 
   <!-- Skill box -->

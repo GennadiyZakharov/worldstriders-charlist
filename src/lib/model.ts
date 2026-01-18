@@ -1,4 +1,4 @@
-import type {Character, SkillLine, SkillEntry} from "./types";
+import type {Character, SkillLine, SkillEntry, CharacterCharacteristics, CharacteristicPair} from "./types";
 
 export const SCHEMA_VERSION = 1;
 
@@ -33,6 +33,16 @@ export function defaultCharacter(): Character {
       impressiveness: 1,
       manipulation: 1,
       composure: 1
+    },
+
+    characteristics: {
+      confidence: { dots: 1, boxes: 5 },
+      health: { dots: 1, boxes: 5 },
+      aura: { dots: 1, boxes: 5 },
+      soul: { dots: 1, boxes: 5 },
+      qi: { dots: 1, boxes: 5 },
+      willpower: { dots: 2, boxes: 2 },
+      charge: 4
     },
 
     skills: {
@@ -87,6 +97,7 @@ export function normalizeCharacter(input: unknown): Character {
 
   const meta = normalizeMeta(input.meta, base.meta);
   const attributes = normalizeAttributes(input.attributes, base.attributes);
+  const characteristics = normalizeCharacteristics(input.characteristics, base.characteristics);
   const skills = normalizeSkills(input.skills, base.skills);
   const permanentPerks = normalizePerks(input.permanentPerks);
   const temporaryPerks = normalizePerks(input.temporaryPerks);
@@ -100,6 +111,7 @@ export function normalizeCharacter(input: unknown): Character {
     lang,
     meta,
     attributes,
+    characteristics,
     skills,
     permanentPerks,
     temporaryPerks,
@@ -172,6 +184,34 @@ function normalizeAttributes(
     impressiveness: attr("impressiveness"),
     manipulation: attr("manipulation"),
     composure: attr("composure")
+  };
+}
+
+function normalizePair(v: unknown, base: CharacteristicPair): CharacteristicPair {
+  const r = asRecord(v);
+  if (!r) return base;
+
+  return {
+    dots: clampInt(r.dots, 0, 50, base.dots),
+    boxes: clampInt(r.boxes, 0, 50, base.boxes)
+  };
+}
+
+function normalizeCharacteristics(
+    v: unknown,
+    base: CharacterCharacteristics
+): CharacterCharacteristics {
+  const r = asRecord(v);
+  if (!r) return base;
+
+  return {
+    confidence: normalizePair(r.confidence, base.confidence),
+    health: normalizePair(r.health, base.health),
+    aura: normalizePair(r.aura, base.aura),
+    soul: normalizePair(r.soul, base.soul),
+    qi: normalizePair(r.qi, base.qi),
+    willpower: normalizePair(r.willpower, base.willpower),
+    charge: clampInt(r.charge, 0, 200, base.charge)
   };
 }
 
