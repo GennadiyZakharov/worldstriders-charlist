@@ -80,7 +80,16 @@
     body: "body",
     strength: "strength",
     agility: "agility",
-    endurance: "endurance"
+    endurance: "endurance",
+
+    derivedTitle: "derivedTitle",
+    size: "size",
+    defense: "defense",
+    initiativeMod: "initiativeMod",
+    speed: "speed",
+    perception: "perception"
+
+
   }));
 
 
@@ -190,7 +199,6 @@
 
     <Toolbar
             lang={character.lang}
-            saveStatus={saveStatus}
             labels={toolbarLabels}
             onSetLang={setLang}
             onExportYaml={exportYamlFile}
@@ -213,10 +221,8 @@
   <CharacterCharacteristics
           title={t(character.lang, "characteristicsTitle")}
           labels={characteristicsLabels}
-          determination={character.attributes.determination}
-          composure={character.attributes.composure}
-          magic={character.attributes.magic}
           bind:characteristics={character.characteristics}
+          character={character}
   />
   </div>
 

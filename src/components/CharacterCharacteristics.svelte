@@ -1,9 +1,15 @@
 <script lang="ts">
     import Characteristic from "./Characteristic.svelte";
     import DotRating from "./DotRating.svelte";
-    import type { CharacterCharacteristics } from "../lib/types";
+    import type { CharacterCharacteristics, Character } from "../lib/types";
 
-    type Props = {
+    let {
+        title,
+        labels,
+        characteristics = $bindable<CharacterCharacteristics>(),
+        character,
+        readonly = false
+    } = $props<{
         title: string;
         labels: {
             confidence: string;
@@ -15,51 +21,25 @@
             charge: string;
         };
 
-        // derived limits depend on attributes
-        determination: number;
-        composure: number;
-        magic: number;
-
         characteristics?: CharacterCharacteristics;
+        character?: Character;
         readonly?: boolean;
-    };
-
-    let {
-        title,
-        labels,
-        determination,
-        composure,
-        magic,
-        characteristics = $bindable<CharacterCharacteristics>(),
-        readonly = false
-    } = $props<Props>();
+    }>();
 
     const clampInt = (n: number, min: number, max: number) =>
         Math.min(max, Math.max(min, Math.trunc(Number.isFinite(n) ? n : min)));
 
-    const willpowerMax = $derived(determination + composure);
-    const chargeMax = $derived(magic * 4);
+    const willpowerMax = $derived(character.attributes.determination + character.attributes.composure);
+    const chargeMax = $derived(character.attributes.magic * 4);
 
-    // Safety clamping (idempotent)
-    $effect(() => {
-        const wpMax = willpowerMax;
-        const chMax = chargeMax;
+    const athletics = $derived(character.skills.physical.find((x) => x.id === "athletics").line.rating);
 
-        const wpDots = clampInt(characteristics.willpower.dots, 0, wpMax);
-        if (wpDots !== characteristics.willpower.dots) {
-            characteristics.willpower.dots = wpDots;
-        }
+    const size = 5;
+    const defense = $derived(Math.min(characteristics.body.agility, character.attributes.quickWits) + athletics);
+    const initiativeMod = $derived(character.attributes.bodyControl + character.attributes.composure);
+    const speed = $derived(characteristics.body.strength + characteristics.body.agility + character.attributes.bodyControl * 2);
+    const perception = $derived(character.attributes.quickWits + character.attributes.composure);
 
-        const wpBoxes = clampInt(characteristics.willpower.boxes, 0, wpMax);
-        if (wpBoxes !== characteristics.willpower.boxes) {
-            characteristics.willpower.boxes = wpBoxes;
-        }
-
-        const ch = clampInt(characteristics.charge, 0, chMax);
-        if (ch !== characteristics.charge) {
-            characteristics.charge = ch;
-        }
-    });
 </script>
 
 <section class="block">
@@ -109,7 +89,6 @@
             <div class="charge">
                 <div class="ws-h2">{labels.charge}</div>
                 <DotRating
-                        label={labels.charge}
                         bind:value={characteristics.charge}
                         min={0}
                         max={chargeMax}
@@ -121,49 +100,84 @@
         </div>
 
         <!-- RIGHT: body panel (and future extensions) -->
-        <aside class="bodyPanel">
-            <div class="body">
-                <div class="ws-h2">Временные параметры</div>
-                <div class="bodyRow">
-                    <div class="bodyName">{labels.strength}</div>
-                    <DotRating
-                            bind:value={characteristics.body.strength}
-                            min={1}
-                            max={5}
-                            shape="circle"
-                            showValue={false}
-                            {readonly}
-                    />
+        <div class="side">
+            <aside class="bodyPanel">
+                <div class="body">
+                    <div class="ws-h2">{labels.body}</div>
+                    <div class="bodyRow">
+                        <div class="bodyName">{labels.strength}</div>
+                        <DotRating
+                                bind:value={characteristics.body.strength}
+                                min={1}
+                                max={5}
+                                shape="circle"
+                                showValue={false}
+                                {readonly}
+                        />
+                    </div>
+
+                    <div class="bodyRow">
+                        <div class="bodyName">{labels.agility}</div>
+                        <DotRating
+                                bind:value={characteristics.body.agility}
+                                min={1}
+                                max={5}
+                                shape="circle"
+                                showValue={false}
+                                {readonly}
+                        />
+                    </div>
+
+                    <div class="bodyRow">
+                        <div class="bodyName">{labels.endurance}</div>
+                        <DotRating
+                                bind:value={characteristics.body.endurance}
+                                min={1}
+                                max={5}
+                                shape="circle"
+                                showValue={false}
+                                {readonly}
+                        />
+                    </div>
                 </div>
 
-                <div class="bodyRow">
-                    <div class="bodyName">{labels.agility}</div>
-                    <DotRating
-                            bind:value={characteristics.body.agility}
-                            min={1}
-                            max={5}
-                            shape="circle"
-                            showValue={false}
-                            {readonly}
-                    />
+                <!-- Extend here without changing layout -->
+                <slot name="afterBody" />
+            </aside>
+
+            <aside class="derivedPanel" aria-label={labels.derivedTitle}>
+                <div class="ws-h2">{labels.derivedTitle}</div>
+
+                <div class="derivedList">
+                    <div class="derivedRow">
+                        <div class="derivedName">{labels.size}</div>
+                        <div class="derivedVal">{size}</div>
+                    </div>
+
+                    <div class="derivedRow">
+                        <div class="derivedName">{labels.defense}</div>
+                        <div class="derivedVal">{defense}</div>
+                    </div>
+
+                    <div class="derivedRow">
+                        <div class="derivedName">{labels.initiativeMod}</div>
+                        <div class="derivedVal">{initiativeMod}</div>
+                    </div>
+
+                    <div class="derivedRow">
+                        <div class="derivedName">{labels.speed}</div>
+                        <div class="derivedVal">{speed}</div>
+                    </div>
+
+                    <div class="derivedRow">
+                        <div class="derivedName">{labels.perception}</div>
+                        <div class="derivedVal">{perception}</div>
+                    </div>
                 </div>
 
-                <div class="bodyRow">
-                    <div class="bodyName">{labels.endurance}</div>
-                    <DotRating
-                            bind:value={characteristics.body.endurance}
-                            min={1}
-                            max={5}
-                            shape="circle"
-                            showValue={false}
-                            {readonly}
-                    />
-                </div>
-            </div>
-
-            <!-- Extend here without changing layout -->
-            <slot name="afterBody" />
-        </aside>
+                <slot name="afterDerived" />
+            </aside>
+        </div>
     </div>
 </section>
 
@@ -174,7 +188,7 @@
         gap: 12px;
     }
 
-    /* 2-column overall layout: main grid | body panel */
+    /* Outer: left grid | right side */
     .layout {
         display: grid;
         grid-template-columns: 1fr auto;
@@ -182,7 +196,7 @@
         align-items: start;
     }
 
-    /* LEFT grid (same idea as before) */
+    /* Left grid */
     .grid {
         display: grid;
         gap: 16px;
@@ -202,12 +216,20 @@
         justify-items: center;
     }
 
-    /* RIGHT panel */
+    /* Right side: body | derived */
+    .side {
+        display: grid;
+        grid-template-columns: auto auto;
+        gap: 18px;
+        align-items: start;
+    }
+
+    /* Body panel */
     .bodyPanel {
         display: grid;
-        gap: 12px; /* space between body and anything in afterBody slot */
+        gap: 12px;
         align-content: start;
-        min-width: 220px; /* optional: gives dots room; tweak as needed */
+        min-width: 220px;
     }
 
     .body {
@@ -216,7 +238,6 @@
         align-content: start;
     }
 
-    /* label ----stretch---- dots (dots aligned right) */
     .bodyRow {
         display: grid;
         grid-template-columns: auto 1fr;
@@ -224,16 +245,54 @@
         align-items: center;
     }
 
+    /* align dots to the right (stretchable gap is the 1fr column) */
     .bodyRow :global(.dots) {
         justify-self: end;
     }
 
+    /* Prefer global typography; keep only layout-related styling */
     .bodyName {
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
         white-space: nowrap;
     }
 
+    /* Derived panel */
+    .derivedPanel {
+        display: grid;
+        gap: 10px;
+        align-content: start;
+        min-width: 160px;
+    }
+
+    .derivedList {
+        display: grid;
+        gap: 8px;
+    }
+
+    .derivedRow {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: baseline;
+        gap: 10px;
+    }
+
+    /* dotted stretch line */
+    .derivedRow::before {
+        content: "";
+        border-bottom: 1px dotted rgba(0, 0, 0, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .derivedName,
+    .derivedVal {
+        white-space: nowrap;
+    }
+
+    .derivedVal {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* Mobile */
     @media (max-width: 900px) {
         .layout {
             grid-template-columns: 1fr;
@@ -249,12 +308,17 @@
             justify-self: stretch;
         }
 
-        .bodyPanel {
+        .side {
+            grid-template-columns: 1fr;
+        }
+
+        .bodyPanel,
+        .derivedPanel {
             min-width: 0;
         }
 
         .bodyRow :global(.dots) {
-            justify-self: start; /* optional: on mobile left-align feels better */
+            justify-self: start;
         }
     }
 </style>

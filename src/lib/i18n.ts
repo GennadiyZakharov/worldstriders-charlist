@@ -85,6 +85,13 @@ export const DICT: Record<Lang, Record<string, string>> = {
     skill_faces: "Streets",
     skill_deception: "Deception",
 
+    derivedTitle: "DERIVED",
+    size: "Size",
+    defense: "Defense",
+    initiativeMod: "Initiative modifier",
+    speed: "Speed",
+    perception: "Perception",
+
     // Left “soft” labels (the grey words in screenshot)
     power: "Power",
     grace: "Grace",
@@ -183,6 +190,14 @@ export const DICT: Record<Lang, Record<string, string>> = {
     power: "Мощь",
     grace: "Грация",
     resistance: "Сопротивление",
+
+    derivedTitle: "Производные",
+    size: "Размер",
+    defense: "Защита",
+    initiativeMod: "Мод. инициативы",
+    speed: "Скорость",
+    perception: "Восприятие",
+
 
     permanentPerksTitle: "ПОСТОЯННЫЕ ПЕРКИ",
     temporaryPerksTitle: "ВРЕМЕННЫЕ ПЕРКИ",
