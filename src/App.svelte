@@ -4,6 +4,7 @@
   import CharacterMeta from "./components/CharacterMeta.svelte";
   import CharacterAttributes from "./components/CharacterAttributes.svelte";
   import CharacterCharacteristics from "./components/CharacterCharacteristics.svelte";
+  import ExperienceMeter from "./components/ExperienceMeter.svelte";
   import CharacterSkills from "./components/CharacterSkills.svelte";
   import PerkList from "./components/PerkList.svelte";
 
@@ -226,6 +227,19 @@
   />
   </div>
 
+  <!-- Experience (under Characteristics) -->
+  <div class="sheet xpGrid">
+    <ExperienceMeter
+            caption={t(character.lang, "experienceTitle")}
+            bind:experience={character.experience}
+    />
+
+    <ExperienceMeter
+            caption={t(character.lang, "specialExperienceTitle")}
+            bind:experience={character.specialExperience}
+    />
+  </div>
+
   <!-- Skill box -->
   <div class="sheet">
     <CharacterSkills
@@ -299,6 +313,13 @@
     font-weight: 800;
     letter-spacing: 1px;
     font-size: 20px;
+  }
+
+  .xpGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
   }
 
 </style>

@@ -35,7 +35,7 @@ export const DICT: Record<Lang, Record<string, string>> = {
     composure: "Composure",
 
     // Characteristics
-    characteristicsTitle: "CHARACTERISTICS",
+    characteristicsTitle: "Characteristics",
     confidence: "Confidence",
     health: "Health",
     aura: "Aura",
@@ -48,6 +48,9 @@ export const DICT: Record<Lang, Record<string, string>> = {
     strength: "Strength",
     agility: "Agility",
     endurance: "Endurance",
+
+    experienceTitle: "Experience",
+    specialExperienceTitle: "Special experience",
 
     // Skills
     skillsTitle: "SKILLS",
@@ -150,6 +153,9 @@ export const DICT: Record<Lang, Record<string, string>> = {
     strength: "Сила",
     agility: "Ловкость",
     endurance: "Выносливость",
+
+    experienceTitle: "Опыт",
+    specialExperienceTitle: "Особый опыт",
 
     // Skills
     skillsTitle: "НАВЫКИ",

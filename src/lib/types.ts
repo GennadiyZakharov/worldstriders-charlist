@@ -48,7 +48,12 @@ export interface CharacterCharacteristics {
     agility: number;
     endurance: number;
   };
+}
 
+export interface ExperienceState {
+  total: number;      // total experience points (>= 0)
+  spent: number;      // spent experience points (>= 0, <= total)
+  milestones: number; // 0..4 (remainder milestones)
 }
 
 type MentalSkillId =
@@ -90,6 +95,8 @@ export interface Character {
   meta: CharacterMeta;
   attributes: Attributes;
   characteristics: CharacterCharacteristics;
+  experience: ExperienceState;
+  specialExperience: ExperienceState;
   skills: CharacterSkills;
   permanentPerks: PerkEntry[];
   temporaryPerks: PerkEntry[];

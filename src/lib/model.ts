@@ -1,4 +1,4 @@
-import type {Character, SkillLine, SkillEntry, CharacterCharacteristics, CharacteristicPair} from "./types";
+import type { Character, SkillLine, SkillEntry, CharacterCharacteristics, CharacteristicPair, ExperienceState } from "./types";
 
 export const SCHEMA_VERSION = 1;
 
@@ -50,6 +50,18 @@ export function defaultCharacter(): Character {
         endurance: 1
       }
 
+    },
+
+    experience: {
+      total: 0,
+      spent: 0,
+      milestones: 0
+    },
+
+    specialExperience: {
+      total: 0,
+      spent: 0,
+      milestones: 0
     },
 
     skills: {
@@ -105,6 +117,8 @@ export function normalizeCharacter(input: unknown): Character {
   const meta = normalizeMeta(input.meta, base.meta);
   const attributes = normalizeAttributes(input.attributes, base.attributes);
   const characteristics = normalizeCharacteristics(input.characteristics, base.characteristics);
+  const experience = normalizeExperience(input.experience, base.experience);
+  const specialExperience = normalizeExperience(input.specialExperience, base.specialExperience);
   const skills = normalizeSkills(input.skills, base.skills);
   const permanentPerks = normalizePerks(input.permanentPerks);
   const temporaryPerks = normalizePerks(input.temporaryPerks);
@@ -119,6 +133,8 @@ export function normalizeCharacter(input: unknown): Character {
     meta,
     attributes,
     characteristics,
+    experience,
+    specialExperience,
     skills,
     permanentPerks,
     temporaryPerks,
@@ -236,6 +252,22 @@ function normalizeCharacteristics(
     }
   };
 }
+
+function normalizeExperience(
+    v: unknown,
+    base: ExperienceState
+): ExperienceState {
+  const r = asRecord(v);
+  if (!r) return base;
+
+  const total = clampInt(r.total, 0, 999999, base.total);
+  const spent = clampInt(r.spent, 0, total, base.spent); // <= total
+  const milestones = clampInt(r.milestones, 0, 4, base.milestones);
+
+  return { total, spent, milestones };
+}
+
+
 
 function normalizeSkillLine(raw: unknown, base: SkillLine): SkillLine {
   const r = asRecord(raw);
