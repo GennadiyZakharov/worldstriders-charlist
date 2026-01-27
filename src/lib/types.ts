@@ -56,6 +56,14 @@ export interface ExperienceState {
   milestones: number; // 0..4 (remainder milestones)
 }
 
+export type WoundMark = " " | "B" | "A" | "L";
+
+export interface WoundsState {
+  // 10 cells total for 4+3+2+1 triangle
+  marks: WoundMark[];
+}
+
+
 type MentalSkillId =
     | "humanities" | "technical" | "business" | "investigation"
     | "medicine" | "occult" | "politics" | "natural";

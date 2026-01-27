@@ -1,6 +1,11 @@
-import type { Character, SkillLine, SkillEntry, CharacterCharacteristics, CharacteristicPair, ExperienceState } from "./types";
+import type { WoundsState, Character, SkillLine, SkillEntry, CharacterCharacteristics, CharacteristicPair, ExperienceState } from "./types";
 
 export const SCHEMA_VERSION = 1;
+
+export const defaultWoundsState = (): WoundsState => ({
+  marks: Array(10).fill(" ")
+});
+
 
 export function defaultCharacter(): Character {
   return {
@@ -69,7 +74,7 @@ export function defaultCharacter(): Character {
         { id: "humanities",   line: { enabled: false, note: "", rating: 0 } },
         { id: "technical",    line: { enabled: false, note: "", rating: 0 } },
         { id: "business",     line: { enabled: false, note: "", rating: 0 } },
-        { id: "investigation",line: { enabled: false, note: "", rating: 0 } },
+        { id: "investigation", line: { enabled: false, note: "", rating: 0 } },
         { id: "medicine",     line: { enabled: false, note: "", rating: 0 } },
         { id: "occult",       line: { enabled: false, note: "", rating: 0 } },
         { id: "politics",     line: { enabled: false, note: "", rating: 0 } },

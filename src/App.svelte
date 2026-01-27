@@ -5,6 +5,7 @@
   import CharacterAttributes from "./components/CharacterAttributes.svelte";
   import CharacterCharacteristics from "./components/CharacterCharacteristics.svelte";
   import ExperienceMeter from "./components/ExperienceMeter.svelte";
+  import Wounds from "./components/Wounds.svelte";
   import CharacterSkills from "./components/CharacterSkills.svelte";
   import PerkList from "./components/PerkList.svelte";
 
@@ -227,17 +228,23 @@
   />
   </div>
 
-  <!-- Experience (under Characteristics) -->
-  <div class="sheet xpGrid">
-    <ExperienceMeter
-            caption={t(character.lang, "experienceTitle")}
-            bind:experience={character.experience}
-    />
+  <div class="sheet xpWounds">
+    <!-- LEFT: two Experience meters -->
+    <!-- Experience (under Characteristics) -->
+    <div class="sheet xpGrid">
+      <ExperienceMeter
+              caption={t(character.lang, "experienceTitle")}
+              bind:experience={character.experience}
+      />
 
-    <ExperienceMeter
-            caption={t(character.lang, "specialExperienceTitle")}
-            bind:experience={character.specialExperience}
-    />
+    </div>
+    <!-- RIGHT: wounds, boxed like other blocks -->
+    <div class="woundsBox">
+      <Wounds
+              caption={t(character.lang, "woundsTitle")}
+              bind:wounds={character.wounds}
+      />
+    </div>
   </div>
 
   <!-- Skill box -->
@@ -315,11 +322,39 @@
     font-size: 20px;
   }
 
+  .xpWounds {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-items: start;
+  }
+
+  /* Two columns for experience meters */
   .xpGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
     align-items: start;
+  }
+
+  /* Wounds should look like a block; this assumes `.sheet` already draws the rectangle.
+     If `.sheet` already provides the rectangle, you can remove woundsBox styling entirely. */
+  .woundsBox {
+    min-width: 260px; /* tweak if needed */
+  }
+
+  @media (max-width: 900px) {
+    .xpWounds {
+      grid-template-columns: 1fr;
+    }
+
+    .xpGrid {
+      grid-template-columns: 1fr;
+    }
+
+    .woundsBox {
+      min-width: 0;
+    }
   }
 
 </style>
