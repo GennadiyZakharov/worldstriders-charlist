@@ -16,7 +16,6 @@
   import type { Lang } from "./lib/types";
 
   let character = $state(defaultCharacter());
-  let saveStatus: "saved" | "notSaved" = "notSaved";
 
   // Load on startup
   {
@@ -162,7 +161,6 @@
       const text = await file.text();
       const parsed = fromYaml(text);
       character = normalizeCharacter(parsed);
-      saveStatus = "saved";
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       alert("Failed to import YAML: " + message);
@@ -238,7 +236,15 @@
       />
 
     </div>
-    <!-- RIGHT: wounds, boxed like other blocks -->
+
+    <div class="sheet xpGrid">
+      <ExperienceMeter
+              caption={t(character.lang, "specialExperienceTitle")}
+              bind:experience={character.specialExperience}
+      />
+
+    </div>
+<!--     RIGHT: wounds, boxed like other blocks-->
     <div class="woundsBox">
       <Wounds
               caption={t(character.lang, "woundsTitle")}

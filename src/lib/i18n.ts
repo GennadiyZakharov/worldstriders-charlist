@@ -51,6 +51,7 @@ export const DICT: Record<Lang, Record<string, string>> = {
 
     experienceTitle: "Experience",
     specialExperienceTitle: "Special experience",
+    woundsTitle: "Wounds",
 
     // Skills
     skillsTitle: "SKILLS",
@@ -156,6 +157,7 @@ export const DICT: Record<Lang, Record<string, string>> = {
 
     experienceTitle: "Опыт",
     specialExperienceTitle: "Особый опыт",
+    woundsTitle: "Ранения",
 
     // Skills
     skillsTitle: "НАВЫКИ",

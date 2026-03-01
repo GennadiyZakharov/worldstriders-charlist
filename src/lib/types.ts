@@ -105,6 +105,7 @@ export interface Character {
   characteristics: CharacterCharacteristics;
   experience: ExperienceState;
   specialExperience: ExperienceState;
+  wounds: WoundsState;
   skills: CharacterSkills;
   permanentPerks: PerkEntry[];
   temporaryPerks: PerkEntry[];

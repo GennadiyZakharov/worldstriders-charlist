@@ -110,6 +110,7 @@ export function defaultCharacter(): Character {
       inventory: "",
       contacts: ""
     },
+    wounds: defaultWoundsState(),
 
     updatedAt: new Date().toISOString()
   };
@@ -128,6 +129,7 @@ export function normalizeCharacter(input: unknown): Character {
   const permanentPerks = normalizePerks(input.permanentPerks);
   const temporaryPerks = normalizePerks(input.temporaryPerks);
   const notes = normalizeNotes(input.notes, base.notes);
+  const wounds = normalizeWounds(input.wounds, base.wounds);
 
   // Only allow known scalar fields; don't spread whole input.
   const lang = input.lang === "ru" || input.lang === "en" ? input.lang : base.lang;
@@ -144,6 +146,7 @@ export function normalizeCharacter(input: unknown): Character {
     permanentPerks,
     temporaryPerks,
     notes,
+    wounds,
     updatedAt: new Date().toISOString()
   };
 }
@@ -359,4 +362,24 @@ function normalizeNotes(
     inventory: str("inventory"),
     contacts: str("contacts")
   };
+}
+
+function normalizeWounds(
+    v: unknown,
+    base: Character["wounds"]
+): Character["wounds"] {
+  const r = asRecord(v);
+  if (!r) return base;
+
+  const marks = Array.isArray(r.marks) ? r.marks.map((m) => {
+    return (m === " " || m === "B" || m === "A" || m === "L") ? m : " ";
+  }) : base.marks;
+
+  // Ensure 10 cells
+  const finalMarks = Array(10).fill(" ");
+  for (let i = 0; i < 10; i++) {
+    finalMarks[i] = marks[i] || " ";
+  }
+
+  return { marks: finalMarks };
 }
