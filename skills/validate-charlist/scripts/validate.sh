@@ -1,17 +1,47 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-TMP_OUT="$(mktemp)"
-trap 'rm -f "$TMP_OUT"' EXIT
+TMP_DIR="$(mktemp -d)"
+trap 'rm -rf "$TMP_DIR"' EXIT
 
-echo "[validate] Running production build..."
-npm run build 2>&1 | tee "$TMP_OUT"
+HAS_FAILURE=0
+HAS_WARNING=0
 
-echo
-if rg -n "deprecated|a11y|warning" "$TMP_OUT" >/dev/null 2>&1; then
+run_check() {
+  local name="$1"
+  shift
+  local out_file="$TMP_DIR/${name}.log"
+
+  echo "[validate] Running ${name}..."
+  if "$@" 2>&1 | tee "$out_file"; then
+    echo "[validate] ${name}: PASS"
+  else
+    echo "[validate] ${name}: FAIL"
+    HAS_FAILURE=1
+  fi
+  echo
+}
+
+run_check "lint" npm run lint
+run_check "typecheck" npm run typecheck
+run_check "build" npm run build
+run_check "test:e2e" npm run test:e2e
+run_check "test:visual" npm run test:visual
+
+BUILD_LOG="$TMP_DIR/build.log"
+if [[ -f "$BUILD_LOG" ]] && rg -n "deprecated|a11y|warning" "$BUILD_LOG" >/dev/null 2>&1; then
   echo "[validate] Warnings detected in build output."
-  echo "[validate] Review the log above and report findings in validator output."
+  HAS_WARNING=1
+fi
+
+if [[ "$HAS_FAILURE" -ne 0 ]]; then
+  echo "[validate] One or more checks failed."
+  exit 1
+fi
+
+if [[ "$HAS_WARNING" -ne 0 ]]; then
+  echo "[validate] Checks passed but warnings were detected."
   exit 2
 fi
 
-echo "[validate] Build completed with no warning patterns detected."
+echo "[validate] All checks passed with no warning patterns detected."

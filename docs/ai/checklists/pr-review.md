@@ -28,6 +28,9 @@ Use this checklist for every agent-generated PR.
 
 ## 6) Validation Evidence
 - Build output included
+- Lint/typecheck output included
+- Playwright smoke (`npm run test:e2e`) result included
+- Playwright visual regression (`npm run test:visual`) result included
 - Manual test scenarios and results included
 - Any remaining warnings explained
 

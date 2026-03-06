@@ -1,5 +1,12 @@
 # Manual Validation Scenarios
 
+## Automated Baseline First
+
+1. Run `npm run test:e2e`.
+2. Run `npm run test:visual`.
+3. If baselines are intentionally changed, run `npm run test:visual:update` and re-run `npm run test:visual`.
+4. Include pass/fail results and any screenshot diff artifacts in validator notes.
+
 ## YAML Import/Export
 
 1. Fill several fields (meta, skills, perks).
