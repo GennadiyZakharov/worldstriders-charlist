@@ -1,6 +1,6 @@
 <script lang="ts">
     import Attribute from "./Attribute.svelte";
-    import type { Attributes } from "../types"; // adjust path
+    import type { Attributes } from "../lib/types"; // adjust path
 
     type Props = {
         title: string;
@@ -14,7 +14,7 @@
         labels,
         attributes = $bindable<Attributes>(),
         readonly = false
-    } = $props<Props>();
+    }: Props = $props();
 </script>
 
 <section class="attrs">
