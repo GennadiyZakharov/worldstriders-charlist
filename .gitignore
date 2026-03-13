@@ -136,4 +136,4 @@ dist
 # Playwright artifacts
 playwright-report/
 test-results/
-artifacts/screenshots/
+artifacts

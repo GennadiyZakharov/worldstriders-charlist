@@ -10,3 +10,4 @@ Before finishing implementation:
 - [ ] `npm run build` completed
 - [ ] Build warnings reviewed and explained
 - [ ] PR notes drafted with risks and validation
+- [ ] No new Svelte warnings introduced (or explain them)

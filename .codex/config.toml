@@ -1,0 +1,18 @@
+[features]
+multi_agent = true
+
+[agents]
+max_threads = 6
+max_depth = 1
+
+[agents.planner]
+description = "Planning-focused agent for WorldStriders Charlist. Produces small, reviewable one-PR plans and uses the plan-change skill."
+config_file = "../.agents/roles/planner.toml"
+
+[agents.coder]
+description = "Implementation-focused agent for WorldStriders Charlist. Implements only approved plans using Svelte 5 + strict TypeScript and the implement-svelte-ts skill."
+config_file = "../.agents/roles/coder.toml"
+
+[agents.validator]
+description = "Evidence-driven validation agent for WorldStriders Charlist. Runs checks, reviews regressions, and uses the validate-charlist skill."
+config_file = "../.agents/roles/validator.toml"

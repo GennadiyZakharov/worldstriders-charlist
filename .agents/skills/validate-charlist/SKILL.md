@@ -9,7 +9,7 @@ Use this skill when asked to review or validate implementation quality.
 
 ## Workflow
 
-1. Run `scripts/validate.sh` for baseline checks.
+1. Run `.agents/skills/validate-charlist/scripts/validate.sh` for baseline checks.
 2. Review changed files for model, i18n, and Svelte warning risks.
 3. Confirm Playwright smoke and visual checks passed or report why they are blocked.
 4. Report findings by severity with file/line references.
