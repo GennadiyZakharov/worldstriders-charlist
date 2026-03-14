@@ -83,7 +83,7 @@ Do not introduce alternative frameworks, servers, or runtime network dependencie
 
 ## Svelte 5 Rules
 - Prefer non-deprecated Svelte 5 patterns
-- Keep props fully typed in `$props<...>()`
+- Type props with a local `Props` type or interface and destructure as `let { ... }: Props = $props();`
 - Keep derived values in `$derived(...)` and side effects in `$effect(...)`
 - Avoid self-closing non-void HTML elements (e.g. `<button />`)
 

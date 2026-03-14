@@ -1,19 +1,21 @@
 <script lang="ts">
     import DotRating from "./DotRating.svelte";
 
+    type Props = {
+        name: string;
+        enabled?: boolean;
+        note?: string;
+        value?: number;
+        readonly?: boolean;
+    };
+
     let {
         name,
         enabled = $bindable(false),
         note = $bindable(""),
         value = $bindable(0),
         readonly = false
-    } = $props<{
-        name: string;
-        enabled?: boolean;
-        note?: string;
-        value?: number;
-        readonly?: boolean;
-    }>();
+    }: Props = $props();
 
     function clamp0to5(n: number): number {
         return Math.min(5, Math.max(0, Math.trunc(n)));

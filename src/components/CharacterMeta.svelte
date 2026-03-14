@@ -1,19 +1,5 @@
 <script lang="ts">
-    let {
-        labels,
-
-        name = $bindable(""),
-        player = $bindable(""),
-        journey = $bindable(""),
-
-        bigKey = $bindable(""),
-        smallKey = $bindable(""),
-        vice = $bindable(""),
-
-        concept = $bindable(""),
-        home = $bindable(""),
-        stratoc = $bindable("")
-    } = $props<{
+    type Props = {
         labels: {
             name: string;
             player: string;
@@ -37,7 +23,23 @@
         concept: string;
         home: string;
         stratoc: string;
-    }>();
+    };
+
+    let {
+        labels,
+
+        name = $bindable(""),
+        player = $bindable(""),
+        journey = $bindable(""),
+
+        bigKey = $bindable(""),
+        smallKey = $bindable(""),
+        vice = $bindable(""),
+
+        concept = $bindable(""),
+        home = $bindable(""),
+        stratoc = $bindable("")
+    }: Props = $props();
 </script>
 
 <div class="metaGrid">

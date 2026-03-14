@@ -1,12 +1,14 @@
 <script lang="ts">
   import DotRating from "./DotRating.svelte";
 
-  /** Free text perk name/description */
-  let { text = $bindable(""), level = $bindable(0), readonly = false } = $props<{
+  type Props = {
     text?: string;
     level?: number;
     readonly?: boolean;
-  }>();
+  };
+
+  /** Free text perk name/description */
+  let { text = $bindable(""), level = $bindable(0), readonly = false }: Props = $props();
 
   function clamp05(n: number): number {
     if (!Number.isFinite(n)) return 0;

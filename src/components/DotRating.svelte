@@ -1,4 +1,14 @@
 <script lang="ts">
+  type Props = {
+    label?: string;
+    value?: number;
+    min?: number;
+    max?: number;
+    readonly?: boolean;
+    showValue?: boolean;
+    shape?: "circle" | "square";
+  };
+
   let {
     label,
     value = $bindable(0),
@@ -7,15 +17,7 @@
     readonly = false,
     showValue = true,
     shape = "circle"
-  } = $props<{
-    label?: string;
-    value?: number;
-    min?: number;
-    max?: number;
-    readonly?: boolean;
-    showValue?: boolean;
-    shape?: "circle" | "square";
-  }>();
+  }: Props = $props();
 
   function assertInteger(name: string, n: number) {
     if (!Number.isInteger(n)) throw new Error(`[Dots] ${name} must be an integer. Got: ${n}`);

@@ -2,17 +2,19 @@
     import Perk from "./Perk.svelte";
     import type { PerkEntry } from "../lib/types";
 
+    type Props = {
+        title: string;
+        labels: { add: string; delete: string };
+        perks?: PerkEntry[];
+        readonly?: boolean;
+    };
+
     let {
         title,
         labels,
         perks = $bindable<PerkEntry[]>([]),
         readonly = false
-    } = $props<{
-        title: string;
-        labels: { add: string; delete: string };
-        perks?: PerkEntry[];
-        readonly?: boolean;
-    }>();
+    }: Props = $props();
 
     function addPerk() {
         if (readonly) return;

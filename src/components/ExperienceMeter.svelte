@@ -2,15 +2,17 @@
     import DotRating from "./DotRating.svelte";
     import type { ExperienceState } from "../lib/types"; // adjust path
 
+    type Props = {
+        caption: string;
+        experience?: ExperienceState;
+        readonly?: boolean;
+    };
+
     let {
         caption,
         experience = $bindable<ExperienceState>(),
         readonly = false
-    } = $props<{
-        caption: string;
-        experience?: ExperienceState;
-        readonly?: boolean;
-    }>();
+    }: Props = $props();
 
     const clampInt = (n: number, min: number, max: number) =>
         Math.min(max, Math.max(min, Math.trunc(Number.isFinite(n) ? n : min)));

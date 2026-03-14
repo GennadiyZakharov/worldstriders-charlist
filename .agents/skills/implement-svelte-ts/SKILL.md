@@ -19,6 +19,7 @@ Use this skill only when implementing code **after a human has approved a plan**
      - All loaded/imported character data flows through `normalizeCharacter()`
      - Strict TypeScript rules (avoid `any`)
      - Svelte 5 non-deprecated patterns
+     - Svelte props use a local `Props` type/interface with `let { ... }: Props = $props();` rather than `$props<...>()`
      - i18n via `src/lib/i18n.ts` with both `en` and `ru`
 
 3. Implement minimal changes

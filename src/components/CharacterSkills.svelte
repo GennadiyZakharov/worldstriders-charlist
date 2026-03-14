@@ -2,6 +2,19 @@
     import Skill from "./Skill.svelte";
     import type { CharacterSkills } from "../lib/types";
 
+    type Props = {
+        title: string;
+        mentalTitle: string;
+        mentalSub: string;
+        physicalTitle: string;
+        physicalSub: string;
+        socialTitle: string;
+        socialSub: string;
+        labels: Record<string, string>;
+        skills?: CharacterSkills;
+        readonly?: boolean;
+    };
+
     let {
         title,
         mentalTitle,
@@ -13,26 +26,7 @@
         labels,
         skills = $bindable<CharacterSkills>(),
         readonly = false
-    } = $props<{
-        title: string;
-
-        mentalTitle: string;
-        mentalSub: string;
-
-        physicalTitle: string;
-        physicalSub: string;
-
-        socialTitle: string;
-        socialSub: string;
-
-        // localized labels by id
-        labels: Record<string, string>;
-
-        // bindable "slice" of the character object
-        skills?: CharacterSkills;
-
-        readonly?: boolean;
-    }>();
+    }: Props = $props();
 </script>
 
 <section class="skills">

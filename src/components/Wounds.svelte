@@ -14,7 +14,7 @@
         caption,
         wounds = $bindable<WoundsState>({ marks: Array(10).fill(" ") as WoundMark[] }),
         readonly = false
-    } = $props<Props>();
+    }: Props = $props();
 
     // Shape: 4,3,2,1 => 10 cells total
     const ROW_SIZES = [4, 3, 2, 1];

@@ -3,13 +3,7 @@
     import DotRating from "./DotRating.svelte";
     import type { CharacterCharacteristics, Character } from "../lib/types";
 
-    let {
-        title,
-        labels,
-        characteristics = $bindable<CharacterCharacteristics>(),
-        character,
-        readonly = false
-    } = $props<{
+    type Props = {
         title: string;
         labels: {
             confidence: string;
@@ -19,12 +13,29 @@
             qi: string;
             willpower: string;
             charge: string;
+            body: string;
+            strength: string;
+            agility: string;
+            endurance: string;
+            derivedTitle: string;
+            size: string;
+            defense: string;
+            initiativeMod: string;
+            speed: string;
+            perception: string;
         };
-
-        characteristics?: CharacterCharacteristics;
-        character?: Character;
+        characteristics: CharacterCharacteristics;
+        character: Character;
         readonly?: boolean;
-    }>();
+    };
+
+    let {
+        title,
+        labels,
+        characteristics = $bindable<CharacterCharacteristics>(),
+        character,
+        readonly = false
+    }: Props = $props();
 
     const clampInt = (n: number, min: number, max: number) =>
         Math.min(max, Math.max(min, Math.trunc(Number.isFinite(n) ? n : min)));
