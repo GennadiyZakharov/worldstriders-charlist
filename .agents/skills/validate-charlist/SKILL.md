@@ -10,10 +10,12 @@ Use this skill when asked to review or validate implementation quality.
 ## Workflow
 
 1. Run `.agents/skills/validate-charlist/scripts/validate.sh` for baseline checks.
-2. Review changed files for model, i18n, and Svelte warning risks.
-3. Confirm Playwright smoke and visual checks passed or report why they are blocked.
-4. Report findings by severity with file/line references.
-5. If no findings, state that explicitly and note residual risks.
+2. Read `artifacts/1_plan.md` and `artifacts/2_implement.md` before reviewing the changes.
+3. Review changed files for model, i18n, and Svelte warning risks against the approved plan and implementation summary.
+4. Confirm Playwright smoke and visual checks passed or report why they are blocked.
+5. Save the validation report to `artifacts/3_validate.md`.
+6. Report findings by severity with file/line references.
+7. If no findings, state that explicitly and note residual risks.
 
 ## Required Checks
 
@@ -34,6 +36,7 @@ If visual snapshots are newly introduced or intentionally updated:
 
 - High / Medium / Low findings
 - Each finding: file, line, issue, impact, recommended fix, validation evidence
+- Include a short status summary at the top of `artifacts/3_validate.md` covering plan compliance, checks run, blocked checks, and residual risks
 
 ## References
 

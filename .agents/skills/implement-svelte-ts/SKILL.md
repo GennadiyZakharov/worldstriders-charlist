@@ -10,7 +10,7 @@ Use this skill only when implementing code **after a human has approved a plan**
 ## Workflow
 
 1. Confirm approval
-   - Locate the approved plan (usually produced by the Planner).
+   - Locate the approved plan in `artifacts/1_plan.md` (usually produced by the Planner).
    - If approval is not explicit, STOP and request approval. Do not implement.
 
 2. Re-check canonical constraints
@@ -50,8 +50,10 @@ Use this skill only when implementing code **after a human has approved a plan**
      - `npm run typecheck`
    - If a command is blocked, note it in PR risks and explain what is needed to run it.
 
-6. Prepare PR notes (required content)
-   Use `.github/pull_request_template.md` and include:
+6. Prepare implementation artifact and PR notes (required content)
+   - Use `artifacts/1_plan.md` as the implementation input.
+   - Save the implementation summary to `artifacts/2_implement.md`.
+   - Use `.github/pull_request_template.md` as the structure for `artifacts/2_implement.md` and include:
    - What changed and why
    - Files changed
    - Manual test steps and results
