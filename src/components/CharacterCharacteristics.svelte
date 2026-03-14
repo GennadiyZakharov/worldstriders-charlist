@@ -140,9 +140,6 @@
                         />
                     </div>
                 </div>
-
-                <!-- Extend here without changing layout -->
-                <slot name="afterBody" />
             </aside>
 
             <aside class="derivedPanel" aria-label={labels.derivedTitle}>
@@ -174,8 +171,6 @@
                         <div class="derivedVal">{perception}</div>
                     </div>
                 </div>
-
-                <slot name="afterDerived" />
             </aside>
         </div>
     </div>

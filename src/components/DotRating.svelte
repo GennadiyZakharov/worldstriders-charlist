@@ -1,5 +1,6 @@
 <script lang="ts">
   let {
+    label,
     value = $bindable(0),
     min = 0,
     max = 5,
@@ -7,6 +8,7 @@
     showValue = true,
     shape = "circle"
   } = $props<{
+    label?: string;
     value?: number;
     min?: number;
     max?: number;
@@ -87,10 +89,11 @@
             class:readonly={readonly}
             class:circle={shape === "circle"}
             class:square={shape === "square"}
+            aria-label={label ? `${label} ${idx + 1}/${max}` : `${idx + 1}/${max}`}
             aria-pressed={idx < value}
             disabled={readonly}
             onclick={() => setByIndex(idx + 1)}
-    />
+    ></button>
   {/each}
 
   {#if showValue}
