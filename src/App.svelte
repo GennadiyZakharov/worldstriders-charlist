@@ -128,6 +128,23 @@
     delete: t(character.lang, "delete")
   });
 
+  let experienceMeterLabels = $derived(getLabels(character.lang, {
+    total: "experienceTotal",
+    spent: "experienceSpent",
+    milestones: "experienceMilestones",
+    addMilestones: "experienceAddMilestones",
+    milestonesHint: "experienceMilestonesHint",
+    addMilestonesPrompt: "experienceAddMilestonesPrompt"
+  }));
+
+  let woundsLabels = $derived(getLabels(character.lang, {
+    empty: "woundsEmpty",
+    cellLabel: "woundsCellLabel",
+    aggravated: "woundsAggravated",
+    lethal: "woundsLethal",
+    bashing: "woundsBashing"
+  }));
+
 
   function setLang(lang: Lang) {
     character.lang = lang;
@@ -163,14 +180,14 @@
       character = normalizeCharacter(parsed);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      alert("Failed to import YAML: " + message);
+      alert(`${t(character.lang, "importYamlError")}: ${message}`);
     } finally {
       input.value = "";
     }
   }
 
   function resetAll() {
-    if (!confirm("Reset character to defaults?")) return;
+    if (!confirm(t(character.lang, "resetConfirm"))) return;
     character = defaultCharacter();
     clearStorage();
   }
@@ -232,6 +249,7 @@
     <div class="sheet xpGrid">
       <ExperienceMeter
               caption={t(character.lang, "experienceTitle")}
+              labels={experienceMeterLabels}
               bind:experience={character.experience}
       />
 
@@ -240,6 +258,7 @@
     <div class="sheet xpGrid">
       <ExperienceMeter
               caption={t(character.lang, "specialExperienceTitle")}
+              labels={experienceMeterLabels}
               bind:experience={character.specialExperience}
       />
 
@@ -248,6 +267,7 @@
     <div class="woundsBox">
       <Wounds
               caption={t(character.lang, "woundsTitle")}
+              labels={woundsLabels}
               bind:wounds={character.wounds}
       />
     </div>

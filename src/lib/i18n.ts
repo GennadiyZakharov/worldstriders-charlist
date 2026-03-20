@@ -7,6 +7,9 @@ export const DICT: Record<Lang, Record<string, string>> = {
 
     exportYaml: "Export YAML",
     importYaml: "Import YAML",
+    importYamlError: "Failed to import YAML",
+    resetConfirm: "Reset character to defaults?",
+
     reset: "Reset",
 
     name: "Name",
@@ -51,7 +54,18 @@ export const DICT: Record<Lang, Record<string, string>> = {
 
     experienceTitle: "Experience",
     specialExperienceTitle: "Special experience",
+    experienceTotal: "Total experience",
+    experienceSpent: "Spent experience",
+    experienceMilestones: "Milestones",
+    experienceAddMilestones: "Add milestones",
+    experienceMilestonesHint: "Every 5 milestones = +1 total experience",
+    experienceAddMilestonesPrompt: "How many milestones to add?",
     woundsTitle: "Wounds",
+    woundsEmpty: "Empty",
+    woundsCellLabel: "Wound",
+    woundsAggravated: "Aggravated (6 month)",
+    woundsLethal: "Lethal (1 month)",
+    woundsBashing: "Bashing (3 days)",
 
     // Skills
     skillsTitle: "SKILLS",
@@ -115,6 +129,8 @@ export const DICT: Record<Lang, Record<string, string>> = {
 
     exportYaml: "Экспорт YAML",
     importYaml: "Импорт YAML",
+    importYamlError: "Не удалось импортировать YAML",
+    resetConfirm: "Сбросить персонажа к значениям по умолчанию?",
     reset: "Сброс",
 
     name: "Имя",
@@ -157,7 +173,18 @@ export const DICT: Record<Lang, Record<string, string>> = {
 
     experienceTitle: "Опыт",
     specialExperienceTitle: "Особый опыт",
+    experienceTotal: "Всего опыта",
+    experienceSpent: "Потрачено опыта",
+    experienceMilestones: "Вехи",
+    experienceAddMilestones: "Добавить вехи",
+    experienceMilestonesHint: "Каждые 5 вех дают +1 к общему опыту",
+    experienceAddMilestonesPrompt: "Сколько вех добавить?",
     woundsTitle: "Ранения",
+    woundsEmpty: "Пусто",
+    woundsCellLabel: "Ранение",
+    woundsAggravated: "Aggravated, усиливающиеся (6 мес)",
+    woundsLethal: "Lethal, летальное (1 мес)",
+    woundsBashing: "Bashing, ударные (3 дня)",
 
     // Skills
     skillsTitle: "НАВЫКИ",

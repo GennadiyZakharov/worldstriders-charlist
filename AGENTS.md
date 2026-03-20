@@ -57,6 +57,12 @@ Do not introduce alternative frameworks, servers, or runtime network dependencie
 - If a role cannot complete its artifact, it must state the blocker explicitly in that artifact file.
 - Keep artifact content concise, reviewable, and aligned with the corresponding skill template/output requirements.
 
+### Validation runtime access
+- Browser-based validation is part of the standard workflow for this repo.
+- All agents may run Playwright checks, capture screenshots, and inspect generated artifacts when needed for implementation or validation.
+- If sandbox restrictions block local server binding, browser launch, screenshot capture, or artifact inspection, the agent should immediately re-run the required command with escalated permissions rather than skipping the check.
+- Treat Playwright execution and screenshot analysis as allowed quality work, not as an optional extra.
+
 ### PR granularity rules
 - One task per PR
 - Avoid multi-feature PRs
@@ -112,6 +118,7 @@ A change is complete only when all are true:
 - If UI text changed: both `en` and `ru` dictionaries updated in `src/lib/i18n.ts`
 - If schema/model changed: `types.ts`, defaults (`model.ts`), and normalization updated together
 - PR includes manual validation steps and outcomes
+- Required Playwright checks were run, or any blockage was explicitly documented with the reason and missing permission/runtime requirement
 
 ## Change Planning Protocol (Planner must follow)
 Before writing code:
@@ -121,6 +128,7 @@ Before writing code:
 4) Define acceptance criteria
 5) Define validation steps (commands + what “pass” means)
 6) Save the proposed plan to `artifacts/1_plan.md` before requesting approval
+7) If Playwright or screenshots are relevant, include them explicitly in the validation plan instead of leaving them implicit
 
 ## Required PR Content
 Each PR must include:

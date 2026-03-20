@@ -43,7 +43,8 @@
     const willpowerMax = $derived(character.attributes.determination + character.attributes.composure);
     const chargeMax = $derived(character.attributes.magic * 4);
 
-    const athletics = $derived(character.skills.physical.find((x) => x.id === "athletics").line.rating);
+    const athleticsSkill = $derived(character.skills.physical.find((x) => x.id === "athletics"));
+    const athletics = $derived(athleticsSkill?.line.rating ?? 0);
 
     const size = 5;
     const defense = $derived(Math.min(characteristics.body.agility, character.attributes.quickWits) + athletics);

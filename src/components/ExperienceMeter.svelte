@@ -4,12 +4,21 @@
 
     type Props = {
         caption: string;
+        labels: {
+            total: string;
+            spent: string;
+            milestones: string;
+            addMilestones: string;
+            milestonesHint: string;
+            addMilestonesPrompt: string;
+        };
         experience?: ExperienceState;
         readonly?: boolean;
     };
 
     let {
         caption,
+        labels,
         experience = $bindable<ExperienceState>(),
         readonly = false
     }: Props = $props();
@@ -51,7 +60,7 @@
     function promptAddMilestones() {
         if (readonly) return;
 
-        const raw = window.prompt("How many milestones to add?", "1");
+        const raw = window.prompt(labels.addMilestonesPrompt, "1");
         if (raw === null) return;
 
         const add = Math.trunc(Number(raw));
@@ -81,7 +90,7 @@
 
     <div class="numbers">
         <div class="numRow">
-            <div class="numLabel ws-text">Total experience</div>
+            <div class="numLabel ws-text">{labels.total}</div>
 
             <div class="numControl">
                 <input
@@ -93,7 +102,7 @@
                         max="1000"
                         value={experience.total}
                         disabled={readonly}
-                        aria-label="Total experience"
+                        aria-label={labels.total}
                         oninput={(e) => {
                           const target = e.target;
                           if (target instanceof HTMLInputElement) {
@@ -110,7 +119,7 @@
         </div>
 
         <div class="numRow">
-            <div class="numLabel ws-text">Spent experience</div>
+            <div class="numLabel ws-text">{labels.spent}</div>
 
             <div class="numControl">
                 <input
@@ -122,7 +131,7 @@
                         max={experience.total}
                         value={experience.spent}
                         disabled={readonly}
-                        aria-label="Spent experience"
+                        aria-label={labels.spent}
                         oninput={(e) => {
                           const target = e.target;
                           if (target instanceof HTMLInputElement) {
@@ -142,7 +151,7 @@
 
     <div class="milestones">
         <div class="msRow">
-            <div class="msLabel ws-text">Milestones</div>
+            <div class="msLabel ws-text">{labels.milestones}</div>
 
             <div class="msRight">
                 <DotRating
@@ -155,13 +164,13 @@
                 />
 
                 <button type="button" class="btnWide" onclick={promptAddMilestones} disabled={readonly}>
-                    Add milestones
+                    {labels.addMilestones}
                 </button>
             </div>
         </div>
 
         <div class="ws-muted hint">
-            Every 5 milestones = +1 total experience
+            {labels.milestonesHint}
         </div>
     </div>
 </section>

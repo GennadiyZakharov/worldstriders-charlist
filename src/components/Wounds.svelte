@@ -4,6 +4,13 @@
 
     type Props = {
         caption: string;
+        labels: {
+            empty: string;
+            cellLabel: string;
+            aggravated: string;
+            lethal: string;
+            bashing: string;
+        };
         wounds?: WoundsState;
         readonly?: boolean;
     };
@@ -12,6 +19,7 @@
 
     let {
         caption,
+        labels,
         wounds = $bindable<WoundsState>({ marks: Array(10).fill(" ") as WoundMark[] }),
         readonly = false
     }: Props = $props();
@@ -75,7 +83,7 @@
     }
 
     function cellLabel(v: WoundMark): string {
-        if (v === " ") return "Empty";
+        if (v === " ") return labels.empty;
         if (v === "B") return "B";
         if (v === "A") return "A";
         return "L";
@@ -94,7 +102,7 @@
                             type="button"
                             class="cell ws-text"
                             disabled={readonly}
-                            aria-label={`Wound ${idx + 1}: ${cellLabel(wounds.marks[idx] ?? " ")}`}
+                            aria-label={`${labels.cellLabel} ${idx + 1}: ${cellLabel(wounds.marks[idx] ?? " ")}`}
                             onkeydown={(e) => onKeyDown(idx, e)}
                             onclick={() => cycleAt(idx)}
                     >
@@ -106,9 +114,9 @@
     </div>
 
     <div class="legend ws-text">
-        <div><span class="tag">A</span> — Aggravated</div>
-        <div><span class="tag">L</span> — Lethal</div>
-        <div><span class="tag">B</span> — Bashing</div>
+        <div><span class="tag">A</span> - {labels.aggravated}</div>
+        <div><span class="tag">L</span> - {labels.lethal}</div>
+        <div><span class="tag">B</span> - {labels.bashing}</div>
     </div>
 </section>
 
