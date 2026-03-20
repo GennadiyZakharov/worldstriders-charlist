@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "js-yaml": "^4.1.0",
-    "svelte": "^5.0.0"
+    "svelte": "^5.53"
   },
   "devDependencies": {
     "@playwright/test": "^1.52.0",
