@@ -134,6 +134,4 @@ dist
 .pnp.*
 
 # Playwright artifacts
-playwright-report/
-test-results/
 artifacts
