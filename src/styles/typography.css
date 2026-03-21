@@ -3,22 +3,30 @@
     "Noto Sans", "Liberation Sans", sans-serif;
 
     --ws-text-size: 14px;
+    --ws-label-size: 14px;
     --ws-h1-size: 18px;
     --ws-h2-size: 14px;
 
     --ws-h1-letter: 2px;
     --ws-h2-letter: 1px;
+    --ws-label-letter: 0.06em;
 }
 
-/* Root text context */
-.ws {
+body {
     font-family: var(--ws-font);
     font-size: var(--ws-text-size);
     color: #111;
 }
 
+/* Root text context */
+.ws {
+    font: inherit;
+    color: inherit;
+}
+
 /* Header level 1 (ATTRIBUTES, SKILLS, etc) */
 .ws-h1 {
+    font-family: inherit;
     font-size: var(--ws-h1-size);
     font-weight: 800;
     letter-spacing: var(--ws-h1-letter);
@@ -29,6 +37,7 @@
 
 /* Header level 2 (Mental skills, Permanent traits, etc) */
 .ws-h2 {
+    font-family: inherit;
     font-size: var(--ws-h2-size);
     font-weight: 800;
     letter-spacing: var(--ws-h2-letter);
@@ -39,11 +48,25 @@
 
 /* Plain text */
 .ws-text {
+    font-family: inherit;
+    font-size: inherit;
     font-weight: 400;
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+/* Labels for fields, stats, and control captions */
+.ws-label {
+    font-family: inherit;
+    font-size: var(--ws-label-size);
+    font-weight: 700;
+    letter-spacing: var(--ws-label-letter);
+    text-transform: uppercase;
 }
 
 /* Emphasized text */
 .ws-strong {
+    font-family: inherit;
     font-weight: 700;
 }
 

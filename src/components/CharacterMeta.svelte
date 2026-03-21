@@ -44,36 +44,36 @@
 
 <div class="metaGrid">
     <div class="col">
-        <div class="label ws-strong">{labels.name}:</div>
-        <input type="text" bind:value={name} />
+        <div class="label ws-label">{labels.name}:</div>
+        <input class="ws-text" type="text" bind:value={name} />
 
-        <div class="label ws-strong">{labels.player}:</div>
-        <input type="text" bind:value={player} />
+        <div class="label ws-label">{labels.player}:</div>
+        <input class="ws-text" type="text" bind:value={player} />
 
-        <div class="label ws-strong">{labels.journey}:</div>
-        <input type="text" bind:value={journey} />
+        <div class="label ws-label">{labels.journey}:</div>
+        <input class="ws-text" type="text" bind:value={journey} />
     </div>
 
     <div class="col">
-        <div class="label ws-strong">{labels.bigKey}:</div>
-        <input type="text" bind:value={bigKey} />
+        <div class="label ws-label">{labels.bigKey}:</div>
+        <input class="ws-text" type="text" bind:value={bigKey} />
 
-        <div class="label ws-strong">{labels.smallKey}:</div>
-        <input type="text" bind:value={smallKey} />
+        <div class="label ws-label">{labels.smallKey}:</div>
+        <input class="ws-text" type="text" bind:value={smallKey} />
 
-        <div class="label ws-strong">{labels.vice}:</div>
-        <input type="text" bind:value={vice} />
+        <div class="label ws-label">{labels.vice}:</div>
+        <input class="ws-text" type="text" bind:value={vice} />
     </div>
 
     <div class="col">
-        <div class="label ws-strong">{labels.concept}:</div>
-        <input type="text" bind:value={concept} />
+        <div class="label ws-label">{labels.concept}:</div>
+        <input class="ws-text" type="text" bind:value={concept} />
 
-        <div class="label ws-strong">{labels.home}:</div>
-        <input type="text" bind:value={home} />
+        <div class="label ws-label">{labels.home}:</div>
+        <input class="ws-text" type="text" bind:value={home} />
 
-        <div class="label ws-strong">{labels.stratoc}:</div>
-        <input type="text" bind:value={stratoc} />
+        <div class="label ws-label">{labels.stratoc}:</div>
+        <input class="ws-text" type="text" bind:value={stratoc} />
     </div>
 </div>
 
@@ -113,7 +113,6 @@
         border-radius: 6px;
         border: 1px solid rgba(0, 0, 0, 0.25);
         background: white;
-        font-size: 12px;
         box-sizing: border-box;
     }
 </style>

@@ -28,12 +28,13 @@
 </script>
 
 <div class="stat">
-  <div class="label">{label}</div>
+  <div class="label ws-label">{label}</div>
 
   <div class="control">
-    <button type="button" on:click={dec} disabled={disabled || value <= min} aria-label="decrease">−</button>
+    <button class="ws-text ws-strong" type="button" on:click={dec} disabled={disabled || value <= min} aria-label="decrease">−</button>
 
     <input
+      class="ws-text"
       type="number"
       {min}
       {max}
@@ -43,7 +44,7 @@
       on:input={onInput}
     />
 
-    <button type="button" on:click={inc} disabled={disabled || value >= max} aria-label="increase">+</button>
+    <button class="ws-text ws-strong" type="button" on:click={inc} disabled={disabled || value >= max} aria-label="increase">+</button>
   </div>
 </div>
 
@@ -60,7 +61,7 @@
   }
 
   .label {
-    font-weight: 600;
+    white-space: nowrap;
   }
 
   .control {
@@ -77,7 +78,6 @@
     border: 1px solid rgba(0,0,0,0.16);
     background: white;
     cursor: pointer;
-    font-size: 18px;
     line-height: 1;
   }
 
@@ -93,7 +93,6 @@
     border-radius: 10px;
     border: 1px solid rgba(0,0,0,0.16);
     background: white;
-    font-size: 16px;
     text-align: center;
   }
 </style>

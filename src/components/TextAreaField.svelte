@@ -6,8 +6,8 @@
 </script>
 
 <label class="field">
-  <div class="label">{label}</div>
-  <textarea bind:value {rows} {placeholder}></textarea>
+  <div class="label ws-label">{label}</div>
+  <textarea class="ws-text" bind:value {rows} {placeholder}></textarea>
 </label>
 
 <style>
@@ -17,7 +17,7 @@
   }
 
   .label {
-    font-weight: 600;
+    white-space: nowrap;
   }
 
   textarea {
@@ -28,7 +28,6 @@
     border-radius: 12px;
     border: 1px solid rgba(0,0,0,0.16);
     background: white;
-    font-size: 14px;
     line-height: 1.35;
   }
 </style>

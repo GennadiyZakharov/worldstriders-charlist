@@ -163,7 +163,7 @@
                         readonly={readonly}
                 />
 
-                <button type="button" class="btnWide" onclick={promptAddMilestones} disabled={readonly}>
+                <button type="button" class="btnWide ws-text" onclick={promptAddMilestones} disabled={readonly}>
                     {labels.addMilestones}
                 </button>
             </div>
@@ -214,7 +214,6 @@
         border-radius: 0;
         padding: 0 6px;
         background: transparent;
-        font-size: 13px;
     }
 
     .milestones {

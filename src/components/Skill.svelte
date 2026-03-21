@@ -39,11 +39,11 @@
     />
 
     <div class="text">
-        <div class="name">{name}</div>
+        <div class="name ws-label">{name}</div>
     </div>
 
     <input
-            class="note"
+            class="note ws-text"
             type="text"
             bind:value={note}
             disabled={readonly}
@@ -81,8 +81,6 @@
     }
 
     .name {
-        font-weight: 300;
-        font-size: 12px;
         white-space: nowrap;
     }
 
@@ -93,7 +91,6 @@
         border-bottom: 1px solid rgba(0, 0, 0, 0.28);
         border-radius: 0;
         padding: 0 4px;
-        font-size: 12px;
         background: transparent;
         min-width: 0;
     }

@@ -26,7 +26,7 @@
 </script>
 
 <div class="attr">
-  <div class="name">{name}</div>
+  <div class="name ws-label">{name}</div>
 
   <DotRating
     bind:value
@@ -48,7 +48,6 @@
   }
 
   .name {
-    font-size: 16px;
-    font-weight: 700;
+    white-space: nowrap;
   }
 </style>

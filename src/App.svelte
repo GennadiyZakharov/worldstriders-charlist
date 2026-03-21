@@ -311,9 +311,6 @@
   :global(body) {
     margin: 0;
     background: white; /* as requested */
-    color: #111;
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans",
-      sans-serif;
   }
 
   .page {
@@ -343,9 +340,7 @@
   }
 
   .logoText {
-    font-weight: 800;
-    letter-spacing: 1px;
-    font-size: 20px;
+    line-height: 1.1;
   }
 
   .xpWounds {

@@ -63,7 +63,6 @@
     border-radius: 0;
     padding: 0 4px;
     background: transparent;
-    font-size: 13px;
     min-width: 0;
   }
 

@@ -32,7 +32,7 @@
     <div class="header">
         <h1 class="ws-h1">{title}</h1>
 
-        <button type="button" onclick={addPerk} disabled={readonly}>
+        <button class="ws-text" type="button" onclick={addPerk} disabled={readonly}>
             {labels.add}
         </button>
     </div>
@@ -48,7 +48,7 @@
 
                 <button
                         type="button"
-                        class="danger"
+                        class="danger ws-text"
                         onclick={() => removePerk(idx)}
                         disabled={readonly}
                         aria-label={`${labels.delete} perk`}
@@ -86,7 +86,6 @@
         border-radius: 8px;
         padding: 8px 10px;
         cursor: pointer;
-        font-size: 13px;
         line-height: 1;
         user-select: none;
     }

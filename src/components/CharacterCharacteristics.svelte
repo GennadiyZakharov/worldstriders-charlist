@@ -117,7 +117,7 @@
                 <div class="body">
                     <div class="ws-h2">{labels.body}</div>
                     <div class="bodyRow">
-                        <div class="bodyName">{labels.strength}</div>
+                        <div class="bodyName ws-label">{labels.strength}</div>
                         <DotRating
                                 bind:value={characteristics.body.strength}
                                 min={1}
@@ -129,7 +129,7 @@
                     </div>
 
                     <div class="bodyRow">
-                        <div class="bodyName">{labels.agility}</div>
+                        <div class="bodyName ws-label">{labels.agility}</div>
                         <DotRating
                                 bind:value={characteristics.body.agility}
                                 min={1}
@@ -141,7 +141,7 @@
                     </div>
 
                     <div class="bodyRow">
-                        <div class="bodyName">{labels.endurance}</div>
+                        <div class="bodyName ws-label">{labels.endurance}</div>
                         <DotRating
                                 bind:value={characteristics.body.endurance}
                                 min={1}
@@ -159,28 +159,28 @@
 
                 <div class="derivedList">
                     <div class="derivedRow">
-                        <div class="derivedName">{labels.size}</div>
-                        <div class="derivedVal">{size}</div>
+                        <div class="derivedName ws-label">{labels.size}</div>
+                        <div class="derivedVal ws-text">{size}</div>
                     </div>
 
                     <div class="derivedRow">
-                        <div class="derivedName">{labels.defense}</div>
-                        <div class="derivedVal">{defense}</div>
+                        <div class="derivedName ws-label">{labels.defense}</div>
+                        <div class="derivedVal ws-text">{defense}</div>
                     </div>
 
                     <div class="derivedRow">
-                        <div class="derivedName">{labels.initiativeMod}</div>
-                        <div class="derivedVal">{initiativeMod}</div>
+                        <div class="derivedName ws-label">{labels.initiativeMod}</div>
+                        <div class="derivedVal ws-text">{initiativeMod}</div>
                     </div>
 
                     <div class="derivedRow">
-                        <div class="derivedName">{labels.speed}</div>
-                        <div class="derivedVal">{speed}</div>
+                        <div class="derivedName ws-label">{labels.speed}</div>
+                        <div class="derivedVal ws-text">{speed}</div>
                     </div>
 
                     <div class="derivedRow">
-                        <div class="derivedName">{labels.perception}</div>
-                        <div class="derivedVal">{perception}</div>
+                        <div class="derivedName ws-label">{labels.perception}</div>
+                        <div class="derivedVal ws-text">{perception}</div>
                     </div>
                 </div>
             </aside>

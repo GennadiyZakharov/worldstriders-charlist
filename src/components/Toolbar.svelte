@@ -21,9 +21,10 @@
 
 <div class="toolbar">
     <div class="lang">
-        <span class="ws-muted">{labels.language}:</span>
+        <span class="ws-label ws-muted">{labels.language}:</span>
         <button
                 type="button"
+                class="ws-text"
                 class:active={lang === "en"}
                 on:click={() => onSetLang("en")}
                 disabled={disabled}
@@ -32,6 +33,7 @@
         </button>
         <button
                 type="button"
+                class="ws-text"
                 class:active={lang === "ru"}
                 on:click={() => onSetLang("ru")}
                 disabled={disabled}
@@ -42,11 +44,11 @@
 
     <div class="rightTools">
 
-        <button type="button" on:click={onExportYaml} disabled={disabled}>
+        <button class="ws-text" type="button" on:click={onExportYaml} disabled={disabled}>
             {labels.exportYaml}
         </button>
 
-        <label class="filebtn" class:disabled={disabled}>
+        <label class="filebtn ws-text" class:disabled={disabled}>
             {labels.importYaml}
             <input
                     type="file"
@@ -56,7 +58,7 @@
             />
         </label>
 
-        <button type="button" class="danger" on:click={onReset} disabled={disabled}>
+        <button type="button" class="danger ws-text" on:click={onReset} disabled={disabled}>
             {labels.reset}
         </button>
     </div>
@@ -95,7 +97,6 @@
         border-radius: 8px;
         padding: 8px 10px;
         cursor: pointer;
-        font-size: 13px;
         line-height: 1;
         user-select: none;
     }

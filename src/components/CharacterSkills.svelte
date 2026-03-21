@@ -37,7 +37,7 @@
         <div class="block">
             <div class="blockHeader">
                 <h2 class="ws-h2">{mentalTitle}</h2>
-                <div class="ws-muted">{mentalSub}</div>
+                <div class="ws-text ws-muted">{mentalSub}</div>
             </div>
 
             <div class="list">
@@ -57,7 +57,7 @@
         <div class="block">
             <div class="blockHeader">
                 <h2 class="ws-h2">{physicalTitle}</h2>
-                <div class="ws-muted">{physicalSub}</div>
+                <div class="ws-text ws-muted">{physicalSub}</div>
             </div>
 
             <div class="list">
@@ -77,7 +77,7 @@
         <div class="block">
             <div class="blockHeader">
                 <h2 class="ws-h2">{socialTitle}</h2>
-                <div class="ws-muted">{socialSub}</div>
+                <div class="ws-text ws-muted">{socialSub}</div>
             </div>
 
             <div class="list">

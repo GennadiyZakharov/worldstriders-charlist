@@ -99,7 +99,7 @@
   {/each}
 
   {#if showValue}
-    <span class="num">{value}/{max}</span>
+    <span class="num ws-text">{value}/{max}</span>
   {/if}
 </div>
 
@@ -138,7 +138,6 @@
   }
 
   .num {
-    font-size: 12px;
     opacity: 0.75;
     margin-left: 8px;
     min-width: 44px;

@@ -100,7 +100,7 @@
                     {@const idx = (r === 0 ? 0 : r === 1 ? 4 : r === 2 ? 7 : 9) + c}
                     <button
                             type="button"
-                            class="cell ws-text"
+                            class="cell ws-text ws-strong"
                             disabled={readonly}
                             aria-label={`${labels.cellLabel} ${idx + 1}: ${cellLabel(wounds.marks[idx] ?? " ")}`}
                             onkeydown={(e) => onKeyDown(idx, e)}
@@ -114,9 +114,9 @@
     </div>
 
     <div class="legend ws-text">
-        <div><span class="tag">A</span> - {labels.aggravated}</div>
-        <div><span class="tag">L</span> - {labels.lethal}</div>
-        <div><span class="tag">B</span> - {labels.bashing}</div>
+        <div><span class="tag ws-strong">A</span> - {labels.aggravated}</div>
+        <div><span class="tag ws-strong">L</span> - {labels.lethal}</div>
+        <div><span class="tag ws-strong">B</span> - {labels.bashing}</div>
     </div>
 </section>
 
@@ -155,7 +155,6 @@
         cursor: pointer;
         display: grid;
         place-items: center;
-        font-weight: 800;
         line-height: 1;
         user-select: none;
     }
@@ -174,6 +173,5 @@
         display: inline-block;
         min-width: 18px;
         text-align: center;
-        font-weight: 800;
     }
 </style>
