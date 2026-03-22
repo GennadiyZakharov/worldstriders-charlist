@@ -244,26 +244,24 @@
   </div>
 
   <div class="sheet xpWounds">
-    <!-- LEFT: two Experience meters -->
-    <!-- Experience (under Characteristics) -->
-    <div class="sheet xpGrid">
-      <ExperienceMeter
-              caption={t(character.lang, "experienceTitle")}
-              labels={experienceMeterLabels}
-              bind:experience={character.experience}
-      />
+    <div class="xpColumn">
+      <div class="xpCard">
+        <ExperienceMeter
+                caption={t(character.lang, "experienceTitle")}
+                labels={experienceMeterLabels}
+                bind:experience={character.experience}
+        />
+      </div>
 
+      <div class="xpCard">
+        <ExperienceMeter
+                caption={t(character.lang, "specialExperienceTitle")}
+                labels={experienceMeterLabels}
+                bind:experience={character.specialExperience}
+        />
+      </div>
     </div>
 
-    <div class="sheet xpGrid">
-      <ExperienceMeter
-              caption={t(character.lang, "specialExperienceTitle")}
-              labels={experienceMeterLabels}
-              bind:experience={character.specialExperience}
-      />
-
-    </div>
-<!--     RIGHT: wounds, boxed like other blocks-->
     <div class="woundsBox">
       <Wounds
               caption={t(character.lang, "woundsTitle")}
@@ -350,18 +348,23 @@
     align-items: start;
   }
 
-  /* Two columns for experience meters */
-  .xpGrid {
+  .xpColumn {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
     align-items: start;
   }
 
-  /* Wounds should look like a block; this assumes `.sheet` already draws the rectangle.
-     If `.sheet` already provides the rectangle, you can remove woundsBox styling entirely. */
+  .xpCard {
+    border: 2px solid rgba(0, 70, 95, 0.9);
+    border-radius: 10px;
+    padding: 14px 16px;
+    height: 100%;
+    box-sizing: border-box;
+  }
+
   .woundsBox {
-    min-width: 260px; /* tweak if needed */
+    min-width: 260px;
   }
 
   @media (max-width: 900px) {
@@ -369,7 +372,7 @@
       grid-template-columns: 1fr;
     }
 
-    .xpGrid {
+    .xpColumn {
       grid-template-columns: 1fr;
     }
 

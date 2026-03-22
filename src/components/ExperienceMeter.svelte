@@ -88,70 +88,63 @@
 <section class="xp">
     <div class="ws-h2">{caption}</div>
 
-    <div class="numbers">
+    <div class="fields">
         <div class="numRow">
-            <div class="numLabel ws-text">{labels.total}</div>
+            <div class="fieldLabel numLabel ws-text">{labels.total}</div>
 
-            <div class="numControl">
-                <input
-                        class="numInput ws-text"
-                        type="number"
-                        inputmode="numeric"
-                        min="0"
-                        step="1"
-                        max="1000"
-                        value={experience.total}
-                        disabled={readonly}
-                        aria-label={labels.total}
-                        oninput={(e) => {
-                          const target = e.target;
-                          if (target instanceof HTMLInputElement) {
-                            setTotal(
-                              Number.isFinite(target.valueAsNumber)
-                                ? target.valueAsNumber
-                                : 0
-                            );
-                          }
-                        }}
-                        onblur={() => setTotal(experience.total)}
-                />
-            </div>
+            <input
+                    class="numInput ws-text"
+                    type="number"
+                    inputmode="numeric"
+                    min="0"
+                    step="1"
+                    max="1000"
+                    value={experience.total}
+                    disabled={readonly}
+                    aria-label={labels.total}
+                    oninput={(e) => {
+                      const target = e.target;
+                      if (target instanceof HTMLInputElement) {
+                        setTotal(
+                          Number.isFinite(target.valueAsNumber)
+                            ? target.valueAsNumber
+                            : 0
+                        );
+                      }
+                    }}
+                    onblur={() => setTotal(experience.total)}
+            />
         </div>
 
         <div class="numRow">
-            <div class="numLabel ws-text">{labels.spent}</div>
+            <div class="fieldLabel numLabel ws-text">{labels.spent}</div>
 
-            <div class="numControl">
-                <input
-                        class="numInput ws-text"
-                        type="number"
-                        inputmode="numeric"
-                        min="0"
-                        step="1"
-                        max={experience.total}
-                        value={experience.spent}
-                        disabled={readonly}
-                        aria-label={labels.spent}
-                        oninput={(e) => {
-                          const target = e.target;
-                          if (target instanceof HTMLInputElement) {
-                            setSpent(
-                              Number.isFinite(target.valueAsNumber)
-                                ? target.valueAsNumber
-                                : 0
-                            );
-                          }
-                        }}
-                        onblur={() => setSpent(experience.spent)}
-                />
-
-            </div>
+            <input
+                    class="numInput ws-text"
+                    type="number"
+                    inputmode="numeric"
+                    min="0"
+                    step="1"
+                    max={experience.total}
+                    value={experience.spent}
+                    disabled={readonly}
+                    aria-label={labels.spent}
+                    oninput={(e) => {
+                      const target = e.target;
+                      if (target instanceof HTMLInputElement) {
+                        setSpent(
+                          Number.isFinite(target.valueAsNumber)
+                            ? target.valueAsNumber
+                            : 0
+                        );
+                      }
+                    }}
+                    onblur={() => setSpent(experience.spent)}
+            />
         </div>
-    </div>
 
-    <div class="milestones">
         <div class="msRow">
-            <div class="msLabel ws-text">{labels.milestones}</div>
+            <div class="fieldLabel msLabel ws-text">{labels.milestones}</div>
 
             <div class="msRight">
                 <DotRating
@@ -169,7 +162,7 @@
             </div>
         </div>
 
-        <div class="ws-muted hint">
+        <div class="hint ws-muted">
             {labels.milestonesHint}
         </div>
     </div>
@@ -180,29 +173,28 @@
         display: grid;
         gap: 10px;
         align-content: start;
+        height: 100%;
     }
 
-    .numbers {
+    .fields {
         display: grid;
         gap: 10px;
+        grid-template-columns: minmax(0, 110px) minmax(88px, 1fr);
+        align-items: start;
     }
 
     .numRow {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 12px;
+        display: contents;
+    }
+
+    .fieldLabel {
+        min-height: 28px;
+        display: flex;
         align-items: center;
     }
 
     .numLabel {
         white-space: nowrap;
-    }
-
-    .numControl {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        gap: 8px;
-        align-items: center;
     }
 
     .numInput {
@@ -216,16 +208,8 @@
         background: transparent;
     }
 
-    .milestones {
-        display: grid;
-        gap: 6px;
-    }
-
     .msRow {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 12px;
-        align-items: center;
+        display: contents;
     }
 
     .msLabel {
@@ -234,18 +218,61 @@
 
     .msRight {
         display: grid;
-        grid-template-columns: auto auto;
+        grid-template-columns: minmax(0, 1fr) minmax(116px, max-content);
         gap: 10px;
         align-items: center;
-        justify-content: end;
+        min-width: 0;
     }
 
-    /* align DotRating to the right inside the row */
     .msRight :global(.dots) {
         justify-self: end;
+        min-width: 0;
+    }
+
+    .btnWide {
+        width: 100%;
+        min-height: 32px;
+        border: 1px solid rgba(0, 0, 0, 0.25);
+        background: white;
+        border-radius: 8px;
+        padding: 8px 10px;
+        line-height: 1;
+        cursor: pointer;
+        box-sizing: border-box;
+    }
+
+    .btnWide:disabled {
+        cursor: default;
+        opacity: 0.6;
     }
 
     .hint {
-        margin-top: 2px;
+        grid-column: 1 / -1;
+        margin-top: -2px;
+        padding-left: 122px;
+    }
+
+    @media (max-width: 520px) {
+        .fields {
+            grid-template-columns: 1fr;
+        }
+
+        .fieldLabel {
+            min-height: auto;
+        }
+
+        .msRight {
+            grid-template-columns: 1fr;
+            justify-items: stretch;
+        }
+
+        .msRight :global(.dots) {
+            justify-self: start;
+        }
+
+        .hint {
+            padding-left: 0;
+            margin-top: 0;
+        }
     }
 </style>
