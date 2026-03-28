@@ -26,6 +26,9 @@
 
     // Shape: 4,3,2,1 => 10 cells total
     const ROW_SIZES = [4, 3, 2, 1];
+    const ROW_OFFSETS = [0, 4, 7, 9];
+    const TOP_MARKS = ["0", "2", "4", "6", "8"];
+    const COLUMN_MARKS = ["0", "-2", "-4", "-8"];
 
     function clampModel() {
         // Ensure correct length and allowed values
@@ -94,13 +97,26 @@
     <div class="ws-h2">{caption}</div>
 
     <div class="tri" role="group" aria-label={caption}>
+        <div class="marks marks-top ws-text ws-strong" aria-hidden="true">
+            {#each TOP_MARKS as mark (mark)}
+                <span>{mark}</span>
+            {/each}
+        </div>
+
+        <div class="marks marks-columns ws-text" aria-hidden="true">
+            {#each COLUMN_MARKS as mark, column (column)}
+                <span style:grid-column={`${column + 1} / span 1`}>{mark}</span>
+            {/each}
+        </div>
+
         {#each ROW_SIZES as n, r}
             <div class="row">
                 {#each Array(n) as _, c (c)}
-                    {@const idx = (r === 0 ? 0 : r === 1 ? 4 : r === 2 ? 7 : 9) + c}
+                    {@const idx = ROW_OFFSETS[r] + c}
                     <button
                             type="button"
                             class="cell ws-text ws-strong"
+                            style:grid-column={`${c + 1} / span 1`}
                             disabled={readonly}
                             aria-label={`${labels.cellLabel} ${idx + 1}: ${cellLabel(wounds.marks[idx] ?? " ")}`}
                             onkeydown={(e) => onKeyDown(idx, e)}
@@ -128,27 +144,49 @@
     }
 
     .tri {
+        --cell-size: clamp(28px, 6vw, 32px);
+        --cell-gap: clamp(6px, 1.6vw, 8px);
+        --tri-width: calc((var(--cell-size) * 4) + (var(--cell-gap) * 3));
         display: grid;
-        gap: 6px;
+        gap: 8px;
         justify-items: start;
+        width: max-content;
     }
 
     .row {
         display: grid;
-        gap: 6px;
-        grid-auto-flow: column;
-        justify-content: start;
+        grid-template-columns: repeat(4, var(--cell-size));
+        gap: var(--cell-gap);
+        width: var(--tri-width);
     }
 
-    /* center the triangle by adding left padding per row */
-    .row:nth-child(1) { padding-left: 0px; }
-    .row:nth-child(2) { padding-left: 14px; }
-    .row:nth-child(3) { padding-left: 28px; }
-    .row:nth-child(4) { padding-left: 42px; }
+    .marks {
+        width: var(--tri-width);
+        color: rgba(0, 0, 0, 0.75);
+    }
+
+    .marks-top {
+        display: flex;
+        justify-content: space-between;
+        padding-bottom: 4px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.35);
+    }
+
+    .marks-columns {
+        display: grid;
+        grid-template-columns: repeat(4, var(--cell-size));
+        gap: var(--cell-gap);
+        padding-bottom: 4px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+    }
+
+    .marks-columns span {
+        text-align: center;
+    }
 
     .cell {
-        width: 28px;
-        height: 28px;
+        width: var(--cell-size);
+        height: var(--cell-size);
         border: 1px solid rgba(0, 0, 0, 0.25);
         border-radius: 999px;
         background: transparent;
@@ -162,6 +200,12 @@
     .cell:disabled {
         cursor: default;
         opacity: 0.7;
+    }
+
+    .cell:hover:not(:disabled),
+    .cell:focus-visible {
+        border-color: rgba(0, 0, 0, 0.5);
+        outline: none;
     }
 
     .legend {

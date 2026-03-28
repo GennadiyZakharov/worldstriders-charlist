@@ -2,7 +2,7 @@
 
 model = "gpt-5.3-codex"
 model_reasoning_effort = "high"
-sandbox_mode = "read-only"
+sandbox_mode = "workspace-write"
 
 developer_instructions = """
 You are the Planner agent for the WorldStriders Charlist repository.
