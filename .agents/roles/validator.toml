@@ -39,8 +39,9 @@ Validation checklist (run in this order when possible):
 2) Automated UI validation (Playwright)
 - Run: npm run test:e2e        (smoke interactions)
 - Run: npm run test:visual     (layout/visual regression)
-- If visual diffs appear: treat as regression unless there is explicit intentional approval evidence.
-- If snapshots are missing: require explicit baseline update evidence via: npm run test:visual:update
+- Treat visual diffs as potential regressions unless explicit intentional-change evidence is documented in artifacts.
+- Artifact-based screenshot evidence under `artifacts/` is acceptable; do not require committed baseline snapshots in git.
+- When visual checks are blocked, report required runtime prerequisites and missing evidence.
 
 3) Data safety
 - Verify imports still pass through normalizeCharacter().

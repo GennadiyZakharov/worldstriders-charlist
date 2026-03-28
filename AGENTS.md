@@ -22,23 +22,37 @@ Do not introduce alternative frameworks, servers, or runtime network dependencie
 
 ## Collaboration Workflow
 
+### Runtime orchestration (Codex-specific)
+- When runtime supports subagents, run Planner, Coder, and Validator as isolated subagents in sequence, one role at a time.
+- Use Codex-native subagent invocation guidance rather than blending role instructions in one agent.
+- Preferred handoff pattern when supported:
+- `spawn_agent(agent_type="planner", ...)` -> wait for `artifacts/1_plan.md`
+- human approval
+- `spawn_agent(agent_type="coder", ...)` -> wait for `artifacts/2_implement.md`
+- `spawn_agent(agent_type="validator", ...)` -> wait for `artifacts/3_validate.md`
+- If subagents are unavailable, emulate the same sequence manually and keep role boundaries explicit in artifact outputs.
+
 ### Required roles
 1) **Planner**
 - Produces a scoped implementation plan
 - Identifies affected files
 - Defines acceptance criteria + validation steps
 - Saves the proposed plan to `artifacts/1_plan.md`
+- For UI/layout planning tasks, captures planning screenshots into `artifacts/screenshots/` (do not require commit)
 
 2) **Coder**
 - Implements only the approved plan
 - Keeps changes minimal and focused
 - Preserves model safety, i18n, and offline constraints
 - Uses the approved plan from `artifacts/1_plan.md`
+- Runs light implementation checks only (build/lint/typecheck as scoped)
+- Does not run or replace full Validator-stage review/reporting
 - Saves implementation and PR notes to `artifacts/2_implement.md`
 
 3) **Validator**
 - Runs required checks
 - Reviews implementation quality (model safety, i18n completeness, Svelte warnings)
+- Owns full validation stage, including Playwright and severity-based findings
 - Reports findings by severity with file/line references when possible
 - Uses `artifacts/1_plan.md` and `artifacts/2_implement.md` as validation inputs
 - Saves validation results to `artifacts/3_validate.md`
@@ -53,6 +67,7 @@ Do not introduce alternative frameworks, servers, or runtime network dependencie
 ### Artifact handoff rules
 - Create the `artifacts/` directory when needed.
 - Treat `artifacts/1_plan.md`, `artifacts/2_implement.md`, and `artifacts/3_validate.md` as the canonical handoff files between roles.
+- Keep screenshots and visual evidence under `artifacts/` (prefer `artifacts/screenshots/` for planned/manual captures); they are evidence artifacts and do not need to be committed.
 - After human approval, `artifacts/1_plan.md` becomes the approved plan artifact the Coder and Validator must follow.
 - If a role cannot complete its artifact, it must state the blocker explicitly in that artifact file.
 - Keep artifact content concise, reviewable, and aligned with the corresponding skill template/output requirements.

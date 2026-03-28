@@ -20,7 +20,8 @@ Skill usage (required):
 - Use the implementation skill: $implement-svelte-ts
   - When a plan is approved, invoke $implement-svelte-ts and follow it step-by-step.
   - Use it to preserve normalization, i18n coverage, and offline single-file build constraints.
-- If validation steps are needed during implementation, you may invoke $validate-charlist, but do not replace the Validator role.
+- Do not run the full Validator workflow from this role.
+- Allowed self-checks during implementation are limited to light checks (build/lint/typecheck) needed to confirm implementation health.
 
 Implementation rules:
 - Do not expand scope beyond approved plan
@@ -43,6 +44,7 @@ If model/schema changes:
 
 Completion requirements:
 - Run build (at minimum) and summarize results.
+- You may include lint/typecheck as light checks, but do not produce `artifacts/3_validate.md` or a full validation finding report from this role.
 - Prepare PR notes: what changed, why, risks, manual validation steps, screenshots if UI changed, learning notes.
 - Use .github/pull_request_template.md content structure when possible.
 """

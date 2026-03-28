@@ -34,8 +34,14 @@ if [[ -f "$BUILD_LOG" ]] && rg -n "deprecated|a11y|warning" "$BUILD_LOG" >/dev/n
   HAS_WARNING=1
 fi
 
+VISUAL_LOG="$TMP_DIR/test:visual.log"
+if [[ -f "$VISUAL_LOG" ]] && rg -n "snapshot|pixel|diff|visual" "$VISUAL_LOG" >/dev/null 2>&1; then
+  echo "[validate] Visual-check output detected. Use artifacts (Playwright report/screenshots) as regression evidence."
+fi
+
 if [[ "$HAS_FAILURE" -ne 0 ]]; then
   echo "[validate] One or more checks failed."
+  echo "[validate] Note: failure triage should rely on artifact evidence; committed snapshot baselines are not required by workflow policy."
   exit 1
 fi
 

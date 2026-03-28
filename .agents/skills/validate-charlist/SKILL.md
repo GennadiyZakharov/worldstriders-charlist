@@ -28,9 +28,10 @@ Use this skill when asked to review or validate implementation quality.
 - Imported data still normalizes through `normalizeCharacter()`
 - i18n updates cover both `en` and `ru`
 
-If visual snapshots are newly introduced or intentionally updated:
-- Require explicit baseline update evidence (`npm run test:visual:update`)
+For visual regression evidence:
 - Treat unexplained snapshot drift as a Medium+ finding depending on impact
+- Accept artifact-based screenshot/diff evidence under `artifacts/` (for example `artifacts/screenshots/` or Playwright reports)
+- Do not require committed baseline snapshots in git when repository policy keeps screenshot evidence in ignored artifacts paths
 
 ## Reporting Format
 

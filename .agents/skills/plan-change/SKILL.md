@@ -20,7 +20,10 @@ Use this skill when the user asks to plan a feature, refactor, fix, or enhanceme
    - Either “No schema/model changes”
    - Or list required coordinated updates (types.ts, model.ts, normalizeCharacter()).
 7. Include validation commands + manual checks with clear pass criteria.
-8. Stop and request human approval. Do not implement.
+8. For UI/layout-related tasks, include planning/analysis screenshot guidance:
+   - Capture screenshots into `artifacts/screenshots/`
+   - Treat them as review evidence (no commit required)
+9. Stop and request human approval. Do not implement.
 
 ## Guardrails
 

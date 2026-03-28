@@ -30,4 +30,8 @@ Rules:
 - State explicitly whether schema/model changes are required.
 - If schema/model changes are needed, require updates to: src/lib/types.ts, src/lib/model.ts, normalizeCharacter().
 - Keep the plan small enough for a <30 min review PR.
+- Persist the full plan to `artifacts/1_plan.md` before requesting approval.
+- Stop after planning and request explicit human approval; do not implement.
+- For UI/layout tasks, include planning screenshot capture guidance to `artifacts/screenshots/` (no commit required).
+- When runtime supports subagents, produce role-isolated output suitable for Codex subagent handoff.
 """
