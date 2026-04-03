@@ -287,20 +287,22 @@
   </div>
 
   <!-- Perks -->
-  <div class="sheet">
-    <PerkList
-            title={t(character.lang, "permanentPerksTitle")}
-            labels={perkListLabels}
-            bind:perks={character.permanentPerks}
-    />
-  </div>
+  <div class="perksGrid">
+    <div class="sheet">
+      <PerkList
+              title={t(character.lang, "permanentPerksTitle")}
+              labels={perkListLabels}
+              bind:perks={character.permanentPerks}
+      />
+    </div>
 
-  <div class="sheet">
-    <PerkList
-            title={t(character.lang, "temporaryPerksTitle")}
-            labels={perkListLabels}
-            bind:perks={character.temporaryPerks}
-    />
+    <div class="sheet">
+      <PerkList
+              title={t(character.lang, "temporaryPerksTitle")}
+              labels={perkListLabels}
+              bind:perks={character.temporaryPerks}
+      />
+    </div>
   </div>
 
 </div>
@@ -367,6 +369,13 @@
     min-width: 260px;
   }
 
+  .perksGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: start;
+  }
+
   @media (max-width: 900px) {
     .xpWounds {
       grid-template-columns: 1fr;
@@ -378,6 +387,10 @@
 
     .woundsBox {
       min-width: 0;
+    }
+
+    .perksGrid {
+      grid-template-columns: 1fr;
     }
   }
 
