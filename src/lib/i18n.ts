@@ -118,7 +118,17 @@ export const DICT: Record<Lang, Record<string, string>> = {
     permanentPerksTitle: "PERMANENT PERKS",
     temporaryPerksTitle: "TEMPORARY PERKS",
     add: "Add",
-    delete: "Delete"
+    delete: "Delete",
+
+    diceRollerTitle: "Dice Roller",
+    diceRollerDiceCount: "Number of dice",
+    diceRollerSuccessThreshold: "Success threshold",
+    diceRollerRerollThreshold: "Reroll threshold",
+    diceRollerRoll: "Roll",
+    diceRollerEmpty: "No rolls yet.",
+    diceRollerResult: "Result",
+    diceRollerSuccessSingular: "success",
+    diceRollerSuccessPlural: "successes"
 
 
   },
@@ -237,7 +247,17 @@ export const DICT: Record<Lang, Record<string, string>> = {
     permanentPerksTitle: "ПОСТОЯННЫЕ ПЕРКИ",
     temporaryPerksTitle: "ВРЕМЕННЫЕ ПЕРКИ",
     add: "Добавить",
-    delete: "Удалить"
+    delete: "Удалить",
+
+    diceRollerTitle: "Бросок кубов",
+    diceRollerDiceCount: "Количество кубов",
+    diceRollerSuccessThreshold: "Порог успеха",
+    diceRollerRerollThreshold: "Порог переброса",
+    diceRollerRoll: "Бросить",
+    diceRollerEmpty: "Бросков пока нет.",
+    diceRollerResult: "Результат",
+    diceRollerSuccessSingular: "успех",
+    diceRollerSuccessPlural: "успеха"
   }
 };
 

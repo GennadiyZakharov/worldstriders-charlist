@@ -8,6 +8,7 @@
   import Wounds from "./components/Wounds.svelte";
   import CharacterSkills from "./components/CharacterSkills.svelte";
   import PerkList from "./components/PerkList.svelte";
+  import DiceRoller from "./components/DiceRoller.svelte";
 
   import { t } from "./lib/i18n";
   import { defaultCharacter, normalizeCharacter } from "./lib/model";
@@ -145,6 +146,18 @@
     bashing: "woundsBashing"
   }));
 
+  let diceRollerLabels = $derived(getLabels(character.lang, {
+    title: "diceRollerTitle",
+    diceCount: "diceRollerDiceCount",
+    successThreshold: "diceRollerSuccessThreshold",
+    rerollThreshold: "diceRollerRerollThreshold",
+    roll: "diceRollerRoll",
+    empty: "diceRollerEmpty",
+    result: "diceRollerResult",
+    successSingular: "diceRollerSuccessSingular",
+    successPlural: "diceRollerSuccessPlural"
+  }));
+
 
   function setLang(lang: Lang) {
     character.lang = lang;
@@ -269,6 +282,10 @@
               bind:wounds={character.wounds}
       />
     </div>
+  </div>
+
+  <div class="sheet">
+    <DiceRoller labels={diceRollerLabels} />
   </div>
 
   <!-- Skill box -->
