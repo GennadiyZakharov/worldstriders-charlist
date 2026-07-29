@@ -27,12 +27,13 @@
 
     const D10_MIN = 1;
     const D10_MAX = 10;
+    const D10_DEFAULT_SUCCESS = 8;
     const MAX_DICE = 20;
-    const MAX_CHAIN_ROLLS = 10;
+    const MAX_CHAIN_ROLLS = 100;
 
     let diceCount = $state(4);
-    let successThreshold = $state(8);
-    let rerollThreshold = $state(10);
+    let successThreshold = $state(D10_DEFAULT_SUCCESS);
+    let rerollThreshold = $state(D10_MAX);
     let result = $state<RollResult | null>(null);
 
     function clampInt(value: number, min: number, max: number, fallback: number): number {
@@ -49,13 +50,17 @@
     }
 
     function setRerollThreshold(value: number) {
-        rerollThreshold = clampInt(value, D10_MIN, D10_MAX, 10);
+        rerollThreshold = clampInt(value, 2, D10_MAX, 10);
     }
 
     function rollD10(): number {
         return Math.floor(Math.random() * D10_MAX) + D10_MIN;
     }
 
+    /**
+     * Builds a chain of rolls for a single die.
+     * If the rolled value is >= threshold, the die "explodes" and we roll again.
+     */
     function buildChain(threshold: number): RollChain {
         const values: number[] = [];
         let total = 0;
@@ -65,6 +70,7 @@
             values.push(rolled);
             total += rolled;
 
+            // Stop if we didn't hit the reroll threshold
             if (rolled < threshold) {
                 return { values, total };
             }
@@ -75,17 +81,25 @@
 
     function rollAll() {
         const safeDiceCount = clampInt(diceCount, 1, MAX_DICE, 1);
-        const safeSuccessThreshold = clampInt(successThreshold, D10_MIN, D10_MAX, 8);
-        const safeRerollThreshold = clampInt(rerollThreshold, D10_MIN, D10_MAX, 10);
+        const safeSuccessThreshold = clampInt(successThreshold, D10_MIN, D10_MAX, D10_DEFAULT_SUCCESS);
+        // Ensure reroll threshold is at least 2 to avoid infinite loops
+        const safeRerollThreshold = clampInt(rerollThreshold, 2, D10_MAX, D10_MAX);
 
         diceCount = safeDiceCount;
         successThreshold = safeSuccessThreshold;
         rerollThreshold = safeRerollThreshold;
 
         const chains = Array.from({ length: safeDiceCount }, () => buildChain(safeRerollThreshold));
-        const successes = chains.reduce((count, chain) => (
-            count + chain.values.filter((value) => value >= safeSuccessThreshold).length
-        ), 0);
+
+        // Count successes: every die value >= successThreshold in every chain
+        let successes = 0;
+        for (const chain of chains) {
+            for (const val of chain.values) {
+                if (val >= safeSuccessThreshold) {
+                    successes++;
+                }
+            }
+        }
 
         result = { chains, successes };
     }
@@ -148,7 +162,7 @@
             <input
                     class="ws-text"
                     type="number"
-                    min={D10_MIN}
+                    min="2"
                     max={D10_MAX}
                     step="1"
                     inputmode="numeric"
