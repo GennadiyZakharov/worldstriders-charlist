@@ -197,7 +197,7 @@ temporaryPerks:
         temporary: parsed.temporaryPerks[0]
       };
     })).toEqual({
-      schemaVersion: 2,
+      schemaVersion: 3,
       permanent: { text: "Legacy perk", description: "", level: 5 },
       temporary: { text: "Malformed description", description: "", level: 2 }
     });
@@ -207,6 +207,123 @@ temporaryPerks:
     await page.getByRole("button", { name: "Close" }).click();
     await perkSection(page, "TEMPORARY PERKS").getByRole("button", { name: "Description" }).click();
     await expect(page.getByRole("textbox", { name: "Perk description" })).toHaveValue("");
+  });
+
+  test("edits localized Notes at the bottom and persists and resets them", async ({ page }) => {
+    const notesSheet = page.locator(".page > .sheet").last();
+    const notes = notesSheet.getByRole("textbox", { name: "Notes" });
+
+    await expect(notesSheet.getByRole("heading", { name: "Notes" })).toBeVisible();
+    await expect(notes).toBeVisible();
+    await notes.focus();
+    await expect(notes).toBeFocused();
+    await notes.fill("First line\nSecond line");
+
+    await page.getByRole("button", { name: "RU" }).click();
+    const russianNotes = notesSheet.getByRole("textbox", { name: "Заметки" });
+    await expect(notesSheet.getByRole("heading", { name: "Заметки" })).toBeVisible();
+    await expect(russianNotes).toHaveValue("First line\nSecond line");
+
+    await page.reload();
+    await expect(page.getByRole("textbox", { name: "Заметки" })).toHaveValue("First line\nSecond line");
+
+    page.once("dialog", (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "Сброс" }).click();
+    await expect(page.getByRole("textbox", { name: "Notes" })).toHaveValue("");
+  });
+
+  test("round-trips multiline Notes through YAML", async ({ page }) => {
+    await page.getByRole("textbox", { name: "Notes" }).fill("First YAML line\nSecond YAML line");
+
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: "Export YAML" }).click();
+    const download = await downloadPromise;
+    const yamlStream = await download.createReadStream();
+    const chunks: Buffer[] = [];
+    for await (const chunk of yamlStream) chunks.push(Buffer.from(chunk));
+    const yaml = Buffer.concat(chunks).toString("utf8");
+    expect(yaml).toContain("general: |-");
+    expect(yaml).toContain("First YAML line\n    Second YAML line");
+
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "notes.yaml",
+      mimeType: "text/yaml",
+      buffer: Buffer.from(yaml)
+    });
+
+    await expect(page.getByRole("textbox", { name: "Notes" }))
+      .toHaveValue("First YAML line\nSecond YAML line");
+  });
+
+  test("normalizes legacy and malformed Notes without losing known fields", async ({ page }) => {
+    const fileInput = page.locator('input[type="file"]');
+
+    await fileInput.setInputFiles({
+      name: "legacy-notes.yaml",
+      mimeType: "text/yaml",
+      buffer: Buffer.from(`schemaVersion: 2
+lang: en
+notes:
+  background: Legacy background
+  inventory: Legacy inventory
+  contacts: Legacy contacts
+  unknownField: harmless
+`)
+    });
+
+    await expect.poll(async () => page.evaluate(() => {
+      const value = localStorage.getItem("worldstriders.charlist.v1");
+      if (!value) return null;
+      const parsed = JSON.parse(value) as {
+        schemaVersion: number;
+        notes: { general: string; background: string; inventory: string; contacts: string };
+      };
+      return { schemaVersion: parsed.schemaVersion, notes: parsed.notes };
+    })).toEqual({
+      schemaVersion: 3,
+      notes: {
+        general: "",
+        background: "Legacy background",
+        inventory: "Legacy inventory",
+        contacts: "Legacy contacts"
+      }
+    });
+    await expect(page.getByRole("textbox", { name: "Notes" })).toHaveValue("");
+
+    await fileInput.setInputFiles({
+      name: "malformed-notes.yaml",
+      mimeType: "text/yaml",
+      buffer: Buffer.from(`schemaVersion: 3
+lang: en
+notes:
+  general: 42
+  background: Preserved background
+  inventory: Preserved inventory
+  contacts: Preserved contacts
+  unknownField: harmless
+`)
+    });
+
+    await expect.poll(async () => page.evaluate(() => {
+      const value = localStorage.getItem("worldstriders.charlist.v1");
+      if (!value) return null;
+      const parsed = JSON.parse(value) as {
+        schemaVersion: number;
+        notes: { general: string; background: string; inventory: string; contacts: string };
+      };
+      return { schemaVersion: parsed.schemaVersion, notes: parsed.notes };
+    })).toEqual({
+      schemaVersion: 3,
+      notes: {
+        general: "",
+        background: "Preserved background",
+        inventory: "Preserved inventory",
+        contacts: "Preserved contacts"
+      }
+    });
+    await expect(page.getByRole("textbox", { name: "Notes" })).toHaveValue("");
   });
 
   test("reveals, clamps, and retains dice roller options", async ({ page }) => {

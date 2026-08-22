@@ -1,6 +1,6 @@
 import type { WoundsState, Character, SkillLine, SkillEntry, CharacterCharacteristics, CharacteristicPair, ExperienceState, PerkEntry } from "./types";
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 export const defaultWoundsState = (): WoundsState => ({
   marks: Array(10).fill(" ")
@@ -112,6 +112,7 @@ export function defaultCharacter(): Character {
     temporaryPerks: [],
 
     notes: {
+      general: "",
       background: "",
       inventory: "",
       contacts: ""
@@ -365,6 +366,7 @@ function normalizeNotes(
       typeof r[k] === "string" ? (r[k] as string) : base[k];
 
   return {
+    general: str("general"),
     background: str("background"),
     inventory: str("inventory"),
     contacts: str("contacts")

@@ -9,6 +9,7 @@
   import CharacterSkills from "./components/CharacterSkills.svelte";
   import PerkList from "./components/PerkList.svelte";
   import DiceRoller from "./components/DiceRoller.svelte";
+  import TextAreaField from "./components/TextAreaField.svelte";
 
   import { t } from "./lib/i18n";
   import { defaultCharacter, normalizeCharacter } from "./lib/model";
@@ -324,6 +325,14 @@
               bind:perks={character.temporaryPerks}
       />
     </div>
+  </div>
+
+  <div class="sheet">
+    <TextAreaField
+      header={t(character.lang, "notesTitle")}
+      bind:value={character.notes.general}
+      rows={8}
+    />
   </div>
 
 </div>

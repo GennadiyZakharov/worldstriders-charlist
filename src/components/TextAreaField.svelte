@@ -1,14 +1,21 @@
 <script lang="ts">
-  export let label: string = "";
-  export let value: string = "";
-  export let rows: number = 5;
-  export let placeholder: string = "";
+  type Props = {
+    header: string;
+    value?: string;
+    rows?: number;
+  };
+
+  let {
+    header,
+    value = $bindable(""),
+    rows = 5
+  }: Props = $props();
 </script>
 
-<label class="field">
-  <div class="label ws-label">{label}</div>
-  <textarea class="ws-text" bind:value {rows} {placeholder}></textarea>
-</label>
+<section class="field">
+  <h1 class="ws-h1">{header}</h1>
+  <textarea class="ws-text" bind:value {rows} aria-label={header}></textarea>
+</section>
 
 <style>
   .field {
@@ -16,12 +23,9 @@
     gap: 8px;
   }
 
-  .label {
-    white-space: nowrap;
-  }
-
   textarea {
     width: 100%;
+    box-sizing: border-box;
     resize: vertical;
     min-height: 90px;
     padding: 10px 12px;

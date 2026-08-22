@@ -93,6 +93,7 @@ export interface PerkEntry {
 }
 
 export interface Notes {
+  general: string;
   background: string;
   inventory: string;
   contacts: string;
