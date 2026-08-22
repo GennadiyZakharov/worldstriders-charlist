@@ -125,6 +125,7 @@ dist
 
 # Jetbrains IDE
 .idea
+.junie
 
 # yarn v2
 .yarn/cache

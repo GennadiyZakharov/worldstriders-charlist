@@ -2,6 +2,8 @@
 
 ## Goal
 
+Plan revision: 1
+
 ## Constraints
 
 ## Scope

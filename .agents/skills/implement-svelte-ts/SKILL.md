@@ -11,7 +11,8 @@ Use this skill only when implementing code **after a human has approved a plan**
 
 1. Confirm approval
    - Locate the approved plan in `artifacts/1_plan.md` (usually produced by the Planner).
-   - If approval is not explicit, STOP and request approval. Do not implement.
+   - Confirm `artifacts/1_plan_validation.md` records `Status: APPROVED` and its reviewed revision exactly matches the plan's `Plan revision`.
+   - Confirm the human explicitly approved that matching plan. If either approval is absent or stale, STOP. Do not implement.
 
 2. Re-check canonical constraints
    - Read `AGENTS.md` and confirm:

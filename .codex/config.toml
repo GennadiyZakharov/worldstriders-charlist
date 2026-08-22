@@ -9,6 +9,10 @@ max_depth = 1
 description = "Planning-focused agent for WorldStriders Charlist. Produces small, reviewable one-PR plans and uses the plan-change skill."
 config_file = "../.agents/roles/planner.toml"
 
+[agents.plan_validator]
+description = "Repository-aware Plan Validator for WorldStriders Charlist. Reviews plans before human approval and uses the validate-plan skill."
+config_file = "../.agents/roles/plan_validator.toml"
+
 [agents.coder]
 description = "Implementation-focused agent for WorldStriders Charlist. Implements only approved plans using Svelte 5 + strict TypeScript and the implement-svelte-ts skill."
 config_file = "../.agents/roles/coder.toml"

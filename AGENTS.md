@@ -23,10 +23,13 @@ Do not introduce alternative frameworks, servers, or runtime network dependencie
 ## Collaboration Workflow
 
 ### Runtime orchestration (Codex-specific)
-- When runtime supports subagents, run Planner, Coder, and Validator as isolated subagents in sequence, one role at a time.
+- When runtime supports subagents, run Planner, Plan Validator, Coder, and Validator 
+  as isolated subagents in sequence, one role at a time.
 - Use Codex-native subagent invocation guidance rather than blending role instructions in one agent.
 - Preferred handoff pattern when supported:
 - `spawn_agent(agent_type="planner", ...)` -> wait for `artifacts/1_plan.md`
+- `spawn_agent(agent_type="plan_validator", ...)` -> wait for `artifacts/1_plan_validation.md`
+- repeat Planner -> Plan Validator until the current plan revision is `APPROVED`
 - human approval
 - `spawn_agent(agent_type="coder", ...)` -> wait for `artifacts/2_implement.md`
 - `spawn_agent(agent_type="validator", ...)` -> wait for `artifacts/3_validate.md`
@@ -35,12 +38,22 @@ Do not introduce alternative frameworks, servers, or runtime network dependencie
 ### Required roles
 1) **Planner**
 - Produces a scoped implementation plan
+- Assigns and increments the plan revision whenever it changes
 - Identifies affected files
 - Defines acceptance criteria + validation steps
 - Saves the proposed plan to `artifacts/1_plan.md`
+- Submits the draft to the Plan Validator and owns all corrections
+- Requests human plan approval only after the current revision has a matching `APPROVED` verdict
 - For UI/layout planning tasks, captures planning screenshots into `artifacts/screenshots/` (do not require commit)
 
-2) **Coder**
+2) **Plan Validator**
+- Reviews the proposed plan against `AGENTS.md` and the current repository
+- May inspect files and run read-only checks, but does not edit the plan or implementation
+- Writes only `artifacts/1_plan_validation.md`
+- Records the reviewed plan revision and exactly one verdict: `APPROVED`, `CHANGES_REQUESTED`, or `BLOCKED`
+- Sends actionable findings and questions to the Planner; it never rewrites the proposal
+
+3) **Coder**
 - Implements only the approved plan
 - Keeps changes minimal and focused
 - Preserves model safety, i18n, and offline constraints
@@ -49,7 +62,7 @@ Do not introduce alternative frameworks, servers, or runtime network dependencie
 - Does not run or replace full Validator-stage review/reporting
 - Saves implementation and PR notes to `artifacts/2_implement.md`
 
-3) **Validator**
+4) **Validator**
 - Runs required checks
 - Reviews implementation quality (model safety, i18n completeness, Svelte warnings)
 - Owns full validation stage, including Playwright and severity-based findings
@@ -58,17 +71,23 @@ Do not introduce alternative frameworks, servers, or runtime network dependencie
 - Saves validation results to `artifacts/3_validate.md`
 
 ### Required sequence
-1) Planner creates a task plan and saves it to `artifacts/1_plan.md`
-2) Human reviews and approves the saved plan
-3) Coder implements the approved plan in one branch/PR and saves notes to `artifacts/2_implement.md`
-4) Validator runs checks, uses both prior artifacts as context, and saves findings to `artifacts/3_validate.md`
-5) Human performs final PR review and merge decision
+1) Planner creates revision N of a task plan and saves it to `artifacts/1_plan.md`
+2) Plan Validator reviews revision N against the repository and saves its verdict to `artifacts/1_plan_validation.md`
+3) For `CHANGES_REQUESTED`, Planner corrects the plan, increments its revision, and returns to step 2. For `BLOCKED`, the missing input or access and required unblock action must be resolved before review resumes. Human clarification may resolve product intent, but is not plan approval and the revised plan must return to step 2.
+4) Only after `artifacts/1_plan_validation.md` records `Status: APPROVED` for the exact current plan revision does Planner request human approval
+5) Human reviews and explicitly approves the saved plan
+6) Coder verifies both matching Plan Validator approval and explicit human approval, implements the approved plan, and saves notes to `artifacts/2_implement.md`
+7) Validator runs checks, uses both prior implementation-stage artifacts as context, and saves findings to `artifacts/3_validate.md`
+8) Human performs final PR review and merge decision
 
 ### Artifact handoff rules
 - Create the `artifacts/` directory when needed.
-- Treat `artifacts/1_plan.md`, `artifacts/2_implement.md`, and `artifacts/3_validate.md` as the canonical handoff files between roles.
+- Treat `artifacts/1_plan.md`, `artifacts/1_plan_validation.md`, `artifacts/2_implement.md`, and `artifacts/3_validate.md` as the canonical handoff files between roles.
 - Keep screenshots and visual evidence under `artifacts/` (prefer `artifacts/screenshots/` for planned/manual captures); they are evidence artifacts and do not need to be committed.
-- After human approval, `artifacts/1_plan.md` becomes the approved plan artifact the Coder and Validator must follow.
+- `artifacts/1_plan.md` must contain a positive integer `Plan revision`. Any change to the plan requires Planner to increment it.
+- `artifacts/1_plan_validation.md` is authoritative only when its reviewed revision exactly matches the current plan revision. A revision mismatch makes an older verdict stale.
+- The Plan Validator may write only `artifacts/1_plan_validation.md`; `CHANGES_REQUESTED` routes corrections to Planner, while `BLOCKED` identifies missing input or repository access and the required unblock action.
+- After matching Plan Validator approval and explicit human approval, `artifacts/1_plan.md` becomes the approved plan artifact the Coder and Validator must follow.
 - If a role cannot complete its artifact, it must state the blocker explicitly in that artifact file.
 - Keep artifact content concise, reviewable, and aligned with the corresponding skill template/output requirements.
 
@@ -143,7 +162,8 @@ Before writing code:
 4) Define acceptance criteria
 5) Define validation steps (commands + what “pass” means)
 6) Save the proposed plan to `artifacts/1_plan.md` before requesting approval
-7) If Playwright or screenshots are relevant, include them explicitly in the validation plan instead of leaving them implicit
+7) Submit each revision to the Plan Validator and resolve `CHANGES_REQUESTED` or `BLOCKED` results; do not request human approval without a matching `APPROVED` verdict
+8) If Playwright or screenshots are relevant, include them explicitly in the validation plan instead of leaving them implicit
 
 ## Required PR Content
 Each PR must include:

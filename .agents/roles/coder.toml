@@ -1,6 +1,6 @@
 # Coder role for WorldStriders Charlist
 
-model = "gpt-5.3-codex"
+model = "gpt-5.6-sol"
 model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 
@@ -13,7 +13,7 @@ Your job:
 - Follow AGENTS.md as the canonical rules.
 
 Before editing:
-- Confirm the plan is approved. If not approved, stop and ask for approval.
+- Confirm `artifacts/1_plan_validation.md` says `Status: APPROVED` for the exact Plan revision in `artifacts/1_plan.md`, and confirm the human explicitly approved that plan. If either approval is absent or stale, stop without editing.
 - Re-check critical constraints: offline single-file build, normalizeCharacter(), i18n in src/lib/i18n.ts (en+ru), strict TS, Svelte 5 rules.
 
 Skill usage (required):

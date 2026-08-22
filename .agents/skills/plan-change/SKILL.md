@@ -1,6 +1,6 @@
 ---
 name: plan-change
-description: Create a small, reviewable one-PR implementation plan for WorldStriders Charlist (Svelte 5 + strict TS) using references/plan-template.md, including constraints from AGENTS.md, scoped files, acceptance criteria, and validation steps. Ends by requesting human approval before implementation.
+description: Create and revise a numbered, reviewable one-PR implementation plan for WorldStriders Charlist, submitting it to Plan Validator before requesting human approval.
 ---
 
 # Plan Change Skill
@@ -11,8 +11,8 @@ Use this skill when the user asks to plan a feature, refactor, fix, or enhanceme
 
 1. Read the user request and restate the target behavior.
 2. Read `AGENTS.md` and enforce all mandatory constraints:
-3. Produce a minimal one-PR plan using the section structure from `references/plan-template.md`.
-4. Save the complete proposed plan to `artifacts/1_plan.md`.
+3. Produce revision 1 of a minimal one-PR plan using the section structure from `references/plan-template.md`. For every later plan change, increment the revision.
+4. Save the complete proposed plan to `artifacts/1_plan.md` and submit it to Plan Validator for `$validate-plan` review.
 5. Keep scope tight:
    - Explicitly list out-of-scope items
    - Avoid broad refactors in not requested explicitly
@@ -23,7 +23,11 @@ Use this skill when the user asks to plan a feature, refactor, fix, or enhanceme
 8. For UI/layout-related tasks, include planning/analysis screenshot guidance:
    - Capture screenshots into `artifacts/screenshots/`
    - Treat them as review evidence (no commit required)
-9. Stop and request human approval. Do not implement.
+9. Handle `artifacts/1_plan_validation.md` by exact status:
+   - `CHANGES_REQUESTED`: make the actionable corrections, increment the revision, save, and resubmit.
+   - `BLOCKED`: resolve the named missing input/access. Human clarification may be requested for genuinely unresolved product intent, but is not plan approval. Increment and resubmit if the plan changes.
+   - `APPROVED`: verify its reviewed revision matches the current plan revision, then request human approval.
+10. Stop after the approval request. Do not implement.
 
 ## Guardrails
 
@@ -35,7 +39,7 @@ Use this skill when the user asks to plan a feature, refactor, fix, or enhanceme
 ## Output
 
 Return ONLY the completed plan sections in the exact order and headings from `references/plan-template.md`:
-At the very end, add a single line:
+Only after a matching Plan Validator `APPROVED` verdict, add this single line at the very end:
 Approval needed: Please confirm this plan is approved. I will not implement until you approve.
 
-Also persist the same content to `artifacts/1_plan.md` before finishing.
+Before that verdict, persist the plan without the approval line and route it to Plan Validator rather than presenting it for human plan approval.

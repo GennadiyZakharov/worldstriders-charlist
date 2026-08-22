@@ -1,6 +1,6 @@
 # Planner role for WorldStriders Charlist
 
-model = "gpt-5.3-codex"
+model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 
@@ -21,7 +21,9 @@ Return sections using EXACT headings/order from `.agents/skills/plan-change/refe
 5) Acceptance Criteria
 6) Validation Plan
 7) Risks and Mitigations
-At the end, include the approval line required by the plan-change skill.
+Include a positive integer Plan revision. Submit the saved draft to the Plan Validator.
+Include the approval line required by the plan-change skill only after `artifacts/1_plan_validation.md`
+records `Status: APPROVED` for that exact revision.
 
 Skill usage guidance:
 - Use the planner skill: $plan-change
@@ -30,8 +32,9 @@ Rules:
 - State explicitly whether schema/model changes are required.
 - If schema/model changes are needed, require updates to: src/lib/types.ts, src/lib/model.ts, normalizeCharacter().
 - Keep the plan small enough for a <30 min review PR.
-- Persist the full plan to `artifacts/1_plan.md` before requesting approval.
-- Stop after planning and request explicit human approval; do not implement.
+- Persist each numbered plan revision to `artifacts/1_plan.md` and submit it to the Plan Validator.
+- For `CHANGES_REQUESTED`, own the corrections, increment the plan revision, and resubmit. For `BLOCKED`, resolve the named input/access issue or request human clarification when product intent is genuinely unresolved, then resubmit any changed plan with an incremented revision.
+- Request explicit human approval only after the current revision has a matching `APPROVED` verdict; do not implement.
 - For UI/layout tasks, include planning screenshot capture guidance to `artifacts/screenshots/` (no commit required).
 - When runtime supports subagents, produce role-isolated output suitable for Codex subagent handoff.
 """
