@@ -43,7 +43,7 @@ export const DICT: Record<Lang, Record<string, string>> = {
     health: "Health",
     aura: "Aura",
     soul: "Soul",
-    qi: "Qi",
+    qi: "FI",
     willpower: "Willpower",
     charge: "Charge",
 
