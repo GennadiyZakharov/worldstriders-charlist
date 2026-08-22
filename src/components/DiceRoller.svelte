@@ -13,6 +13,7 @@
         labels: {
             title: string;
             diceCount: string;
+            options: string;
             successThreshold: string;
             rerollThreshold: string;
             roll: string;
@@ -127,54 +128,64 @@
     <h1 class="ws-h1">{labels.title}</h1>
 
     <div class="controls">
-        <label class="field">
-            <span class="ws-label">{labels.diceCount}</span>
-            <input
-                    class="ws-text"
-                    type="number"
-                    min="1"
-                    max={MAX_DICE}
-                    step="1"
-                    inputmode="numeric"
-                    bind:value={diceCount}
-                    aria-label={labels.diceCount}
-                    onblur={() => setDiceCount(diceCount)}
-            />
-        </label>
+        <div class="primaryControls">
+            <label class="field diceCountField">
+                <span class="ws-label">{labels.diceCount}</span>
+                <input
+                        class="ws-text"
+                        type="number"
+                        min="1"
+                        max={MAX_DICE}
+                        step="1"
+                        inputmode="numeric"
+                        bind:value={diceCount}
+                        aria-label={labels.diceCount}
+                        onblur={() => setDiceCount(diceCount)}
+                />
+            </label>
 
-        <label class="field">
-            <span class="ws-label">{labels.successThreshold}</span>
-            <input
-                    class="ws-text"
-                    type="number"
-                    min={D10_MIN}
-                    max={D10_MAX}
-                    step="1"
-                    inputmode="numeric"
-                    bind:value={successThreshold}
-                    aria-label={labels.successThreshold}
-                    onblur={() => setSuccessThreshold(successThreshold)}
-            />
-        </label>
+            <details class="optionsDisclosure">
+                <summary class="optionsButton ws-text">{labels.options}</summary>
+                <div class="optionsPanel">
+                    <label class="field">
+                        <span class="ws-label">{labels.successThreshold}</span>
+                        <input
+                                class="ws-text"
+                                type="number"
+                                min={D10_MIN}
+                                max={D10_MAX}
+                                step="1"
+                                inputmode="numeric"
+                                bind:value={successThreshold}
+                                aria-label={labels.successThreshold}
+                                onblur={() => setSuccessThreshold(successThreshold)}
+                        />
+                    </label>
 
-        <label class="field">
-            <span class="ws-label">{labels.rerollThreshold}</span>
-            <input
-                    class="ws-text"
-                    type="number"
-                    min="2"
-                    max={D10_MAX}
-                    step="1"
-                    inputmode="numeric"
-                    bind:value={rerollThreshold}
-                    aria-label={labels.rerollThreshold}
-                    onblur={() => setRerollThreshold(rerollThreshold)}
-            />
-        </label>
+                    <label class="field">
+                        <span class="ws-label">{labels.rerollThreshold}</span>
+                        <input
+                                class="ws-text"
+                                type="number"
+                                min="2"
+                                max={D10_MAX}
+                                step="1"
+                                inputmode="numeric"
+                                bind:value={rerollThreshold}
+                                aria-label={labels.rerollThreshold}
+                                onblur={() => setRerollThreshold(rerollThreshold)}
+                        />
+                    </label>
+                </div>
+            </details>
+        </div>
 
-        <button type="button" class="rollButton ws-text" onclick={rollAll}>
-            {labels.roll}
-        </button>
+        <div class="rollAction">
+            <button type="button" class="rollButton ws-text" onclick={rollAll}>
+                <span class="diceIcon" aria-hidden="true"></span>
+                <span>{labels.roll}</span>
+            </button>
+        </div>
     </div>
 
     <div class="resultBlock">
@@ -199,9 +210,58 @@
 
     .controls {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+        gap: 16px;
+        width: min(100%, 620px);
+        margin-inline: auto;
+    }
+
+    .primaryControls {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .diceCountField {
+        flex: 1 1 260px;
+    }
+
+    .optionsDisclosure {
+        flex: 1 1 300px;
+        min-width: 0;
+        padding-top: 23px;
+    }
+
+    .optionsButton {
+        width: fit-content;
+        margin-left: auto;
+        padding: 6px 14px;
+        border: 1px solid rgba(0, 70, 95, 0.35);
+        border-radius: 8px;
+        background: rgba(0, 70, 95, 0.04);
+        cursor: pointer;
+        list-style: none;
+        white-space: nowrap;
+    }
+
+    .optionsButton::-webkit-details-marker {
+        display: none;
+    }
+
+    .optionsButton:focus-visible,
+    .rollButton:focus-visible {
+        outline: 2px solid rgba(0, 70, 95, 0.8);
+        outline-offset: 2px;
+    }
+
+    .optionsDisclosure[open] .optionsButton {
+        background: rgba(0, 70, 95, 0.1);
+    }
+
+    .optionsPanel {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 12px;
-        align-items: end;
+        margin-top: 12px;
     }
 
     .field {
@@ -222,13 +282,41 @@
     }
 
     .rollButton {
-        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 40px;
         border: 1px solid rgba(0, 70, 95, 0.35);
         border-radius: 8px;
-        background: rgba(0, 70, 95, 0.08);
-        padding: 0 14px;
+        background: rgba(0, 70, 95, 0.12);
+        padding: 7px 22px;
         cursor: pointer;
         white-space: nowrap;
+    }
+
+    .rollButton:hover {
+        background: rgba(0, 70, 95, 0.18);
+    }
+
+    .diceIcon {
+        width: 16px;
+        height: 16px;
+        border: 1px solid currentColor;
+        border-radius: 4px;
+        background:
+                radial-gradient(circle at 28% 28%, currentColor 0 1.5px, transparent 1.7px),
+                radial-gradient(circle at 72% 28%, currentColor 0 1.5px, transparent 1.7px),
+                radial-gradient(circle at 50% 50%, currentColor 0 1.5px, transparent 1.7px),
+                radial-gradient(circle at 28% 72%, currentColor 0 1.5px, transparent 1.7px),
+                radial-gradient(circle at 72% 72%, currentColor 0 1.5px, transparent 1.7px);
+        box-sizing: border-box;
+        flex: 0 0 auto;
+    }
+
+    .rollAction {
+        display: flex;
+        justify-content: center;
     }
 
     .resultBlock {
@@ -252,7 +340,11 @@
     }
 
     @media (max-width: 900px) {
-        .controls {
+        .primaryControls {
+            gap: 12px;
+        }
+
+        .optionsPanel {
             grid-template-columns: 1fr;
         }
     }

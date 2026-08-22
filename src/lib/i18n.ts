@@ -121,7 +121,8 @@ export const DICT: Record<Lang, Record<string, string>> = {
     delete: "Delete",
 
     diceRollerTitle: "Dice Roller",
-    diceRollerDiceCount: "Number of dice",
+    diceRollerDiceCount: "Number of d10 dice",
+    diceRollerOptions: "Options",
     diceRollerSuccessThreshold: "Success threshold",
     diceRollerRerollThreshold: "Reroll threshold",
     diceRollerRoll: "Roll",
@@ -250,7 +251,8 @@ export const DICT: Record<Lang, Record<string, string>> = {
     delete: "Удалить",
 
     diceRollerTitle: "Бросок кубов",
-    diceRollerDiceCount: "Количество кубов",
+    diceRollerDiceCount: "Количество кубиков d10",
+    diceRollerOptions: "Настройки",
     diceRollerSuccessThreshold: "Порог успеха",
     diceRollerRerollThreshold: "Порог переброса",
     diceRollerRoll: "Бросить",

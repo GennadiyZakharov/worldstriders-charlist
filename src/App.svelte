@@ -149,6 +149,7 @@
   let diceRollerLabels = $derived(getLabels(character.lang, {
     title: "diceRollerTitle",
     diceCount: "diceRollerDiceCount",
+    options: "diceRollerOptions",
     successThreshold: "diceRollerSuccessThreshold",
     rerollThreshold: "diceRollerRerollThreshold",
     roll: "diceRollerRoll",
