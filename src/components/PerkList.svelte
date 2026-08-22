@@ -1,10 +1,17 @@
 <script lang="ts">
     import Perk from "./Perk.svelte";
     import type { PerkEntry } from "../lib/types";
+    import { defaultPerk } from "../lib/model";
 
     type Props = {
         title: string;
-        labels: { add: string; delete: string };
+        labels: {
+            add: string;
+            delete: string;
+            description: string;
+            descriptionTitle: string;
+            close: string;
+        };
         perks?: PerkEntry[];
         readonly?: boolean;
     };
@@ -18,7 +25,7 @@
 
     function addPerk() {
         if (readonly) return;
-        perks = [...perks, { text: "", level: 0 }];
+        perks = [...perks, defaultPerk()];
     }
 
     function removePerk(idx: number) {
@@ -42,7 +49,9 @@
             <div class="row">
                 <Perk
                         bind:text={p.text}
+                        bind:description={p.description}
                         bind:level={p.level}
+                        labels={labels}
                         readonly={readonly}
                 />
 
@@ -75,7 +84,7 @@
 
     .row {
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: minmax(0, 1fr) auto;
         gap: 10px;
         align-items: center;
     }

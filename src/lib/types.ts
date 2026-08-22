@@ -88,6 +88,7 @@ export interface CharacterSkills {
 
 export interface PerkEntry {
   text: string;
+  description: string;
   level: number; // 0..5
 }
 

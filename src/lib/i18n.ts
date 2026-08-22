@@ -119,6 +119,9 @@ export const DICT: Record<Lang, Record<string, string>> = {
     temporaryPerksTitle: "TEMPORARY PERKS",
     add: "Add",
     delete: "Delete",
+    perkDescription: "Description",
+    perkDescriptionTitle: "Perk description",
+    close: "Close",
 
     diceRollerTitle: "Dice Roller",
     diceRollerDiceCount: "Number of d10 dice",
@@ -249,6 +252,9 @@ export const DICT: Record<Lang, Record<string, string>> = {
     temporaryPerksTitle: "ВРЕМЕННЫЕ ПЕРКИ",
     add: "Добавить",
     delete: "Удалить",
+    perkDescription: "Описание",
+    perkDescriptionTitle: "Описание перка",
+    close: "Закрыть",
 
     diceRollerTitle: "Бросок кубов",
     diceRollerDiceCount: "Количество кубиков d10",

@@ -1,9 +1,15 @@
-import type { WoundsState, Character, SkillLine, SkillEntry, CharacterCharacteristics, CharacteristicPair, ExperienceState } from "./types";
+import type { WoundsState, Character, SkillLine, SkillEntry, CharacterCharacteristics, CharacteristicPair, ExperienceState, PerkEntry } from "./types";
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export const defaultWoundsState = (): WoundsState => ({
   marks: Array(10).fill(" ")
+});
+
+export const defaultPerk = (): PerkEntry => ({
+  text: "",
+  description: "",
+  level: 0
 });
 
 
@@ -332,18 +338,19 @@ function normalizePerks(v: unknown): Character["permanentPerks"] {
 
   return v.map((x) => {
     if (typeof x !== "object" || x === null) {
-      return { text: "", level: 0 };
+      return defaultPerk();
     }
 
     const r = x as Record<string, unknown>;
 
     const text = typeof r.text === "string" ? r.text : "";
+    const description = typeof r.description === "string" ? r.description : "";
     const level =
         typeof r.level === "number" && Number.isFinite(r.level)
             ? Math.min(5, Math.max(0, Math.trunc(r.level)))
             : 0;
 
-    return { text, level };
+    return { text, description, level };
   });
 }
 

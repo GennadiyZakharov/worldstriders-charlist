@@ -126,7 +126,10 @@
 
   let perkListLabels = $derived({
     add: t(character.lang, "add"),
-    delete: t(character.lang, "delete")
+    delete: t(character.lang, "delete"),
+    description: t(character.lang, "perkDescription"),
+    descriptionTitle: t(character.lang, "perkDescriptionTitle"),
+    close: t(character.lang, "close")
   });
 
   let experienceMeterLabels = $derived(getLabels(character.lang, {
