@@ -11,6 +11,12 @@
         socialTitle: string;
         socialSub: string;
         labels: Record<string, string>;
+        editorLabels: {
+            specializations: string;
+            specializationsShort: string;
+            specializationsTitle: string;
+            close: string;
+        };
         skills?: CharacterSkills;
         readonly?: boolean;
     };
@@ -24,6 +30,7 @@
         socialTitle,
         socialSub,
         labels,
+        editorLabels,
         skills = $bindable<CharacterSkills>(),
         readonly = false
     }: Props = $props();
@@ -44,6 +51,7 @@
                 {#each skills.mental as s, idx (s.id)}
                     <Skill
                             name={labels[s.id] ?? s.id}
+                            labels={editorLabels}
                             bind:enabled={skills.mental[idx].line.enabled}
                             bind:note={skills.mental[idx].line.note}
                             bind:value={skills.mental[idx].line.rating}
@@ -64,6 +72,7 @@
                 {#each skills.physical as s, idx (s.id)}
                     <Skill
                             name={labels[s.id] ?? s.id}
+                            labels={editorLabels}
                             bind:enabled={skills.physical[idx].line.enabled}
                             bind:note={skills.physical[idx].line.note}
                             bind:value={skills.physical[idx].line.rating}
@@ -84,6 +93,7 @@
                 {#each skills.social as s, idx (s.id)}
                     <Skill
                             name={labels[s.id] ?? s.id}
+                            labels={editorLabels}
                             bind:enabled={skills.social[idx].line.enabled}
                             bind:note={skills.social[idx].line.note}
                             bind:value={skills.social[idx].line.rating}

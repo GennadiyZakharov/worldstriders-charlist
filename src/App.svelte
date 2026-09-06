@@ -133,6 +133,13 @@
     close: t(character.lang, "close")
   });
 
+  let skillEditorLabels = $derived({
+    specializations: t(character.lang, "skillSpecializations"),
+    specializationsShort: t(character.lang, "skillSpecializationsShort"),
+    specializationsTitle: t(character.lang, "skillSpecializationsTitle"),
+    close: t(character.lang, "close")
+  });
+
   let experienceMeterLabels = $derived(getLabels(character.lang, {
     total: "experienceTotal",
     spent: "experienceSpent",
@@ -304,6 +311,7 @@
             socialTitle={t(character.lang, "socialTitle")}
             socialSub={t(character.lang, "socialSub")}
             labels={skillLabels}
+            editorLabels={skillEditorLabels}
             bind:skills={character.skills}
     />
   </div>

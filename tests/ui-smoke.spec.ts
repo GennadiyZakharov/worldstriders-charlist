@@ -4,6 +4,47 @@ function perkSection(page: Page, title: string) {
   return page.getByRole("heading", { name: title }).locator("../..");
 }
 
+async function expectInlineSkillRow(
+  page: Page,
+  accessibleName: string,
+  visibleLabel: string
+) {
+  const button = page.getByRole("button", { name: accessibleName });
+  const row = button.locator("..");
+  const checkbox = row.getByRole("checkbox");
+  const name = row.locator(".name");
+  const rating = row.locator(".rating");
+
+  await expect(button).toHaveText(visibleLabel);
+
+  const [rowBox, checkboxBox, nameBox, buttonBox, ratingBox] = await Promise.all([
+    row.boundingBox(),
+    checkbox.boundingBox(),
+    name.boundingBox(),
+    button.boundingBox(),
+    rating.boundingBox()
+  ]);
+
+  expect(rowBox).not.toBeNull();
+  expect(checkboxBox).not.toBeNull();
+  expect(nameBox).not.toBeNull();
+  expect(buttonBox).not.toBeNull();
+  expect(ratingBox).not.toBeNull();
+
+  if (!rowBox || !checkboxBox || !nameBox || !buttonBox || !ratingBox) return;
+
+  const centerY = (box: { y: number; height: number }) => box.y + box.height / 2;
+  expect(Math.abs(centerY(nameBox) - centerY(buttonBox))).toBeLessThan(2);
+  expect(Math.abs(centerY(buttonBox) - centerY(ratingBox))).toBeLessThan(2);
+  expect(checkboxBox.x).toBeLessThan(nameBox.x);
+  expect(nameBox.x + nameBox.width).toBeLessThanOrEqual(buttonBox.x);
+  expect(buttonBox.x + buttonBox.width).toBeLessThanOrEqual(ratingBox.x);
+  expect(ratingBox.x + ratingBox.width).toBeLessThanOrEqual(rowBox.x + rowBox.width + 1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+    await page.evaluate(() => document.documentElement.clientWidth)
+  );
+}
+
 test.describe("UI smoke", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
@@ -207,6 +248,124 @@ temporaryPerks:
     await page.getByRole("button", { name: "Close" }).click();
     await perkSection(page, "TEMPORARY PERKS").getByRole("button", { name: "Description" }).click();
     await expect(page.getByRole("textbox", { name: "Perk description" })).toHaveValue("");
+  });
+
+  test("edits localized multiline Skill specializations and persists them", async ({ page }) => {
+    const humanitiesButton = page.getByRole("button", { name: "Specializations: Humanities" });
+    await humanitiesButton.focus();
+    await page.keyboard.press("Enter");
+
+    let dialog = page.getByRole("dialog", { name: "Skill specializations: Humanities" });
+    const humanitiesText = dialog.getByRole("textbox", { name: "Skill specializations: Humanities" });
+    await humanitiesText.fill("History\nLinguistics");
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+
+    await humanitiesButton.click();
+    await expect(humanitiesText).toHaveValue("History\nLinguistics");
+    await dialog.getByRole("button", { name: "Close" }).click();
+
+    await page.getByRole("button", { name: "Specializations: Technical" }).click();
+    dialog = page.getByRole("dialog", { name: "Skill specializations: Technical" });
+    await dialog.getByRole("textbox", { name: "Skill specializations: Technical" }).fill("Engineering");
+    await dialog.getByRole("button", { name: "Close" }).click();
+
+    await page.getByRole("button", { name: "RU" }).click();
+    await page.getByRole("button", { name: "Специализации: Гуманитарные н." }).click();
+    const russianDialog = page.getByRole("dialog", { name: "Специализации навыка: Гуманитарные н." });
+    await expect(russianDialog.getByRole("textbox", { name: "Специализации навыка: Гуманитарные н." }))
+      .toHaveValue("History\nLinguistics");
+    await russianDialog.getByRole("button", { name: "Закрыть" }).click();
+
+    await page.reload();
+    await page.getByRole("button", { name: "Специализации: Гуманитарные н." }).click();
+    await expect(page.getByRole("textbox", { name: "Специализации навыка: Гуманитарные н." }))
+      .toHaveValue("History\nLinguistics");
+    await page.getByRole("button", { name: "Закрыть" }).click();
+    await page.getByRole("button", { name: "Специализации: Технические н." }).click();
+    await expect(page.getByRole("textbox", { name: "Специализации навыка: Технические н." }))
+      .toHaveValue("Engineering");
+  });
+
+  test("keeps compact Skill controls inline at desktop and mobile widths", async ({ page }) => {
+    await expectInlineSkillRow(page, "Specializations: Natural sciences", "Specs");
+    await expectInlineSkillRow(page, "Specializations: Animal handling", "Specs");
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.getByRole("button", { name: "RU" }).click();
+
+    await expectInlineSkillRow(page, "Специализации: Холодное оружие", "Спец.");
+    await expectInlineSkillRow(page, "Специализации: Зн. животных", "Спец.");
+  });
+
+  test("round-trips multiline Skill specializations through YAML", async ({ page }) => {
+    await page.getByRole("button", { name: "Specializations: Humanities" }).click();
+    await page.getByRole("textbox", { name: "Skill specializations: Humanities" })
+      .fill("History\nLinguistics");
+    await page.getByRole("button", { name: "Close" }).click();
+
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: "Export YAML" }).click();
+    const download = await downloadPromise;
+    const yamlStream = await download.createReadStream();
+    const chunks: Buffer[] = [];
+    for await (const chunk of yamlStream) chunks.push(Buffer.from(chunk));
+    const yaml = Buffer.concat(chunks).toString("utf8");
+    expect(yaml).toContain("note: |-\n          History\n          Linguistics");
+
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "character.yaml",
+      mimeType: "text/yaml",
+      buffer: Buffer.from(yaml)
+    });
+
+    await page.getByRole("button", { name: "Specializations: Humanities" }).click();
+    await expect(page.getByRole("textbox", { name: "Skill specializations: Humanities" }))
+      .toHaveValue("History\nLinguistics");
+  });
+
+  test("normalizes legacy and malformed Skill notes", async ({ page }) => {
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "skill-notes.yaml",
+      mimeType: "text/yaml",
+      buffer: Buffer.from(`schemaVersion: 1
+lang: en
+skills:
+  mental:
+    - id: humanities
+      line:
+        enabled: true
+        note: Legacy specialization
+        rating: 9
+        unknownField: harmless
+    - id: technical
+      line:
+        enabled: false
+        note: 42
+        rating: 2
+`)
+    });
+
+    await expect.poll(async () => page.evaluate(() => {
+      const value = localStorage.getItem("worldstriders.charlist.v1");
+      if (!value) return null;
+      const parsed = JSON.parse(value) as {
+        skills: { mental: Array<{ id: string; line: { note: string; rating: number } }> };
+      };
+      return parsed.skills.mental.slice(0, 2);
+    })).toEqual([
+      { id: "humanities", line: { enabled: true, note: "Legacy specialization", rating: 5 } },
+      { id: "technical", line: { enabled: false, note: "", rating: 2 } }
+    ]);
+
+    await page.getByRole("button", { name: "Specializations: Humanities" }).click();
+    await expect(page.getByRole("textbox", { name: "Skill specializations: Humanities" }))
+      .toHaveValue("Legacy specialization");
+    await page.getByRole("button", { name: "Close" }).click();
+    await page.getByRole("button", { name: "Specializations: Technical" }).click();
+    await expect(page.getByRole("textbox", { name: "Skill specializations: Technical" })).toHaveValue("");
   });
 
   test("edits localized Notes at the bottom and persists and resets them", async ({ page }) => {

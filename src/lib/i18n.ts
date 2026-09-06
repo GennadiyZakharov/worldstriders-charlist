@@ -75,6 +75,9 @@ export const DICT: Record<Lang, Record<string, string>> = {
     physicalSub: "(-1 not memorized)",
     socialTitle: "SOCIAL",
     socialSub: "(-1 not memorized)",
+    skillSpecializations: "Specializations",
+    skillSpecializationsShort: "Specs",
+    skillSpecializationsTitle: "Skill specializations",
 
     skill_humanities: "Humanities",
     skill_technical: "Technical",
@@ -209,6 +212,9 @@ export const DICT: Record<Lang, Record<string, string>> = {
     physicalSub: "(-1 не изучено)",
     socialTitle: "СОЦИАЛЬНЫЕ",
     socialSub: "(-1 не изучено)",
+    skillSpecializations: "Специализации",
+    skillSpecializationsShort: "Спец.",
+    skillSpecializationsTitle: "Специализации навыка",
 
     skill_humanities: "Гуманитарные н.",
     skill_technical: "Технические н.",
