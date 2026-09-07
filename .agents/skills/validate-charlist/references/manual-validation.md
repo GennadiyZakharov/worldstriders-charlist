@@ -33,5 +33,10 @@
 
 ## Responsiveness
 
-1. Check layout at desktop width.
-2. Check layout around mobile breakpoint (~900px).
+For UI/layout changes, use the [styling guide's evidence and acceptance criteria](../../../../docs/styling-guide.md#evidence-and-acceptance).
+
+1. Inspect affected UI at 390px, 1440px, and a wide viewport such as 1920px in both EN and RU.
+2. Check just below and above affected breakpoints (currently often 900px; use the actual component rules).
+3. Confirm compact label/rating association, aligned ratings, clear category boundaries, full readable names, and no overlap or horizontal page overflow.
+4. Check keyboard focus/order, secondary-action access, and text enlargement for affected controls.
+5. Capture before/after evidence under `artifacts/screenshots/` and record viewport, language, outcomes, and limitations. Inspect a full-page view for global typography or section-order changes.

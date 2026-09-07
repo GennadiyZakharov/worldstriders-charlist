@@ -26,6 +26,8 @@ Use this skill only when implementing code **after a human has approved a plan**
 3. Implement minimal changes
    - Implement only what the plan describes.
    - Keep the diff small and reviewable; avoid unrelated refactors.
+   - For UI/layout changes, read the shared [styling guide](../../../docs/styling-guide.md) and apply the approved criteria to affected components. Preserve compact groups and shared rating alignment; keep global typography in its shared stylesheet.
+   - Treat guide dimensions as starting points, preserve both languages and control accessibility, and leave optional redesign ideas outside the approved scope untouched. Record styling decisions or deviations in `artifacts/2_implement.md`; full rendered validation remains the Validator's responsibility.
 
 4. Maintain required consistency (if applicable)
    - If schema/model changes:

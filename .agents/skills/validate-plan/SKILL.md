@@ -25,6 +25,11 @@ Confirm the plan has a positive integer `Plan revision` and evaluate:
 
 Use repository evidence, not document-only inference. Read-only checks are allowed.
 
+For UI/layout plans, read the shared [styling guide](../../../docs/styling-guide.md). 
+Verify the plan addresses applicable grouping, alignment, full-label readability, 
+and interaction requirements with responsive `en`/`ru` evidence. 
+Check that suggested dimensions are subject to rendered verification and that optional redesign ideas have not expanded the requested scope. Review intentional deviations by their stated rationale; do not turn every existing styling issue into a required change.
+
 ## Verdict
 
 Write this structure to `artifacts/1_plan_validation.md`:

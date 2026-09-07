@@ -29,6 +29,8 @@ Use this skill when asked to review or validate implementation quality.
 - i18n updates cover both `en` and `ru`
 
 For visual regression evidence:
+- For UI/layout changes, read the shared [styling guide](../../../docs/styling-guide.md) and check its applicable acceptance outcomes against the approved plan. Follow its viewport/language coverage and inspect grouping, alignment, full names, secondary actions, and intentional deviations.
+- Record styling outcomes and screenshot paths in `artifacts/3_validate.md`. Distinguish regressions and unmet agreed criteria from optional design suggestions or pre-existing issues outside scope.
 - Treat unexplained snapshot drift as a Medium+ finding depending on impact
 - Accept artifact-based screenshot/diff evidence under `artifacts/` (for example `artifacts/screenshots/` or Playwright reports)
 - Do not require committed baseline snapshots in git when repository policy keeps screenshot evidence in ignored artifacts paths

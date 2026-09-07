@@ -1,6 +1,6 @@
 # WorldStriders Charlist — Canonical Agent Instructions
 
-This file is the single source of truth for how agents must work in this repository.
+This file is the single source of truth for how agents must work in this repository. Topic-specific guidance linked here supplements these canonical instructions.
 
 ## Project Overview
 
@@ -143,6 +143,16 @@ Do not introduce alternative frameworks, servers, or runtime network dependencie
 - All numeric stats must be clamped (min/max)
 - Import errors must show a clear message and never corrupt the existing state
 - Interactive controls must satisfy basic a11y checks (`aria-label`, keyboard usage)
+
+### Styling and layout
+
+- For UI/layout work, read and follow [the styling guide](docs/styling-guide.md) during planning, plan review, implementation, and validation.
+- Apply its outcome requirements to affected UI: compact label/control groups, aligned ratings, 
+  clear category separation, and readable responsive layouts in both languages.
+- Treat its dimensions and broader design directions as proposals to evaluate, not permission to expand the task. 
+  Record applicable criteria and intentional deviations in the role's handoff artifact.
+- Keep styling guidance in that shared document; 
+  skills should link to it and describe their role-specific responsibilities.
 
 ## Definition of Done (DoD)
 

@@ -17,10 +17,12 @@ Plan revision: 1
 - Behavior:
 - Data safety:
 - i18n:
+- Styling (if UI/layout changes): applicable `docs/styling-guide.md` outcomes and any intentional deviations
 
 ## Validation Plan
 - Commands:
 - Manual checks:
+- Visual evidence (if UI/layout changes): affected sections, viewport/breakpoint and language coverage, screenshot paths, and pass conditions
 
 ## Risks and Mitigations
 - Risk:

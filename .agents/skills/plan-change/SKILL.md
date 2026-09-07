@@ -21,6 +21,9 @@ Use this skill when the user asks to plan a feature, refactor, fix, or enhanceme
    - Or list required coordinated updates (types.ts, model.ts, normalizeCharacter()).
 7. Include validation commands + manual checks with clear pass criteria.
 8. For UI/layout-related tasks, include planning/analysis screenshot guidance:
+   - Read the shared [styling guide](../../../docs/styling-guide.md) and inspect available visual references relevant to the task.
+   - Translate applicable outcome requirements into acceptance criteria; identify proposed dimensions, intentional deviations, and broader design ideas that remain out of scope.
+   - Include the guide's responsive and language coverage in the validation plan, scoped to affected UI.
    - Capture screenshots into `artifacts/screenshots/`
    - Treat them as review evidence (no commit required)
 9. Handle `artifacts/1_plan_validation.md` by exact status:
