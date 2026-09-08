@@ -45,6 +45,75 @@ async function expectInlineSkillRow(
   );
 }
 
+async function expectCompactAttributeLayout(
+  page: Page,
+  viewportWidth: number,
+  expectSingleLineLabels = true
+) {
+  await page.setViewportSize({ width: viewportWidth, height: 900 });
+
+  const heading = page.getByRole("heading", { name: /^(ATTRIBUTES|АТРИБУТЫ)$/ });
+  const section = heading.locator("..");
+  const columns = section.locator(".grid > .col");
+
+  await expect(columns).toHaveCount(3);
+
+  const sectionOverflow = await section.evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth
+  }));
+
+  const geometry = await columns.evaluateAll((elements) => elements.map((element) => {
+    const column = element.getBoundingClientRect();
+    const ratings = Array.from(element.querySelectorAll<HTMLElement>('[role="slider"]'))
+      .map((rating) => rating.getBoundingClientRect());
+    const names = Array.from(element.querySelectorAll<HTMLElement>(".name"));
+
+    return {
+      column: { x: column.x, y: column.y, width: column.width },
+      ratingEdges: ratings.map((rating) => ({ left: rating.left, right: rating.right })),
+      namesFit: names.every((name) => name.scrollWidth <= name.clientWidth + 1),
+      namesSingleLine: names.every((name) => {
+        const range = document.createRange();
+        range.selectNodeContents(name);
+        return range.getClientRects().length === 1;
+      })
+    };
+  }));
+
+  for (const { column, ratingEdges, namesFit, namesSingleLine } of geometry) {
+    expect(column.width).toBeGreaterThanOrEqual(267);
+    expect(column.width).toBeLessThanOrEqual(269);
+    expect(namesFit).toBe(true);
+    if (expectSingleLineLabels) expect(namesSingleLine).toBe(true);
+    expect(ratingEdges).toHaveLength(3);
+
+    const firstRating = ratingEdges[0];
+    for (const rating of ratingEdges.slice(1)) {
+      expect(Math.abs(rating.left - firstRating.left)).toBeLessThan(1);
+      expect(Math.abs(rating.right - firstRating.right)).toBeLessThan(1);
+    }
+    for (const rating of ratingEdges) {
+      expect(rating.left).toBeGreaterThanOrEqual(column.x);
+      expect(rating.right).toBeLessThanOrEqual(column.x + column.width + 1);
+    }
+  }
+
+  if (viewportWidth > 924) {
+    expect(Math.max(...geometry.map(({ column }) => column.y)) -
+      Math.min(...geometry.map(({ column }) => column.y))).toBeLessThan(1);
+    expect(geometry[1].column.x).toBeGreaterThan(geometry[0].column.x);
+    expect(geometry[2].column.x).toBeGreaterThan(geometry[1].column.x);
+  } else {
+    expect(Math.max(...geometry.map(({ column }) => column.x)) -
+      Math.min(...geometry.map(({ column }) => column.x))).toBeLessThan(1);
+    expect(geometry[1].column.y).toBeGreaterThan(geometry[0].column.y);
+    expect(geometry[2].column.y).toBeGreaterThan(geometry[1].column.y);
+  }
+
+  expect(sectionOverflow.scrollWidth).toBeLessThanOrEqual(sectionOverflow.clientWidth);
+}
+
 test.describe("UI smoke", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
@@ -122,6 +191,72 @@ test.describe("UI smoke", () => {
       "aria-label",
       "Всего опыта"
     );
+  });
+
+  test("keeps localized Attribute groups compact and aligned across the breakpoint", async ({ page }) => {
+    const englishLabels = [
+      "Intellect",
+      "Quick wits",
+      "Determination",
+      "Magic",
+      "Luck",
+      "Body control",
+      "Impressiveness",
+      "Manipulation",
+      "Composure"
+    ];
+    const russianLabels = [
+      "Интеллект",
+      "Сообразительность",
+      "Решительность",
+      "Магия",
+      "Удача",
+      "Контроль тела",
+      "Внушительность",
+      "Манипулирование",
+      "Самообладание"
+    ];
+
+    for (const viewportWidth of [390, 924, 925, 1440, 1920]) {
+      await expectCompactAttributeLayout(page, viewportWidth);
+      for (const label of englishLabels) await expect(page.getByText(label, { exact: true })).toBeVisible();
+    }
+
+    let attributesSection = page.getByRole("heading", { name: "ATTRIBUTES" }).locator("..");
+    await attributesSection.evaluate((element) => {
+      const section = element as HTMLElement;
+      section.style.setProperty("--ws-label-size", "28px");
+      section.style.setProperty("--ws-h1-size", "36px");
+    });
+
+    for (const viewportWidth of [390, 1440]) {
+      await expectCompactAttributeLayout(page, viewportWidth, false);
+      for (const label of englishLabels) await expect(page.getByText(label, { exact: true })).toBeVisible();
+    }
+
+    await attributesSection.evaluate((element) => {
+      const section = element as HTMLElement;
+      section.style.removeProperty("--ws-label-size");
+      section.style.removeProperty("--ws-h1-size");
+    });
+    await page.getByRole("button", { name: "RU" }).click();
+
+    for (const viewportWidth of [390, 924, 925, 1440, 1920]) {
+      await expectCompactAttributeLayout(page, viewportWidth);
+      for (const label of russianLabels) await expect(page.getByText(label, { exact: true })).toBeVisible();
+    }
+
+    attributesSection = page.getByRole("heading", { name: "АТРИБУТЫ" }).locator("..");
+    await attributesSection.evaluate((element) => {
+      const section = element as HTMLElement;
+      section.style.setProperty("--ws-label-size", "28px");
+      section.style.setProperty("--ws-h1-size", "36px");
+    });
+
+    for (const viewportWidth of [390, 1440]) {
+      await expectCompactAttributeLayout(page, viewportWidth, false);
+      for (const label of russianLabels) await expect(page.getByText(label, { exact: true })).toBeVisible();
+    }
   });
 
   test("edits localized multiline perk descriptions and persists them", async ({ page }) => {

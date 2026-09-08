@@ -52,20 +52,51 @@
 
     .grid {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 16px;
+        grid-template-columns: repeat(3, minmax(0, 268px));
+        gap: 24px;
         align-items: start;
+        justify-content: center;
     }
 
     .col {
+        position: relative;
         display: grid;
         gap: 8px;
         align-content: start;
+        min-width: 0;
     }
 
-    @media (max-width: 900px) {
+    .attrs .col :global(.attr),
+    .attrs .col :global(.name) {
+        min-width: 0;
+    }
+
+    .attrs .col :global(.name) {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .col:not(:first-child)::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: -12px;
+        border-left: 1px solid rgba(0, 70, 95, 0.45);
+    }
+
+    @media (max-width: 924px) {
         .grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: min(100%, 268px);
+        }
+
+        .col:not(:first-child)::before {
+            top: -12px;
+            right: 0;
+            bottom: auto;
+            left: 0;
+            border-top: 1px solid rgba(0, 70, 95, 0.35);
+            border-left: 0;
         }
     }
 </style>
