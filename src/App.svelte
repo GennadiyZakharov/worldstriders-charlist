@@ -222,8 +222,8 @@
   <!-- Header strip (logo + meta) -->
   <div class="sheet">
     <div class="logoRow">
-      <div class="logoMark">🛡️</div>
-      <div class="logoText">{t(character.lang, "title")}</div>
+      <span class="logoMark" aria-hidden="true">🛡️</span>
+      <h1 class="logoText ws-h1">{t(character.lang, "title")}</h1>
     </div>
 
     <CharacterMeta
@@ -367,18 +367,20 @@
 
   .logoRow {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: center;
     justify-content: center;
     padding-bottom: 10px;
   }
 
   .logoMark {
-    font-size: 22px;
+    font-size: 42px;
+    line-height: 1;
   }
 
   .logoText {
     line-height: 1.1;
+    font-size: max(30px, var(--ws-h1-size));
   }
 
   .xpWounds {
@@ -429,6 +431,13 @@
 
     .perksGrid {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .logoRow {
+      flex-direction: column;
+      gap: 2px;
     }
   }
 

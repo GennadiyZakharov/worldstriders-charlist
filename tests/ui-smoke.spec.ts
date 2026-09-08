@@ -121,8 +121,74 @@ test.describe("UI smoke", () => {
     await page.reload();
   });
 
-  test("loads and renders the sheet title", async ({ page }) => {
-    await expect(page.getByText("WorldStriders")).toBeVisible();
+  test("renders a prominent, responsive, localized page heading", async ({ page }) => {
+    const expectBrandLayout = async (viewportWidth: number, title: string) => {
+      await page.setViewportSize({ width: viewportWidth, height: 900 });
+
+      const heading = page.getByRole("heading", { level: 1, name: title, exact: true });
+      const logoRow = heading.locator("..");
+      const shield = logoRow.locator(".logoMark");
+
+      await expect(heading).toBeVisible();
+      await expect(shield).toHaveAttribute("aria-hidden", "true");
+
+      const geometry = await logoRow.evaluate((element) => {
+        const row = element.getBoundingClientRect();
+        const mark = element.querySelector<HTMLElement>(".logoMark")?.getBoundingClientRect();
+        const titleElement = element.querySelector<HTMLElement>(".logoText");
+        const titleBox = titleElement?.getBoundingClientRect();
+        const titleStyle = titleElement ? getComputedStyle(titleElement) : null;
+        const markStyle = element.querySelector<HTMLElement>(".logoMark");
+
+        return {
+          row: { x: row.x, width: row.width },
+          mark: mark ? { x: mark.x, y: mark.y, width: mark.width, height: mark.height } : null,
+          title: titleBox ? {
+            x: titleBox.x,
+            y: titleBox.y,
+            width: titleBox.width,
+            height: titleBox.height
+          } : null,
+          titleFontSize: titleStyle ? Number.parseFloat(titleStyle.fontSize) : 0,
+          titleFontWeight: titleStyle ? Number.parseInt(titleStyle.fontWeight, 10) : 0,
+          markFontSize: markStyle ? Number.parseFloat(getComputedStyle(markStyle).fontSize) : 0,
+          pageFits: document.documentElement.scrollWidth <= document.documentElement.clientWidth
+        };
+      });
+
+      expect(geometry.mark).not.toBeNull();
+      expect(geometry.title).not.toBeNull();
+      if (!geometry.mark || !geometry.title) return;
+
+      expect(geometry.titleFontSize).toBeGreaterThanOrEqual(28);
+      expect(geometry.titleFontSize).toBeLessThanOrEqual(32);
+      expect(geometry.titleFontWeight).toBeGreaterThanOrEqual(700);
+      expect(geometry.markFontSize).toBeGreaterThanOrEqual(38);
+      expect(geometry.markFontSize).toBeLessThanOrEqual(44);
+      expect(geometry.pageFits).toBe(true);
+
+      const rowCenter = geometry.row.x + geometry.row.width / 2;
+      if (viewportWidth <= 480) {
+        expect(geometry.mark.y + geometry.mark.height).toBeLessThanOrEqual(geometry.title.y + 1);
+        expect(Math.abs(geometry.mark.x + geometry.mark.width / 2 - rowCenter)).toBeLessThan(2);
+        expect(Math.abs(geometry.title.x + geometry.title.width / 2 - rowCenter)).toBeLessThan(2);
+      } else {
+        expect(geometry.mark.x + geometry.mark.width).toBeLessThanOrEqual(geometry.title.x);
+        expect(Math.abs(
+          geometry.mark.y + geometry.mark.height / 2 -
+          (geometry.title.y + geometry.title.height / 2)
+        )).toBeLessThan(2);
+      }
+    };
+
+    for (const viewportWidth of [390, 479, 480, 481, 1440, 1920]) {
+      await expectBrandLayout(viewportWidth, "WorldStriders");
+    }
+
+    await page.getByRole("button", { name: "RU" }).click();
+    for (const viewportWidth of [390, 479, 480, 481, 1440, 1920]) {
+      await expectBrandLayout(viewportWidth, "Мироxодцы");
+    }
   });
 
   test("switches language between EN and RU", async ({ page }) => {
