@@ -720,6 +720,235 @@ notes:
     await expect(diceCount).toHaveValue("20");
   });
 
+  test("keeps the dice roller compact, aligned, responsive, and localized", async ({ page }) => {
+    const expectLayout = async (
+      viewportWidth: number,
+      labels: {
+        heading: string;
+        diceCount: string;
+        options: string;
+        successThreshold: string;
+        rerollThreshold: string;
+        roll: string;
+        result: string;
+      }
+    ) => {
+      await page.setViewportSize({ width: viewportWidth, height: 900 });
+
+      const section = page.getByRole("heading", { name: labels.heading }).locator("..");
+      const diceCount = page.getByRole("spinbutton", { name: labels.diceCount });
+      const roll = page.getByRole("button", { name: labels.roll });
+      const options = page.getByText(labels.options, { exact: true });
+      const successThreshold = page.getByRole("spinbutton", { name: labels.successThreshold });
+      const rerollThreshold = page.getByRole("spinbutton", { name: labels.rerollThreshold });
+      const result = section.locator(".resultBlock");
+
+      const geometry = await section.evaluate((element) => {
+        const sectionBounds = element.getBoundingClientRect();
+        const box = (selector: string) => {
+          const bounds = element.querySelector<HTMLElement>(selector)?.getBoundingClientRect();
+          return bounds
+            ? { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height }
+            : null;
+        };
+
+        return {
+          section: {
+            x: sectionBounds.x,
+            y: sectionBounds.y,
+            width: sectionBounds.width,
+            height: sectionBounds.height
+          },
+          diceCount: box(".diceCountField input"),
+          roll: box(".rollButton"),
+          options: box(".optionsButton"),
+          result: box(".resultBlock"),
+          thresholds: Array.from(element.querySelectorAll<HTMLElement>(".optionsPanel input"))
+            .map((input) => {
+              const bounds = input.getBoundingClientRect();
+              return { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height };
+            }),
+          labelsFit: Array.from(element.querySelectorAll<HTMLElement>(".field .ws-label"))
+            .every((label) => label.scrollWidth <= label.clientWidth + 1),
+          pageFits: document.documentElement.scrollWidth <= document.documentElement.clientWidth
+        };
+      });
+
+      expect(geometry.section).not.toBeNull();
+      expect(geometry.diceCount).not.toBeNull();
+      expect(geometry.roll).not.toBeNull();
+      expect(geometry.options).not.toBeNull();
+      expect(geometry.result).not.toBeNull();
+      expect(geometry.thresholds).toHaveLength(2);
+      if (
+        !geometry.section ||
+        !geometry.diceCount ||
+        !geometry.roll ||
+        !geometry.options ||
+        !geometry.result
+      ) return;
+
+      const centerX = (box: { x: number; width: number }) => box.x + box.width / 2;
+      expect(Math.abs(centerX(geometry.diceCount) - centerX(geometry.roll))).toBeLessThan(2);
+      expect(Math.abs(centerX(geometry.roll) - centerX(geometry.options))).toBeLessThan(2);
+      expect(geometry.diceCount.y + geometry.diceCount.height).toBeLessThan(geometry.roll.y);
+      expect(geometry.roll.y + geometry.roll.height).toBeLessThanOrEqual(geometry.options.y);
+      expect(geometry.options.y + geometry.options.height).toBeLessThan(geometry.result.y);
+      expect(geometry.diceCount.width).toBeGreaterThanOrEqual(80);
+      expect(geometry.diceCount.width).toBeLessThanOrEqual(96);
+      expect(geometry.result.width).toBeGreaterThanOrEqual(geometry.section.width - 1);
+      expect(geometry.labelsFit).toBe(true);
+      expect(geometry.pageFits).toBe(true);
+
+      for (const threshold of geometry.thresholds) {
+        expect(threshold.width).toBeGreaterThanOrEqual(80);
+        expect(threshold.width).toBeLessThanOrEqual(96);
+      }
+
+      if (viewportWidth <= 480) {
+        expect(Math.abs(geometry.thresholds[0].x - geometry.thresholds[1].x)).toBeLessThan(1);
+        expect(geometry.thresholds[0].y).toBeLessThan(geometry.thresholds[1].y);
+      } else {
+        expect(geometry.thresholds[0].x).toBeLessThan(geometry.thresholds[1].x);
+        expect(Math.abs(geometry.thresholds[0].y - geometry.thresholds[1].y)).toBeLessThan(1);
+      }
+
+      await expect(diceCount).toBeVisible();
+      await expect(roll).toBeVisible();
+      await expect(options).toBeVisible();
+      await expect(successThreshold).toBeVisible();
+      await expect(rerollThreshold).toBeVisible();
+      await expect(result.getByText(labels.result, { exact: true })).toBeVisible();
+    };
+
+    const english = {
+      heading: "Dice Roller",
+      diceCount: "Number of d10 dice",
+      options: "Options",
+      successThreshold: "Success threshold",
+      rerollThreshold: "Reroll threshold",
+      roll: "Roll",
+      result: "Result"
+    };
+    const russian = {
+      heading: "Бросок кубов",
+      diceCount: "Количество кубиков d10",
+      options: "Настройки",
+      successThreshold: "Порог успеха",
+      rerollThreshold: "Порог переброса",
+      roll: "Бросить",
+      result: "Результат"
+    };
+
+    await page.evaluate(() => {
+      let reroll = true;
+      Math.random = () => {
+        reroll = !reroll;
+        return reroll ? 0.95 : 0;
+      };
+    });
+    await page.getByRole("spinbutton", { name: english.diceCount }).fill("20");
+    await page.getByRole("button", { name: english.roll }).click();
+    await page.getByText(english.options, { exact: true }).click();
+    for (const viewportWidth of [390, 480, 481, 1440, 1920]) {
+      await expectLayout(viewportWidth, english);
+      await page.getByRole("heading", { name: english.heading }).locator("..").screenshot({
+        path: `artifacts/screenshots/after-dice-roller-open-result-en-${viewportWidth}.png`
+      });
+    }
+
+    await page.getByRole("button", { name: "RU" }).click();
+    for (const viewportWidth of [390, 480, 481, 1440, 1920]) {
+      await expectLayout(viewportWidth, russian);
+      await page.getByRole("heading", { name: russian.heading }).locator("..").screenshot({
+        path: `artifacts/screenshots/after-dice-roller-open-result-ru-${viewportWidth}.png`
+      });
+    }
+  });
+
+  test("reflows localized dice controls at 200% text size", async ({ page }) => {
+    const captureTextLayout = async (
+      language: "en" | "ru",
+      heading: string,
+      options: string,
+      viewportWidth: number
+    ) => {
+      await page.setViewportSize({ width: viewportWidth, height: 900 });
+      await page.evaluate(() => {
+        document.documentElement.style.fontSize = "200%";
+      });
+
+      const section = page.getByRole("heading", { name: heading }).locator("..");
+      const layout = await section.evaluate((element) => ({
+        labelsFit: Array.from(element.querySelectorAll<HTMLElement>(".field .ws-label"))
+          .every((label) => label.scrollWidth <= label.clientWidth + 1),
+        pageFits: document.documentElement.scrollWidth <= document.documentElement.clientWidth
+      }));
+
+      expect(layout.labelsFit).toBe(true);
+      expect(layout.pageFits).toBe(true);
+      await expect(page.getByText(options, { exact: true })).toBeVisible();
+      await section.screenshot({
+        path: `artifacts/screenshots/after-dice-roller-open-result-${language}-${viewportWidth}-text-200.png`
+      });
+      await page.evaluate(() => {
+        document.documentElement.style.fontSize = "";
+      });
+    };
+
+    await page.evaluate(() => {
+      let reroll = true;
+      Math.random = () => {
+        reroll = !reroll;
+        return reroll ? 0.95 : 0;
+      };
+    });
+    await page.getByRole("spinbutton", { name: "Number of d10 dice" }).fill("20");
+    await page.getByRole("button", { name: "Roll" }).click();
+    await page.getByText("Options", { exact: true }).click();
+
+    for (const viewportWidth of [390, 1440]) {
+      await captureTextLayout("en", "Dice Roller", "Options", viewportWidth);
+    }
+
+    await page.getByRole("button", { name: "RU" }).click();
+    for (const viewportWidth of [390, 1440]) {
+      await captureTextLayout("ru", "Бросок кубов", "Настройки", viewportWidth);
+    }
+  });
+
+  test("wraps a long dice result inside the full-width result block", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 900 });
+    await page.evaluate(() => {
+      let reroll = true;
+      Math.random = () => {
+        reroll = !reroll;
+        return reroll ? 0.95 : 0;
+      };
+    });
+
+    const diceCount = page.getByRole("spinbutton", { name: "Number of d10 dice" });
+    await diceCount.fill("20");
+    await page.getByRole("button", { name: "Roll" }).click();
+
+    const resultLine = page.locator(".resultLine");
+    await expect(resultLine).toBeVisible();
+    const resultGeometry = await resultLine.evaluate((element) => {
+      const styles = getComputedStyle(element);
+      const lineHeight = Number.parseFloat(styles.lineHeight);
+      return {
+        height: element.getBoundingClientRect().height,
+        lineHeight,
+        fits: element.scrollWidth <= element.clientWidth + 1,
+        pageFits: document.documentElement.scrollWidth <= document.documentElement.clientWidth
+      };
+    });
+
+    expect(resultGeometry.height).toBeGreaterThan(resultGeometry.lineHeight * 1.5);
+    expect(resultGeometry.fits).toBe(true);
+    expect(resultGeometry.pageFits).toBe(true);
+  });
+
   test("rolls exploding d10 dice and shows the success count", async ({ page }) => {
     await page.evaluate(() => {
       const sequence = [0.95, 0.8, 0.95, 0.5, 0.3, 0];
