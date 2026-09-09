@@ -370,6 +370,195 @@ test.describe("UI smoke", () => {
     await expect(page.getByRole("textbox", { name: "Описание перка" })).toHaveValue("Temporary detail");
   });
 
+  test("keeps composed perk values attached to the correct row after deletion", async ({ page }) => {
+    let permanent = perkSection(page, "PERMANENT PERKS");
+
+    await permanent.getByRole("button", { name: "Add" }).click();
+    await permanent.getByRole("button", { name: "Add" }).click();
+
+    const perkTexts = permanent.getByRole("textbox", { name: "Perk text" });
+    await expect(perkTexts).toHaveCount(2);
+    await perkTexts.nth(0).fill("  First perk  ");
+    await perkTexts.nth(0).blur();
+    await expect(perkTexts.nth(0)).toHaveValue("First perk");
+    await perkTexts.nth(1).fill("Second perk");
+
+    const descriptionButtons = permanent.getByRole("button", { name: "Description" });
+    await descriptionButtons.nth(0).click();
+    await page.getByRole("textbox", { name: "Perk description" }).fill("First description");
+    await page.getByRole("button", { name: "Close" }).click();
+    await descriptionButtons.nth(1).click();
+    await page.getByRole("textbox", { name: "Perk description" }).fill("Second\ndescription");
+    await page.getByRole("button", { name: "Close" }).click();
+
+    const ratings = permanent.getByRole("slider");
+    await ratings.nth(0).getByRole("button").nth(1).click();
+    await ratings.nth(1).getByRole("button").nth(3).click();
+    await expect(ratings.nth(0)).toHaveAttribute("aria-valuenow", "2");
+    await expect(ratings.nth(1)).toHaveAttribute("aria-valuenow", "4");
+
+    const deleteButtons = permanent.getByRole("button", { name: "Delete perk" });
+    await expect(deleteButtons).toHaveCount(2);
+    await deleteButtons.nth(0).click();
+
+    await expect(permanent.getByRole("textbox", { name: "Perk text" })).toHaveValue("Second perk");
+    await expect(permanent.getByRole("slider")).toHaveAttribute("aria-valuenow", "4");
+    await permanent.getByRole("button", { name: "Description" }).click();
+    await expect(page.getByRole("textbox", { name: "Perk description" }))
+      .toHaveValue("Second\ndescription");
+    await page.getByRole("button", { name: "Close" }).click();
+
+    await page.getByRole("button", { name: "RU" }).click();
+    permanent = perkSection(page, "ПОСТОЯННЫЕ ПЕРКИ");
+    await expect(permanent.getByRole("textbox", { name: "Текст перка" })).toHaveValue("Second perk");
+    await expect(permanent.getByRole("button", { name: "Удалить перк" })).toHaveText("Удалить");
+
+    await page.reload();
+    permanent = perkSection(page, "ПОСТОЯННЫЕ ПЕРКИ");
+    await expect(permanent.getByRole("textbox", { name: "Текст перка" })).toHaveValue("Second perk");
+    await expect(permanent.getByRole("slider")).toHaveAttribute("aria-valuenow", "4");
+    await permanent.getByRole("button", { name: "Описание" }).click();
+    await expect(page.getByRole("textbox", { name: "Описание перка" }))
+      .toHaveValue("Second\ndescription");
+  });
+
+  test("keeps localized perk controls ordered and within the page at responsive boundaries", async ({ page }) => {
+    const viewportWidths = [390, 599, 600, 601, 899, 900, 901, 1440, 1920];
+
+    await perkSection(page, "PERMANENT PERKS").getByRole("button", { name: "Add" }).click();
+
+    const expectPerkLayout = async (viewportWidth: number, title: string, textLabel: string) => {
+      await page.setViewportSize({ width: viewportWidth, height: 900 });
+      const section = perkSection(page, title);
+      const row = section.locator(".listRow");
+      const item = row.locator(".itemRow");
+      const textInput = row.getByRole("textbox", { name: textLabel });
+      const descriptionButton = row.getByRole("button", { name: /^(Description|Описание)$/ });
+      const rating = row.getByRole("slider");
+      const deleteButton = row.getByRole("button", { name: /^(Delete perk|Удалить перк)$/ });
+
+      const [rowBox, itemBox, textBox, descriptionBox, ratingBox, deleteBox] = await Promise.all([
+        row.boundingBox(),
+        item.boundingBox(),
+        textInput.boundingBox(),
+        descriptionButton.boundingBox(),
+        rating.boundingBox(),
+        deleteButton.boundingBox()
+      ]);
+
+      expect(rowBox).not.toBeNull();
+      expect(itemBox).not.toBeNull();
+      expect(textBox).not.toBeNull();
+      expect(descriptionBox).not.toBeNull();
+      expect(ratingBox).not.toBeNull();
+      expect(deleteBox).not.toBeNull();
+      if (!rowBox || !itemBox || !textBox || !descriptionBox || !ratingBox || !deleteBox) return;
+
+      expect(textBox.x + textBox.width).toBeLessThanOrEqual(itemBox.x + itemBox.width + 1);
+      expect(descriptionBox.x + descriptionBox.width).toBeLessThanOrEqual(itemBox.x + itemBox.width + 1);
+      expect(ratingBox.x + ratingBox.width).toBeLessThanOrEqual(itemBox.x + itemBox.width + 1);
+      expect(deleteBox.x + deleteBox.width).toBeLessThanOrEqual(rowBox.x + rowBox.width + 1);
+
+      if (viewportWidth <= 600) {
+        expect(textBox.y + textBox.height).toBeLessThanOrEqual(descriptionBox.y + 1);
+        expect(descriptionBox.x).toBeLessThan(ratingBox.x);
+      } else {
+        expect(textBox.x).toBeLessThan(descriptionBox.x);
+        expect(descriptionBox.x).toBeLessThan(ratingBox.x);
+      }
+
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+        await page.evaluate(() => document.documentElement.clientWidth)
+      );
+
+      const perkSheets = page.locator(".perksGrid > .sheet");
+      const [firstSheet, secondSheet] = await Promise.all([
+        perkSheets.nth(0).boundingBox(),
+        perkSheets.nth(1).boundingBox()
+      ]);
+      expect(firstSheet).not.toBeNull();
+      expect(secondSheet).not.toBeNull();
+      if (!firstSheet || !secondSheet) return;
+
+      if (viewportWidth <= 900) expect(secondSheet.y).toBeGreaterThan(firstSheet.y);
+      else expect(Math.abs(firstSheet.y - secondSheet.y)).toBeLessThan(1);
+    };
+
+    for (const viewportWidth of viewportWidths) {
+      await expectPerkLayout(viewportWidth, "PERMANENT PERKS", "Perk text");
+    }
+
+    await page.getByRole("button", { name: "RU" }).click();
+    for (const viewportWidth of viewportWidths) {
+      await expectPerkLayout(viewportWidth, "ПОСТОЯННЫЕ ПЕРКИ", "Текст перка");
+    }
+  });
+
+  test("reflows enlarged localized perk controls without introducing page overflow", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 900 });
+
+    const expectEnlargedPerkLayout = async (title: string, baselinePageWidth: number) => {
+      const section = perkSection(page, title);
+      const perksGrid = section.locator("../..");
+      const itemRow = section.locator(".itemRow");
+      const listRow = section.locator(".listRow");
+      const description = section.getByRole("button", { name: /^(Description|Описание)$/ });
+      const rating = section.getByRole("slider");
+      const deleteButton = section.getByRole("button", { name: /^(Delete perk|Удалить перк)$/ });
+
+      const [itemRowBox, listRowBox, descriptionBox, ratingBox, deleteBox] = await Promise.all([
+        itemRow.boundingBox(),
+        listRow.boundingBox(),
+        description.boundingBox(),
+        rating.boundingBox(),
+        deleteButton.boundingBox()
+      ]);
+      expect(itemRowBox).not.toBeNull();
+      expect(listRowBox).not.toBeNull();
+      expect(descriptionBox).not.toBeNull();
+      expect(ratingBox).not.toBeNull();
+      expect(deleteBox).not.toBeNull();
+      if (!itemRowBox || !listRowBox || !descriptionBox || !ratingBox || !deleteBox) return;
+
+      const controlsOverlap = !(
+        descriptionBox.x + descriptionBox.width <= ratingBox.x ||
+        ratingBox.x + ratingBox.width <= descriptionBox.x ||
+        descriptionBox.y + descriptionBox.height <= ratingBox.y ||
+        ratingBox.y + ratingBox.height <= descriptionBox.y
+      );
+      expect(controlsOverlap).toBe(false);
+      expect(descriptionBox.x + descriptionBox.width).toBeLessThanOrEqual(
+        itemRowBox.x + itemRowBox.width + 1
+      );
+      expect(ratingBox.x + ratingBox.width).toBeLessThanOrEqual(itemRowBox.x + itemRowBox.width + 1);
+      expect(deleteBox.x + deleteBox.width).toBeLessThanOrEqual(listRowBox.x + listRowBox.width + 1);
+
+      const containment = await perksGrid.evaluate((element) => ({
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth
+      }));
+      expect(containment.scrollWidth).toBeLessThanOrEqual(containment.clientWidth);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+        baselinePageWidth
+      );
+    };
+
+    await page.evaluate(() => {
+      document.body.style.zoom = "2";
+    });
+    const englishBaselineWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+    let permanent = perkSection(page, "PERMANENT PERKS");
+    await permanent.getByRole("button", { name: "Add" }).click();
+    await expectEnlargedPerkLayout("PERMANENT PERKS", englishBaselineWidth);
+    await permanent.getByRole("button", { name: "Delete perk" }).click();
+
+    await page.getByRole("button", { name: "RU" }).click();
+    const russianBaselineWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+    permanent = perkSection(page, "ПОСТОЯННЫЕ ПЕРКИ");
+    await permanent.getByRole("button", { name: "Добавить" }).click();
+    await expectEnlargedPerkLayout("ПОСТОЯННЫЕ ПЕРКИ", russianBaselineWidth);
+  });
+
   test("round-trips perk descriptions through YAML", async ({ page }) => {
     const permanent = perkSection(page, "PERMANENT PERKS");
     const temporary = perkSection(page, "TEMPORARY PERKS");

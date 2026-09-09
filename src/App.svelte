@@ -128,6 +128,8 @@
   let perkListLabels = $derived({
     add: t(character.lang, "add"),
     delete: t(character.lang, "delete"),
+    deleteAction: t(character.lang, "deletePerk"),
+    text: t(character.lang, "perkText"),
     description: t(character.lang, "perkDescription"),
     descriptionTitle: t(character.lang, "perkDescriptionTitle"),
     close: t(character.lang, "close")
@@ -356,10 +358,13 @@
     margin: 0 auto;
     padding: 18px;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 16px;
   }
 
   .sheet {
+    box-sizing: border-box;
+    min-width: 0;
     border: 2px solid rgba(0, 70, 95, 0.9);
     border-radius: 10px;
     padding: 14px 16px;
@@ -414,6 +419,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
     align-items: start;
+    min-width: 0;
   }
 
   @media (max-width: 900px) {
@@ -430,7 +436,7 @@
     }
 
     .perksGrid {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 
