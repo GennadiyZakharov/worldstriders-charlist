@@ -37,9 +37,82 @@ async function expectInlineSkillRow(
   expect(Math.abs(centerY(nameBox) - centerY(buttonBox))).toBeLessThan(2);
   expect(Math.abs(centerY(buttonBox) - centerY(ratingBox))).toBeLessThan(2);
   expect(checkboxBox.x).toBeLessThan(nameBox.x);
-  expect(nameBox.x + nameBox.width).toBeLessThanOrEqual(buttonBox.x);
-  expect(buttonBox.x + buttonBox.width).toBeLessThanOrEqual(ratingBox.x);
-  expect(ratingBox.x + ratingBox.width).toBeLessThanOrEqual(rowBox.x + rowBox.width + 1);
+  expect(nameBox.x + nameBox.width).toBeLessThanOrEqual(ratingBox.x);
+  expect(ratingBox.x + ratingBox.width).toBeLessThanOrEqual(buttonBox.x);
+  expect(buttonBox.x + buttonBox.width).toBeLessThanOrEqual(rowBox.x + rowBox.width + 1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+    await page.evaluate(() => document.documentElement.clientWidth)
+  );
+}
+
+async function expectCompactSkillLayout(
+  page: Page,
+  viewportWidth: number,
+  sideBySide: boolean
+) {
+  await page.setViewportSize({ width: viewportWidth, height: 900 });
+
+  const heading = page.getByRole("heading", { name: /^(SKILLS|НАВЫКИ)$/ });
+  const section = heading.locator("..");
+  const blocks = section.locator(".grid > .block");
+  await expect(blocks).toHaveCount(3);
+
+  const geometry = await blocks.evaluateAll((elements) => elements.map((element) => {
+    const block = element.getBoundingClientRect();
+    const rows = Array.from(element.querySelectorAll<HTMLElement>(".row"));
+    const ratings = rows.map((row) => row.querySelector<HTMLElement>(".rating")!.getBoundingClientRect());
+    const actions = rows.map((row) =>
+      row.querySelector<HTMLElement>(".specializationsButton")!.getBoundingClientRect()
+    );
+    const names = rows.map((row) => row.querySelector<HTMLElement>(".name")!);
+    const separator = getComputedStyle(element, "::before");
+
+    return {
+      block: { x: block.x, y: block.y, width: block.width },
+      ratingLefts: ratings.map((rating) => rating.left),
+      actionLefts: actions.map((action) => action.left),
+      namesFit: names.every((name) =>
+        name.scrollWidth <= name.clientWidth + 1 && name.scrollHeight <= name.clientHeight + 1
+      ),
+      rowOrder: rows.every((row) => Array.from(row.children).map((child) => {
+        if (child.classList.contains("check")) return "check";
+        if (child.classList.contains("text")) return "text";
+        if (child.classList.contains("rating")) return "rating";
+        if (child.classList.contains("specializationsButton")) return "action";
+        return "other";
+      }).join(",") === "check,text,rating,action"),
+      separator: {
+        borderLeftWidth: separator.borderLeftWidth,
+        borderTopWidth: separator.borderTopWidth
+      }
+    };
+  }));
+
+  for (const { block, ratingLefts, actionLefts, namesFit, rowOrder } of geometry) {
+    expect(block.width).toBeLessThanOrEqual(331);
+    expect(namesFit).toBe(true);
+    expect(rowOrder).toBe(true);
+    expect(Math.max(...ratingLefts) - Math.min(...ratingLefts)).toBeLessThan(1);
+    expect(Math.max(...actionLefts) - Math.min(...actionLefts)).toBeLessThan(1);
+  }
+
+  if (sideBySide) {
+    expect(Math.max(...geometry.map(({ block }) => block.y)) -
+      Math.min(...geometry.map(({ block }) => block.y))).toBeLessThan(1);
+    expect(geometry[1].separator.borderLeftWidth).toBe("1px");
+    expect(geometry[1].separator.borderTopWidth).toBe("0px");
+  } else {
+    expect(Math.max(...geometry.map(({ block }) => block.x)) -
+      Math.min(...geometry.map(({ block }) => block.x))).toBeLessThan(1);
+    expect(geometry[1].separator.borderLeftWidth).toBe("0px");
+    expect(geometry[1].separator.borderTopWidth).toBe("1px");
+  }
+
+  const containment = await section.evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth
+  }));
+  expect(containment.scrollWidth).toBeLessThanOrEqual(containment.clientWidth);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
     await page.evaluate(() => document.documentElement.clientWidth)
   );
@@ -677,15 +750,26 @@ temporaryPerks:
       .toHaveValue("Engineering");
   });
 
-  test("keeps compact Skill controls inline at desktop and mobile widths", async ({ page }) => {
+  test("keeps Skill lanes bounded, aligned, responsive, and fully localized", async ({ page }) => {
+    await expect(page.getByRole("checkbox", { name: "Use skill: Natural sciences" })).toBeVisible();
     await expectInlineSkillRow(page, "Specializations: Natural sciences", "Specs");
     await expectInlineSkillRow(page, "Specializations: Animal handling", "Specs");
+
+    for (const [width, sideBySide] of [[390, false], [1109, false], [1110, true], [1440, true], [1920, true]] as const) {
+      await expectCompactSkillLayout(page, width, sideBySide);
+    }
 
     await page.setViewportSize({ width: 390, height: 844 });
     await page.getByRole("button", { name: "RU" }).click();
 
+    await expect(page.getByRole("checkbox", { name: "Использовать навык: Холодное оружие" }))
+      .toBeVisible();
     await expectInlineSkillRow(page, "Специализации: Холодное оружие", "Спец.");
     await expectInlineSkillRow(page, "Специализации: Зн. животных", "Спец.");
+
+    for (const [width, sideBySide] of [[390, false], [1109, false], [1110, true], [1440, true], [1920, true]] as const) {
+      await expectCompactSkillLayout(page, width, sideBySide);
+    }
   });
 
   test("round-trips multiline Skill specializations through YAML", async ({ page }) => {

@@ -15,6 +15,7 @@
             specializations: string;
             specializationsShort: string;
             specializationsTitle: string;
+            useSkill: string;
             close: string;
         };
         skills?: CharacterSkills;
@@ -113,21 +114,18 @@
 
     .grid {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 16px;
+        grid-template-columns: repeat(3, minmax(0, 330px));
+        gap: 24px;
         align-items: start;
-    }
-
-    @media (max-width: 900px) {
-        .grid {
-            grid-template-columns: 1fr;
-        }
+        justify-content: center;
     }
 
     .block {
+        position: relative;
         display: grid;
         gap: 10px;
         align-content: start;
+        min-width: 0;
     }
 
     .blockHeader {
@@ -140,5 +138,29 @@
         display: grid;
         gap: 10px;
         align-content: start;
+    }
+
+    .block:not(:first-child)::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: -12px;
+        border-left: 1px solid rgba(0, 70, 95, 0.45);
+    }
+
+    @media (max-width: 1109px) {
+        .grid {
+            grid-template-columns: min(100%, 330px);
+        }
+
+        .block:not(:first-child)::before {
+            top: -12px;
+            right: 0;
+            bottom: auto;
+            left: 0;
+            border-top: 1px solid rgba(0, 70, 95, 0.35);
+            border-left: 0;
+        }
     }
 </style>

@@ -7,6 +7,7 @@
             specializations: string;
             specializationsShort: string;
             specializationsTitle: string;
+            useSkill: string;
             close: string;
         };
         enabled?: boolean;
@@ -27,6 +28,7 @@
     let specializationsDialog: HTMLDialogElement;
 
     let dialogTitle = $derived(`${labels.specializationsTitle}: ${name}`);
+    let checkboxLabel = $derived(labels.useSkill.replace("{skill}", name));
 
     function openSpecializations() {
         specializationsDialog.showModal();
@@ -50,21 +52,12 @@
             type="checkbox"
             bind:checked={enabled}
             disabled={readonly}
-            aria-label={`${name} enabled`}
+            aria-label={checkboxLabel}
     />
 
     <div class="text">
         <div class="name ws-label">{name}</div>
     </div>
-
-    <button
-            class="specializationsButton ws-text"
-            type="button"
-            onclick={openSpecializations}
-            aria-label={`${labels.specializations}: ${name}`}
-    >
-        {labels.specializationsShort}
-    </button>
 
     <div class="rating">
         <DotRating
@@ -77,6 +70,15 @@
                 readonly={readonly}
         />
     </div>
+
+    <button
+            class="specializationsButton ws-text"
+            type="button"
+            onclick={openSpecializations}
+            aria-label={`${labels.specializations}: ${name}`}
+    >
+        {labels.specializationsShort}
+    </button>
 </div>
 
 <dialog bind:this={specializationsDialog} aria-label={dialogTitle}>
@@ -103,14 +105,14 @@
 <style>
     .row {
         display: grid;
-        grid-template-columns: 10px minmax(0, 1fr) auto auto;
-        gap: 8px;
+        grid-template-columns: 14px minmax(0, 1fr) auto auto;
+        gap: 6px;
         align-items: center;
     }
 
     .check {
-        width: 10px;
-        height: 10px;
+        width: 14px;
+        height: 14px;
         margin: 0;
     }
 
@@ -121,9 +123,8 @@
     }
 
     .name {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 
     .specializationsButton {
@@ -179,6 +180,17 @@
 
     .readonly {
         opacity: 0.9;
+    }
+
+    @media (max-width: 300px) {
+        .row {
+            grid-template-columns: 14px minmax(0, 1fr) auto;
+        }
+
+        .specializationsButton {
+            grid-column: 2 / -1;
+            justify-self: end;
+        }
     }
 
 </style>

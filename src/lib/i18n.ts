@@ -78,6 +78,7 @@ export const DICT: Record<Lang, Record<string, string>> = {
     skillSpecializations: "Specializations",
     skillSpecializationsShort: "Specs",
     skillSpecializationsTitle: "Skill specializations",
+    skillUse: "Use skill: {skill}",
 
     skill_humanities: "Humanities",
     skill_technical: "Technical",
@@ -217,6 +218,7 @@ export const DICT: Record<Lang, Record<string, string>> = {
     skillSpecializations: "Специализации",
     skillSpecializationsShort: "Спец.",
     skillSpecializationsTitle: "Специализации навыка",
+    skillUse: "Использовать навык: {skill}",
 
     skill_humanities: "Гуманитарные н.",
     skill_technical: "Технические н.",

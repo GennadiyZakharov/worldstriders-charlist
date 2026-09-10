@@ -139,6 +139,7 @@
     specializations: t(character.lang, "skillSpecializations"),
     specializationsShort: t(character.lang, "skillSpecializationsShort"),
     specializationsTitle: t(character.lang, "skillSpecializationsTitle"),
+    useSkill: t(character.lang, "skillUse"),
     close: t(character.lang, "close")
   });
 
