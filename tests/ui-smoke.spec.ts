@@ -1,6 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
+import { load as loadYaml } from "js-yaml";
 
 function perkSection(page: Page, title: string) {
+  return page.getByRole("heading", { name: title }).locator("../..");
+}
+
+function anchorSection(page: Page, title: string) {
   return page.getByRole("heading", { name: title }).locator("../..");
 }
 
@@ -1071,7 +1076,7 @@ temporaryPerks:
         temporary: parsed.temporaryPerks[0]
       };
     })).toEqual({
-      schemaVersion: 3,
+      schemaVersion: 4,
       permanent: { text: "Legacy perk", description: "", level: 5 },
       temporary: { text: "Malformed description", description: "", level: 2 }
     });
@@ -1235,6 +1240,188 @@ skills:
     await expect(page.getByRole("textbox", { name: "Notes" })).toHaveValue("");
   });
 
+  test("edits localized Anchors before Notes and preserves row values", async ({ page }) => {
+    let anchors = anchorSection(page, "Anchors");
+    const notesSheet = page.getByRole("heading", { name: "Notes" }).locator("../..");
+
+    await expect(anchors).toHaveCount(1);
+    await expect.poll(async () => {
+      const anchorBox = await anchors.boundingBox();
+      const notesBox = await notesSheet.boundingBox();
+      return anchorBox && notesBox ? anchorBox.y < notesBox.y : false;
+    }).toBe(true);
+
+    await anchors.getByRole("button", { name: "Add" }).click();
+    await anchors.getByRole("button", { name: "Add" }).click();
+    const texts = anchors.getByRole("textbox", { name: "Anchor text" });
+    await texts.nth(0).fill("  First anchor  ");
+    await texts.nth(0).blur();
+    await expect(texts.nth(0)).toHaveValue("First anchor");
+    await texts.nth(1).fill("Second anchor");
+
+    const secondDescription = anchors.getByRole("button", { name: "Description" }).nth(1);
+    await secondDescription.focus();
+    await page.keyboard.press("Enter");
+    await page.getByRole("textbox", { name: "Anchor description" }).fill("Second\nanchor detail");
+    await page.getByRole("button", { name: "Close" }).click();
+    await anchors.getByRole("button", { name: "Delete anchor" }).nth(0).click();
+    await expect(anchors.getByRole("textbox", { name: "Anchor text" })).toHaveValue("Second anchor");
+
+    await page.getByRole("button", { name: "RU" }).click();
+    anchors = anchorSection(page, "Якоря");
+    await expect(anchors.getByRole("textbox", { name: "Текст якоря" })).toHaveValue("Second anchor");
+    await anchors.getByRole("button", { name: "Описание" }).click();
+    await expect(page.getByRole("textbox", { name: "Описание якоря" }))
+      .toHaveValue("Second\nanchor detail");
+    await page.getByRole("button", { name: "Закрыть" }).click();
+
+    await page.reload();
+    anchors = anchorSection(page, "Якоря");
+    await expect(anchors.getByRole("textbox", { name: "Текст якоря" })).toHaveValue("Second anchor");
+
+    page.once("dialog", (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "Сброс" }).click();
+    await expect(anchorSection(page, "Anchors").getByRole("textbox", { name: "Anchor text" }))
+      .toHaveCount(0);
+  });
+
+  test("lays out Anchors at half width and reflows responsively", async ({ page }) => {
+    const anchorsGrid = page.locator(".anchorsGrid");
+
+    const expectLayout = async (
+      width: number,
+      stacked: boolean,
+      title: string,
+      anchorsContainmentOnly = false
+    ) => {
+      await page.setViewportSize({ width, height: 900 });
+      const anchorsSheet = anchorSection(page, title).locator("..");
+      const [gridBox, sheetBox] = await Promise.all([
+        anchorsGrid.boundingBox(),
+        anchorsSheet.boundingBox()
+      ]);
+      expect(gridBox).not.toBeNull();
+      expect(sheetBox).not.toBeNull();
+      if (!gridBox || !sheetBox) return;
+
+      if (stacked) expect(Math.abs(gridBox.width - sheetBox.width)).toBeLessThan(1);
+      else expect(sheetBox.width).toBeLessThan(gridBox.width * 0.51);
+      if (anchorsContainmentOnly) {
+        expect(sheetBox.x).toBeGreaterThanOrEqual(gridBox.x - 1);
+        expect(sheetBox.x + sheetBox.width).toBeLessThanOrEqual(gridBox.x + gridBox.width + 1);
+        expect(await anchorsSheet.locator("*:visible").evaluateAll((elements, sheetBounds) =>
+          elements.every((element) => {
+            const bounds = element.getBoundingClientRect();
+            return bounds.left >= sheetBounds.x - 1
+              && bounds.right <= sheetBounds.x + sheetBounds.width + 1;
+          }), sheetBox)).toBe(true);
+      } else {
+        expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+          await page.evaluate(() => document.documentElement.clientWidth)
+        );
+      }
+    };
+
+    for (const [width, stacked] of [[899, true], [900, true], [901, false], [1440, false]] as const) {
+      await expectLayout(width, stacked, "Anchors");
+    }
+
+    await page.getByRole("button", { name: "RU" }).click();
+    await expectLayout(390, true, "Якоря");
+    await expectLayout(901, false, "Якоря");
+
+    await page.evaluate(() => {
+      document.body.style.zoom = "2";
+    });
+    await expectLayout(390, true, "Якоря", true);
+  });
+
+  test("round-trips and safely normalizes Anchors through YAML", async ({ page }) => {
+    const anchors = anchorSection(page, "Anchors");
+    await anchors.getByRole("button", { name: "Add" }).click();
+    await anchors.getByRole("textbox", { name: "Anchor text" }).fill("YAML anchor");
+    await anchors.getByRole("button", { name: "Description" }).click();
+    await page.getByRole("textbox", { name: "Anchor description" }).fill("First line\nSecond line");
+    await page.getByRole("button", { name: "Close" }).click();
+
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: "Export YAML" }).click();
+    const download = await downloadPromise;
+    const yamlStream = await download.createReadStream();
+    const chunks: Buffer[] = [];
+    for await (const chunk of yamlStream) chunks.push(Buffer.from(chunk));
+    const yaml = Buffer.concat(chunks).toString("utf8");
+    const parsedYaml: unknown = loadYaml(yaml);
+    expect(parsedYaml).toHaveProperty("anchors", [
+      { text: "YAML anchor", description: "First line\nSecond line" }
+    ]);
+
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "anchors.yaml",
+      mimeType: "text/yaml",
+      buffer: Buffer.from(yaml)
+    });
+    const importedAnchors = anchorSection(page, "Anchors");
+    await expect(importedAnchors.getByRole("textbox", { name: "Anchor text" }))
+      .toHaveValue("YAML anchor");
+    await importedAnchors.getByRole("button", { name: "Description" }).click();
+    await expect(page.getByRole("textbox", { name: "Anchor description" }))
+      .toHaveValue("First line\nSecond line");
+    await page.getByRole("button", { name: "Close" }).click();
+
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "malformed-anchors.yaml",
+      mimeType: "text/yaml",
+      buffer: Buffer.from(`schemaVersion: 1
+lang: en
+meta:
+  characterName: Preserved name
+anchors:
+  - text: Preserved anchor
+    description: |
+      First line
+      Second line
+    unknownField: harmless
+  - text: 42
+    description: false
+  - malformed
+`)
+    });
+
+    await expect.poll(async () => page.evaluate(() => {
+      const value = localStorage.getItem("worldstriders.charlist.v1");
+      if (!value) return null;
+      const parsed = JSON.parse(value) as {
+        schemaVersion: number;
+        meta: { characterName: string };
+        anchors: Array<{ text: string; description: string }>;
+      };
+      return {
+        schemaVersion: parsed.schemaVersion,
+        characterName: parsed.meta.characterName,
+        anchors: parsed.anchors
+      };
+    })).toEqual({
+      schemaVersion: 4,
+      characterName: "Preserved name",
+      anchors: [
+        { text: "Preserved anchor", description: "First line\nSecond line\n" },
+        { text: "", description: "" },
+        { text: "", description: "" }
+      ]
+    });
+
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "legacy.yaml",
+      mimeType: "text/yaml",
+      buffer: Buffer.from("schemaVersion: 3\nlang: en\n")
+    });
+    await expect(anchorSection(page, "Anchors").getByRole("textbox", { name: "Anchor text" }))
+      .toHaveCount(0);
+  });
+
   test("round-trips multiline Notes through YAML", async ({ page }) => {
     await page.getByRole("textbox", { name: "Notes" }).fill("First YAML line\nSecond YAML line");
 
@@ -1285,7 +1472,7 @@ notes:
       };
       return { schemaVersion: parsed.schemaVersion, notes: parsed.notes };
     })).toEqual({
-      schemaVersion: 3,
+      schemaVersion: 4,
       notes: {
         general: "",
         background: "Legacy background",
@@ -1318,7 +1505,7 @@ notes:
       };
       return { schemaVersion: parsed.schemaVersion, notes: parsed.notes };
     })).toEqual({
-      schemaVersion: 3,
+      schemaVersion: 4,
       notes: {
         general: "",
         background: "Preserved background",

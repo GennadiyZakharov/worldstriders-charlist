@@ -8,6 +8,7 @@
   import ExperienceMeter from "./components/ExperienceMeter.svelte";
   import CharacterSkills from "./components/CharacterSkills.svelte";
   import PerkList from "./components/PerkList.svelte";
+  import CharacterAnchors from "./components/CharacterAnchors.svelte";
   import DiceRoller from "./components/DiceRoller.svelte";
   import TextAreaField from "./components/TextAreaField.svelte";
 
@@ -132,6 +133,16 @@
     text: t(character.lang, "perkText"),
     description: t(character.lang, "perkDescription"),
     descriptionTitle: t(character.lang, "perkDescriptionTitle"),
+    close: t(character.lang, "close")
+  });
+
+  let anchorListLabels = $derived({
+    add: t(character.lang, "add"),
+    delete: t(character.lang, "delete"),
+    deleteAction: t(character.lang, "deleteAnchor"),
+    text: t(character.lang, "anchorText"),
+    description: t(character.lang, "anchorDescription"),
+    descriptionTitle: t(character.lang, "anchorDescriptionTitle"),
     close: t(character.lang, "close")
   });
 
@@ -343,6 +354,16 @@
     </div>
   </div>
 
+  <div class="anchorsGrid">
+    <div class="sheet">
+      <CharacterAnchors
+        title={t(character.lang, "anchorsTitle")}
+        labels={anchorListLabels}
+        bind:anchors={character.anchors}
+      />
+    </div>
+  </div>
+
   <div class="sheet">
     <TextAreaField
       header={t(character.lang, "notesTitle")}
@@ -410,7 +431,8 @@
   }
 
   .characteristicsGrid,
-  .perksGrid {
+  .perksGrid,
+  .anchorsGrid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
@@ -424,7 +446,8 @@
     }
 
     .characteristicsGrid,
-    .perksGrid {
+    .perksGrid,
+    .anchorsGrid {
       grid-template-columns: minmax(0, 1fr);
     }
   }

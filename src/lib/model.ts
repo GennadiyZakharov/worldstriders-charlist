@@ -1,6 +1,6 @@
-import type { WoundsState, Character, SkillLine, SkillEntry, CharacterCharacteristics, CharacteristicPair, ExperienceState, PerkEntry } from "./types";
+import type { WoundsState, Character, SkillLine, SkillEntry, CharacterCharacteristics, CharacteristicPair, ExperienceState, PerkEntry, ItemEntry } from "./types";
 
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 export const defaultWoundsState = (): WoundsState => ({
   marks: Array(10).fill(" ")
@@ -10,6 +10,11 @@ export const defaultPerk = (): PerkEntry => ({
   text: "",
   description: "",
   level: 0
+});
+
+export const defaultItem = (): ItemEntry => ({
+  text: "",
+  description: ""
 });
 
 
@@ -110,6 +115,7 @@ export function defaultCharacter(): Character {
 
     permanentPerks: [],
     temporaryPerks: [],
+    anchors: [],
 
     notes: {
       general: "",
@@ -135,6 +141,7 @@ export function normalizeCharacter(input: unknown): Character {
   const skills = normalizeSkills(input.skills, base.skills);
   const permanentPerks = normalizePerks(input.permanentPerks);
   const temporaryPerks = normalizePerks(input.temporaryPerks);
+  const anchors = normalizeItems(input.anchors);
   const notes = normalizeNotes(input.notes, base.notes);
   const wounds = normalizeWounds(input.wounds, base.wounds);
 
@@ -152,6 +159,7 @@ export function normalizeCharacter(input: unknown): Character {
     skills,
     permanentPerks,
     temporaryPerks,
+    anchors,
     notes,
     wounds,
     updatedAt: new Date().toISOString()
@@ -352,6 +360,20 @@ function normalizePerks(v: unknown): Character["permanentPerks"] {
             : 0;
 
     return { text, description, level };
+  });
+}
+
+function normalizeItems(v: unknown): Character["anchors"] {
+  if (!Array.isArray(v)) return [];
+
+  return v.map((item) => {
+    const r = asRecord(item);
+    if (!r) return defaultItem();
+
+    return {
+      text: typeof r.text === "string" ? r.text : "",
+      description: typeof r.description === "string" ? r.description : ""
+    };
   });
 }
 

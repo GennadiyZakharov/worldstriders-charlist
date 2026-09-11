@@ -92,6 +92,11 @@ export interface PerkEntry {
   level: number; // 0..5
 }
 
+export interface ItemEntry {
+  text: string;
+  description: string;
+}
+
 export interface Notes {
   general: string;
   background: string;
@@ -111,6 +116,7 @@ export interface Character {
   skills: CharacterSkills;
   permanentPerks: PerkEntry[];
   temporaryPerks: PerkEntry[];
+  anchors: ItemEntry[];
   notes: Notes;
   updatedAt: string;
 }

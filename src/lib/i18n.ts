@@ -121,6 +121,7 @@ export const DICT: Record<Lang, Record<string, string>> = {
 
     permanentPerksTitle: "PERMANENT PERKS",
     temporaryPerksTitle: "TEMPORARY PERKS",
+    anchorsTitle: "Anchors",
     notesTitle: "Notes",
     add: "Add",
     delete: "Delete",
@@ -128,6 +129,10 @@ export const DICT: Record<Lang, Record<string, string>> = {
     perkText: "Perk text",
     perkDescription: "Description",
     perkDescriptionTitle: "Perk description",
+    deleteAnchor: "Delete anchor",
+    anchorText: "Anchor text",
+    anchorDescription: "Description",
+    anchorDescriptionTitle: "Anchor description",
     close: "Close",
 
     diceRollerTitle: "Dice Roller",
@@ -261,6 +266,7 @@ export const DICT: Record<Lang, Record<string, string>> = {
 
     permanentPerksTitle: "ПОСТОЯННЫЕ ПЕРКИ",
     temporaryPerksTitle: "ВРЕМЕННЫЕ ПЕРКИ",
+    anchorsTitle: "Якоря",
     notesTitle: "Заметки",
     add: "Добавить",
     delete: "Удалить",
@@ -268,6 +274,10 @@ export const DICT: Record<Lang, Record<string, string>> = {
     perkText: "Текст перка",
     perkDescription: "Описание",
     perkDescriptionTitle: "Описание перка",
+    deleteAnchor: "Удалить якорь",
+    anchorText: "Текст якоря",
+    anchorDescription: "Описание",
+    anchorDescriptionTitle: "Описание якоря",
     close: "Закрыть",
 
     diceRollerTitle: "Бросок кубов",
