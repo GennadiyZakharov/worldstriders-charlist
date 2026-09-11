@@ -225,17 +225,46 @@ async function expectCharacteristicsLayout(page: Page, viewportWidth: number) {
 
   const bodyPanel = sheets.nth(1).locator(".bodyPanel");
   const derivedPanel = sheets.nth(1).locator(".derivedPanel");
-  const [bodyBox, derivedBox] = await Promise.all([bodyPanel.boundingBox(), derivedPanel.boundingBox()]);
+  const characteristicsGroup = sheets.nth(1).locator(".characteristicsGroup");
+  const woundsPanel = sheets.nth(1).locator(".woundsPanel");
+  const [bodyBox, derivedBox, characteristicsBox, woundsBox] = await Promise.all([
+    bodyPanel.boundingBox(),
+    derivedPanel.boundingBox(),
+    characteristicsGroup.boundingBox(),
+    woundsPanel.boundingBox()
+  ]);
   expect(bodyBox).not.toBeNull();
   expect(derivedBox).not.toBeNull();
-  if (!bodyBox || !derivedBox) return;
+  expect(characteristicsBox).not.toBeNull();
+  expect(woundsBox).not.toBeNull();
+  if (!bodyBox || !derivedBox || !characteristicsBox || !woundsBox) return;
 
-  const expectInternalStack = viewportWidth === 390 || viewportWidth === 901;
-  if (expectInternalStack) {
-    expect(derivedBox.y).toBeGreaterThanOrEqual(bodyBox.y + bodyBox.height + 17);
+  expect(derivedBox.y).toBeGreaterThanOrEqual(bodyBox.y + bodyBox.height + 17);
+
+  const bodyLayout = sheets.nth(1).locator(".bodyLayout");
+  const layoutWidth = await bodyLayout.evaluate((element) => element.clientWidth);
+  const divider = await woundsPanel.evaluate((element) => {
+    const style = getComputedStyle(element, "::before");
+    return {
+      borderLeftWidth: style.borderLeftWidth,
+      borderTopWidth: style.borderTopWidth,
+      borderLeftColor: style.borderLeftColor
+    };
+  });
+  if (layoutWidth > 519) {
+    expect(Math.abs(woundsBox.y - bodyBox.y)).toBeLessThan(1);
+    expect(woundsBox.x).toBeGreaterThan(bodyBox.x);
+    expect(characteristicsBox.width).toBeLessThanOrEqual(268.5);
+    expect(Math.abs(woundsBox.x - characteristicsBox.x - characteristicsBox.width - 24))
+      .toBeLessThan(1);
+    expect(divider.borderLeftWidth).toBe("1px");
+    expect(divider.borderTopWidth).toBe("0px");
+    expect(divider.borderLeftColor).toBe("rgba(0, 70, 95, 0.45)");
   } else {
-    expect(Math.abs(bodyBox.y - derivedBox.y)).toBeLessThan(1);
-    expect(derivedBox.x).toBeGreaterThan(bodyBox.x);
+    expect(woundsBox.y).toBeGreaterThan(derivedBox.y + derivedBox.height);
+    expect(Math.abs(woundsBox.x - bodyBox.x)).toBeLessThan(1);
+    expect(divider.borderLeftWidth).toBe("0px");
+    expect(divider.borderTopWidth).toBe("1px");
   }
 
   const contentFits = await grid.evaluate((element) => ({
@@ -550,6 +579,11 @@ test.describe("UI smoke", () => {
     await expect(firstWound).toHaveText("");
     await firstWound.focus();
     await expect(firstWound).toBeFocused();
+    await firstWound.click();
+    await page.reload();
+    await expect(page.getByRole("button", { name: "Wound 1: B" })).toHaveText("B");
+    await page.getByRole("button", { name: "Wound 1: B" })
+      .dispatchEvent("keydown", { key: "Delete" });
 
     await page.getByRole("button", { name: "RU" }).click();
     for (const viewportWidth of [390, 900, 901, 1440, 1920]) {
@@ -561,7 +595,7 @@ test.describe("UI smoke", () => {
     await expect(page.getByRole("button", { name: "Ранение 1: Пусто" })).toBeVisible();
   });
 
-  test("keeps Characteristics and Body/Derived in responsive independently bordered cards", async ({ page }) => {
+  test("keeps Characteristics and Body/Derived/Wounds in responsive independently bordered cards", async ({ page }) => {
     const englishLabels = [
       "Characteristics",
       "Body",
@@ -570,7 +604,8 @@ test.describe("UI smoke", () => {
       "Endurance",
       "DERIVED",
       "Initiative modifier",
-      "Perception"
+      "Perception",
+      "Wounds"
     ];
     const russianLabels = [
       "ХАРАКТЕРИСТИКИ",
@@ -580,7 +615,8 @@ test.describe("UI smoke", () => {
       "Выносливость",
       "Производные",
       "Мод. инициативы",
-      "Восприятие"
+      "Восприятие",
+      "Ранения"
     ];
 
     for (const viewportWidth of [390, 900, 901, 1440, 1920]) {
@@ -589,6 +625,10 @@ test.describe("UI smoke", () => {
         await expect(page.getByText(label, { exact: true })).toBeVisible();
       }
     }
+
+    await expect(page.getByRole("group", { name: "Wounds", exact: true })).toHaveCount(1);
+    await expect(page.locator(".xpColumn").getByRole("group", { name: "Wounds", exact: true }))
+      .toHaveCount(0);
 
     await page.getByRole("button", { name: "RU" }).click();
     for (const viewportWidth of [390, 900, 901, 1440, 1920]) {

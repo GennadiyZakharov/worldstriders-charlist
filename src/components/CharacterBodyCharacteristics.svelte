@@ -1,5 +1,6 @@
 <script lang="ts">
     import DotRating from "./DotRating.svelte";
+    import Wounds from "./Wounds.svelte";
     import type { Character, CharacterCharacteristics } from "../lib/types";
 
     type Body = CharacterCharacteristics["body"];
@@ -17,14 +18,26 @@
             speed: string;
             perception: string;
         };
+        woundsCaption: string;
+        woundsLabels: {
+            empty: string;
+            cellLabel: string;
+            aggravated: string;
+            lethal: string;
+            bashing: string;
+        };
         body: Body;
+        wounds: Character["wounds"];
         character: Character;
         readonly?: boolean;
     };
 
     let {
         labels,
+        woundsCaption,
+        woundsLabels,
         body = $bindable<Body>(),
+        wounds = $bindable<Character["wounds"]>(),
         character,
         readonly = false
     }: Props = $props();
@@ -40,97 +53,117 @@
 </script>
 
 <section class="bodyCharacteristics">
-    <div class="bodyPanel">
-        <h2 class="ws-h2">{labels.body}</h2>
+    <div class="bodyLayout">
+      <div class="characteristicsGroup">
+        <div class="bodyPanel">
+            <h2 class="ws-h2">{labels.body}</h2>
 
-        <div class="bodyList">
-            <div class="bodyRow">
-                <div class="bodyName ws-label">{labels.strength}</div>
-                <DotRating
-                        label={labels.strength}
-                        bind:value={body.strength}
-                        min={1}
-                        max={5}
-                        shape="circle"
-                        showValue={false}
-                        {readonly}
-                />
-            </div>
+            <div class="bodyList">
+                <div class="bodyRow">
+                    <div class="bodyName ws-label">{labels.strength}</div>
+                    <DotRating
+                            label={labels.strength}
+                            bind:value={body.strength}
+                            min={1}
+                            max={5}
+                            shape="circle"
+                            showValue={false}
+                            {readonly}
+                    />
+                </div>
 
-            <div class="bodyRow">
-                <div class="bodyName ws-label">{labels.agility}</div>
-                <DotRating
-                        label={labels.agility}
-                        bind:value={body.agility}
-                        min={1}
-                        max={5}
-                        shape="circle"
-                        showValue={false}
-                        {readonly}
-                />
-            </div>
+                <div class="bodyRow">
+                    <div class="bodyName ws-label">{labels.agility}</div>
+                    <DotRating
+                            label={labels.agility}
+                            bind:value={body.agility}
+                            min={1}
+                            max={5}
+                            shape="circle"
+                            showValue={false}
+                            {readonly}
+                    />
+                </div>
 
-            <div class="bodyRow">
-                <div class="bodyName ws-label">{labels.endurance}</div>
-                <DotRating
-                        label={labels.endurance}
-                        bind:value={body.endurance}
-                        min={1}
-                        max={5}
-                        shape="circle"
-                        showValue={false}
-                        {readonly}
-                />
-            </div>
-        </div>
-    </div>
-
-    <div class="derivedPanel" aria-label={labels.derivedTitle}>
-        <h2 class="ws-h2">{labels.derivedTitle}</h2>
-
-        <div class="derivedList">
-            <div class="derivedRow">
-                <div class="derivedName ws-label">{labels.size}</div>
-                <span class="leader" aria-hidden="true"></span>
-                <div class="derivedVal ws-text">{size}</div>
-            </div>
-
-            <div class="derivedRow">
-                <div class="derivedName ws-label">{labels.defense}</div>
-                <span class="leader" aria-hidden="true"></span>
-                <div class="derivedVal ws-text">{defense}</div>
-            </div>
-
-            <div class="derivedRow">
-                <div class="derivedName ws-label">{labels.initiativeMod}</div>
-                <span class="leader" aria-hidden="true"></span>
-                <div class="derivedVal ws-text">{initiativeMod}</div>
-            </div>
-
-            <div class="derivedRow">
-                <div class="derivedName ws-label">{labels.speed}</div>
-                <span class="leader" aria-hidden="true"></span>
-                <div class="derivedVal ws-text">{speed}</div>
-            </div>
-
-            <div class="derivedRow">
-                <div class="derivedName ws-label">{labels.perception}</div>
-                <span class="leader" aria-hidden="true"></span>
-                <div class="derivedVal ws-text">{perception}</div>
+                <div class="bodyRow">
+                    <div class="bodyName ws-label">{labels.endurance}</div>
+                    <DotRating
+                            label={labels.endurance}
+                            bind:value={body.endurance}
+                            min={1}
+                            max={5}
+                            shape="circle"
+                            showValue={false}
+                            {readonly}
+                    />
+                </div>
             </div>
         </div>
+
+        <div class="derivedPanel" aria-label={labels.derivedTitle}>
+            <h2 class="ws-h2">{labels.derivedTitle}</h2>
+
+            <div class="derivedList">
+                <div class="derivedRow">
+                    <div class="derivedName ws-label">{labels.size}</div>
+                    <span class="leader" aria-hidden="true"></span>
+                    <div class="derivedVal ws-text">{size}</div>
+                </div>
+
+                <div class="derivedRow">
+                    <div class="derivedName ws-label">{labels.defense}</div>
+                    <span class="leader" aria-hidden="true"></span>
+                    <div class="derivedVal ws-text">{defense}</div>
+                </div>
+
+                <div class="derivedRow">
+                    <div class="derivedName ws-label">{labels.initiativeMod}</div>
+                    <span class="leader" aria-hidden="true"></span>
+                    <div class="derivedVal ws-text">{initiativeMod}</div>
+                </div>
+
+                <div class="derivedRow">
+                    <div class="derivedName ws-label">{labels.speed}</div>
+                    <span class="leader" aria-hidden="true"></span>
+                    <div class="derivedVal ws-text">{speed}</div>
+                </div>
+
+                <div class="derivedRow">
+                    <div class="derivedName ws-label">{labels.perception}</div>
+                    <span class="leader" aria-hidden="true"></span>
+                    <div class="derivedVal ws-text">{perception}</div>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <div class="woundsPanel">
+          <Wounds
+                  caption={woundsCaption}
+                  labels={woundsLabels}
+                  bind:wounds
+                  {readonly}
+          />
+      </div>
     </div>
 </section>
 
 <style>
     .bodyCharacteristics {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
-        gap: 18px;
-        align-items: start;
+        container-type: inline-size;
         min-width: 0;
     }
 
+    .bodyLayout {
+        display: grid;
+        grid-template-columns: minmax(220px, 268px) auto;
+        gap: 24px;
+        align-items: start;
+        justify-content: center;
+        min-width: 0;
+    }
+
+    .characteristicsGroup,
     .bodyPanel,
     .derivedPanel,
     .bodyList,
@@ -138,6 +171,10 @@
         display: grid;
         align-content: start;
         min-width: 0;
+    }
+
+    .characteristicsGroup {
+        gap: 18px;
     }
 
     .bodyPanel,
@@ -184,5 +221,35 @@
     .derivedVal {
         text-align: right;
         font-variant-numeric: tabular-nums;
+    }
+
+    .woundsPanel {
+        position: relative;
+        min-width: 0;
+    }
+
+    .woundsPanel::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: -12px;
+        border-left: 1px solid rgba(0, 70, 95, 0.45);
+    }
+
+    @container (max-width: 519px) {
+        .bodyLayout {
+            grid-template-columns: minmax(0, 1fr);
+            justify-content: stretch;
+        }
+
+        .woundsPanel::before {
+            top: -12px;
+            right: 0;
+            bottom: auto;
+            left: 0;
+            border-top: 1px solid rgba(0, 70, 95, 0.35);
+            border-left: 0;
+        }
     }
 </style>

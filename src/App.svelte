@@ -6,7 +6,6 @@
   import CharacterCharacteristics from "./components/CharacterCharacteristics.svelte";
   import CharacterBodyCharacteristics from "./components/CharacterBodyCharacteristics.svelte";
   import ExperienceMeter from "./components/ExperienceMeter.svelte";
-  import Wounds from "./components/Wounds.svelte";
   import CharacterSkills from "./components/CharacterSkills.svelte";
   import PerkList from "./components/PerkList.svelte";
   import DiceRoller from "./components/DiceRoller.svelte";
@@ -276,13 +275,16 @@
     <div class="sheet">
       <CharacterBodyCharacteristics
               labels={bodyCharacteristicsLabels}
+              woundsCaption={t(character.lang, "woundsTitle")}
+              woundsLabels={woundsLabels}
               bind:body={character.characteristics.body}
+              bind:wounds={character.wounds}
               character={character}
       />
     </div>
   </div>
 
-  <div class="sheet xpWounds">
+  <div class="sheet">
     <div class="xpColumn">
       <div class="xpCard">
         <ExperienceMeter
@@ -299,14 +301,6 @@
                 bind:experience={character.specialExperience}
         />
       </div>
-    </div>
-
-    <div class="woundsBox">
-      <Wounds
-              caption={t(character.lang, "woundsTitle")}
-              labels={woundsLabels}
-              bind:wounds={character.wounds}
-      />
     </div>
   </div>
 
@@ -400,13 +394,6 @@
     font-size: max(30px, var(--ws-h1-size));
   }
 
-  .xpWounds {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 16px;
-    align-items: start;
-  }
-
   .xpColumn {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -422,10 +409,6 @@
     box-sizing: border-box;
   }
 
-  .woundsBox {
-    min-width: 260px;
-  }
-
   .characteristicsGrid,
   .perksGrid {
     display: grid;
@@ -436,16 +419,8 @@
   }
 
   @media (max-width: 900px) {
-    .xpWounds {
-      grid-template-columns: 1fr;
-    }
-
     .xpColumn {
       grid-template-columns: 1fr;
-    }
-
-    .woundsBox {
-      min-width: 0;
     }
 
     .characteristicsGrid,
