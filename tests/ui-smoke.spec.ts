@@ -255,23 +255,26 @@ async function expectWoundsGeometry(page: Page, viewportWidth: number, caption: 
   await page.setViewportSize({ width: viewportWidth, height: 900 });
 
   const triangle = page.getByRole("group", { name: caption, exact: true });
-  const rows = triangle.locator(".rows > .row");
-  await expect(rows).toHaveCount(4);
-  await expect(rows.nth(0).getByRole("button")).toHaveCount(4);
-  await expect(rows.nth(1).getByRole("button")).toHaveCount(3);
-  await expect(rows.nth(2).getByRole("button")).toHaveCount(2);
-  await expect(rows.nth(3).getByRole("button")).toHaveCount(1);
+  await expect(triangle.locator(":scope > .top-mark")).toHaveCount(5);
+  await expect(triangle.locator(":scope > .column-mark")).toHaveCount(4);
+  await expect(triangle.locator(":scope > .separator")).toHaveCount(2);
+  await expect(triangle.locator(":scope > .cell")).toHaveCount(10);
+  await expect(triangle.locator(".marks, .marks-top, .marks-columns, .rows, .row")).toHaveCount(0);
 
   const geometry = await triangle.evaluate((element) => {
     const boxes = (selector: string) => Array.from(element.querySelectorAll<HTMLElement>(selector))
       .map((item) => item.getBoundingClientRect());
-    const cellRows = Array.from(element.querySelectorAll<HTMLElement>(".rows > .row"))
-      .map((row) => Array.from(row.querySelectorAll<HTMLElement>(".cell"))
-        .map((cell) => cell.getBoundingClientRect()));
-    const topMarks = boxes(".marks-top span");
-    const columnMarks = boxes(".marks-columns span");
-    const topRule = element.querySelector<HTMLElement>(".marks-top")!.getBoundingClientRect();
-    const columnRule = element.querySelector<HTMLElement>(".marks-columns")!.getBoundingClientRect();
+    const cells = boxes(":scope > .cell");
+    const rowSizes = [4, 3, 2, 1];
+    let offset = 0;
+    const cellRows = rowSizes.map((size) => {
+      const row = cells.slice(offset, offset + size);
+      offset += size;
+      return row;
+    });
+    const topMarks = boxes(":scope > .top-mark");
+    const columnMarks = boxes(":scope > .column-mark");
+    const rules = boxes(":scope > .separator");
     const triangleBox = element.getBoundingClientRect();
 
     return {
@@ -284,8 +287,10 @@ async function expectWoundsGeometry(page: Page, viewportWidth: number, caption: 
         height: cell.height
       }))),
       topCenters: topMarks.map((mark) => mark.left + mark.width / 2),
+      topVerticalCenters: topMarks.map((mark) => mark.top + mark.height / 2),
       columnCenters: columnMarks.map((mark) => mark.left + mark.width / 2),
-      ruleWidths: [topRule.width, columnRule.width],
+      columnVerticalCenters: columnMarks.map((mark) => mark.top + mark.height / 2),
+      ruleWidths: rules.map((rule) => rule.width),
       triangleWidth: triangleBox.width,
       woundsFits: element.closest<HTMLElement>(".wounds")!.scrollWidth <=
         element.closest<HTMLElement>(".wounds")!.clientWidth,
@@ -314,15 +319,68 @@ async function expectWoundsGeometry(page: Page, viewportWidth: number, caption: 
   const circleCenters = firstRow.map((cell) => cell.left + cell.width / 2);
   for (let index = 0; index < circleCenters.length; index += 1) {
     expect(Math.abs(geometry.columnCenters[index] - circleCenters[index])).toBeLessThanOrEqual(1);
-    expect(Math.abs(geometry.topCenters[index] - firstRow[index].left)).toBeLessThanOrEqual(1);
+    expect(Math.abs(geometry.topCenters[index] - circleCenters[index])).toBeLessThanOrEqual(1);
   }
-  expect(Math.abs(geometry.topCenters[4] - firstRow[3].right)).toBeLessThanOrEqual(1);
+  const columnPitch = circleCenters[1] - circleCenters[0];
+  expect(Math.abs(geometry.topCenters[4] - geometry.topCenters[3] - columnPitch)).toBeLessThanOrEqual(1);
+  expect(Math.max(...geometry.topVerticalCenters) - Math.min(...geometry.topVerticalCenters)).toBeLessThanOrEqual(1);
+  expect(Math.max(...geometry.columnVerticalCenters) - Math.min(...geometry.columnVerticalCenters)).toBeLessThanOrEqual(1);
   for (const ruleWidth of geometry.ruleWidths) {
-    expect(Math.abs(ruleWidth - (firstRow[3].right - firstRow[0].left))).toBeLessThanOrEqual(1);
+    expect(Math.abs(ruleWidth - geometry.triangleWidth)).toBeLessThanOrEqual(1);
   }
-  expect(geometry.triangleWidth).toBeLessThanOrEqual(110);
+  expect(geometry.triangleWidth).toBeLessThanOrEqual(136);
   expect(geometry.woundsFits).toBe(true);
   expect(geometry.pageFits).toBe(true);
+}
+
+async function expectWoundsTextEnlargement(page: Page, caption: string) {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.evaluate(() => {
+    document.documentElement.style.setProperty("--ws-text-size", "28px");
+    document.documentElement.style.setProperty("--ws-h2-size", "28px");
+  });
+
+  const triangle = page.getByRole("group", { name: caption, exact: true });
+  const geometry = await triangle.evaluate((element) => {
+    const bounds = (selector: string) => Array.from(element.querySelectorAll<HTMLElement>(selector))
+      .map((item) => {
+        const box = item.getBoundingClientRect();
+        return {
+          left: box.left,
+          right: box.right,
+          center: box.left + box.width / 2
+        };
+      });
+    const topMarks = bounds(":scope > .top-mark");
+    const columnMarks = bounds(":scope > .column-mark");
+    const cells = bounds(":scope > .cell").slice(0, 4);
+
+    return {
+      topMarks,
+      columnMarks,
+      cellCenters: cells.map((cell) => cell.center),
+      woundsFits: element.closest<HTMLElement>(".wounds")!.scrollWidth <=
+        element.closest<HTMLElement>(".wounds")!.clientWidth,
+      pageFits: document.documentElement.scrollWidth <= document.documentElement.clientWidth
+    };
+  });
+
+  for (const marks of [geometry.topMarks, geometry.columnMarks]) {
+    for (let index = 1; index < marks.length; index += 1) {
+      expect(marks[index - 1].right).toBeLessThan(marks[index].left);
+    }
+  }
+  for (let index = 0; index < geometry.cellCenters.length; index += 1) {
+    expect(Math.abs(geometry.topMarks[index].center - geometry.cellCenters[index])).toBeLessThanOrEqual(1);
+    expect(Math.abs(geometry.columnMarks[index].center - geometry.cellCenters[index])).toBeLessThanOrEqual(1);
+  }
+  expect(geometry.woundsFits).toBe(true);
+  expect(geometry.pageFits).toBe(true);
+
+  await page.evaluate(() => {
+    document.documentElement.style.removeProperty("--ws-text-size");
+    document.documentElement.style.removeProperty("--ws-h2-size");
+  });
 }
 
 test.describe("UI smoke", () => {
@@ -474,6 +532,7 @@ test.describe("UI smoke", () => {
     for (const viewportWidth of [390, 500, 900, 901, 1440, 1920]) {
       await expectWoundsGeometry(page, viewportWidth, "Wounds");
     }
+    await expectWoundsTextEnlargement(page, "Wounds");
 
     const firstWound = page.getByRole("group", { name: "Wounds" }).locator(".cell").first();
     await expect(firstWound).toHaveAccessibleName("Wound 1: Empty");

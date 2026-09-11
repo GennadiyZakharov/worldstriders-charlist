@@ -97,35 +97,42 @@
     <div class="ws-h2">{caption}</div>
 
     <div class="tri" role="group" aria-label={caption}>
-        <div class="marks marks-top ws-text ws-strong" aria-hidden="true">
-            {#each TOP_MARKS as mark (mark)}
-                <span>{mark}</span>
-            {/each}
-        </div>
+        {#each TOP_MARKS as mark, column (mark)}
+            <span
+                    class="top-mark ws-text ws-strong"
+                    style:grid-column={`${column + 1} / span 1`}
+                    aria-hidden="true"
+            >{mark}</span>
+        {/each}
 
-        <div class="marks marks-columns ws-text" aria-hidden="true">
-            {#each COLUMN_MARKS as mark, column (column)}
-                <span style:grid-column={`${column + 1} / span 1`}>{mark}</span>
-            {/each}
-        </div>
+        <span class="separator separator-top" aria-hidden="true"></span>
+
+        {#each COLUMN_MARKS as mark, column (column)}
+            <span
+                    class="column-mark ws-text"
+                    style:grid-column={`${column + 1} / span 1`}
+                    aria-hidden="true"
+            >{mark}</span>
+        {/each}
+
+        <span class="separator separator-columns" aria-hidden="true"></span>
 
         {#each ROW_SIZES as n, r}
-            <div class="row">
-                {#each Array(n) as _, c (c)}
-                    {@const idx = ROW_OFFSETS[r] + c}
-                    <button
-                            type="button"
-                            class="cell ws-text ws-strong"
-                            style:grid-column={`${c + 1} / span 1`}
-                            disabled={readonly}
-                            aria-label={`${labels.cellLabel} ${idx + 1}: ${cellLabel(wounds.marks[idx] ?? " ")}`}
-                            onkeydown={(e) => onKeyDown(idx, e)}
-                            onclick={() => cycleAt(idx)}
-                    >
-                        {wounds.marks[idx] === " " ? "" : wounds.marks[idx]}
-                    </button>
-                {/each}
-            </div>
+            {#each Array(n) as _, c (c)}
+                {@const idx = ROW_OFFSETS[r] + c}
+                <button
+                        type="button"
+                        class="cell ws-text ws-strong"
+                        style:grid-column={`${c + 1} / span 1`}
+                        style:grid-row={`${r + 5} / span 1`}
+                        disabled={readonly}
+                        aria-label={`${labels.cellLabel} ${idx + 1}: ${cellLabel(wounds.marks[idx] ?? " ")}`}
+                        onkeydown={(e) => onKeyDown(idx, e)}
+                        onclick={() => cycleAt(idx)}
+                >
+                    {wounds.marks[idx] === " " ? "" : wounds.marks[idx]}
+                </button>
+            {/each}
         {/each}
     </div>
 
@@ -144,44 +151,44 @@
     }
 
     .tri {
-        --cell-size: clamp(28px, 6vw, 32px);
-        --cell-gap: clamp(6px, 1.6vw, 8px);
-        --tri-width: calc((var(--cell-size) * 4) + (var(--cell-gap) * 3));
+        --cell-size: clamp(22.4px, 4.8vw, 25.6px);
+        --cell-gap: 2px;
         display: grid;
-        gap: 8px;
-        justify-items: start;
+        grid-template-columns: repeat(5, var(--cell-size));
+        grid-template-rows: auto 1px auto 1px repeat(4, var(--cell-size));
+        gap: var(--cell-gap);
+        justify-items: center;
         width: max-content;
     }
 
-    .row {
-        display: grid;
-        grid-template-columns: repeat(4, var(--cell-size));
-        gap: var(--cell-gap);
-        width: var(--tri-width);
-    }
-
-    .marks {
-        width: var(--tri-width);
+    .top-mark,
+    .column-mark {
         color: rgba(0, 0, 0, 0.75);
+        font-size: min(1em, calc(var(--cell-size) - 2px));
+        text-align: center;
     }
 
-    .marks-top {
-        display: flex;
-        justify-content: space-between;
-        padding-bottom: 4px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.35);
+    .top-mark {
+        grid-row: 1;
     }
 
-    .marks-columns {
-        display: grid;
-        grid-template-columns: repeat(4, var(--cell-size));
-        gap: var(--cell-gap);
-        padding-bottom: 4px;
+    .column-mark {
+        grid-row: 3;
+    }
+
+    .separator {
+        grid-column: 1 / -1;
+        justify-self: stretch;
         border-bottom: 1px solid rgba(0, 0, 0, 0.25);
     }
 
-    .marks-columns span {
-        text-align: center;
+    .separator-top {
+        grid-row: 2;
+        border-bottom-color: rgba(0, 0, 0, 0.35);
+    }
+
+    .separator-columns {
+        grid-row: 4;
     }
 
     .cell {
