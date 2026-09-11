@@ -187,6 +187,144 @@ async function expectCompactAttributeLayout(
   expect(sectionOverflow.scrollWidth).toBeLessThanOrEqual(sectionOverflow.clientWidth);
 }
 
+async function expectCharacteristicsLayout(page: Page, viewportWidth: number) {
+  await page.setViewportSize({ width: viewportWidth, height: 900 });
+
+  const grid = page.locator(".characteristicsGrid");
+  const sheets = grid.locator(":scope > .sheet");
+  await expect(sheets).toHaveCount(2);
+
+  const geometry = await sheets.evaluateAll((elements) => elements.map((element) => {
+    const sheet = element.getBoundingClientRect();
+    const style = getComputedStyle(element);
+    return {
+      x: sheet.x,
+      y: sheet.y,
+      width: sheet.width,
+      height: sheet.height,
+      borderWidth: style.borderTopWidth,
+      borderStyle: style.borderTopStyle,
+      fits: element.scrollWidth <= element.clientWidth
+    };
+  }));
+
+  for (const sheet of geometry) {
+    expect(sheet.borderWidth).toBe("2px");
+    expect(sheet.borderStyle).toBe("solid");
+    expect(sheet.fits).toBe(true);
+  }
+
+  expect(Math.abs(geometry[0].width - geometry[1].width)).toBeLessThanOrEqual(1);
+  if (viewportWidth > 900) {
+    expect(Math.abs(geometry[0].y - geometry[1].y)).toBeLessThan(1);
+    expect(Math.abs(geometry[1].x - geometry[0].x - geometry[0].width - 16)).toBeLessThan(1);
+  } else {
+    expect(geometry[1].y).toBeGreaterThanOrEqual(geometry[0].y + geometry[0].height + 15);
+    expect(Math.abs(geometry[0].x - geometry[1].x)).toBeLessThan(1);
+  }
+
+  const bodyPanel = sheets.nth(1).locator(".bodyPanel");
+  const derivedPanel = sheets.nth(1).locator(".derivedPanel");
+  const [bodyBox, derivedBox] = await Promise.all([bodyPanel.boundingBox(), derivedPanel.boundingBox()]);
+  expect(bodyBox).not.toBeNull();
+  expect(derivedBox).not.toBeNull();
+  if (!bodyBox || !derivedBox) return;
+
+  const expectInternalStack = viewportWidth === 390 || viewportWidth === 901;
+  if (expectInternalStack) {
+    expect(derivedBox.y).toBeGreaterThanOrEqual(bodyBox.y + bodyBox.height + 17);
+  } else {
+    expect(Math.abs(bodyBox.y - derivedBox.y)).toBeLessThan(1);
+    expect(derivedBox.x).toBeGreaterThan(bodyBox.x);
+  }
+
+  const contentFits = await grid.evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth,
+    labelsFit: Array.from(element.querySelectorAll<HTMLElement>(".bodyName, .derivedName"))
+      .every((label) => label.scrollWidth <= label.clientWidth + 1)
+  }));
+  expect(contentFits.scrollWidth).toBeLessThanOrEqual(contentFits.clientWidth);
+  expect(contentFits.labelsFit).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+    await page.evaluate(() => document.documentElement.clientWidth)
+  );
+}
+
+async function expectWoundsGeometry(page: Page, viewportWidth: number, caption: string) {
+  await page.setViewportSize({ width: viewportWidth, height: 900 });
+
+  const triangle = page.getByRole("group", { name: caption, exact: true });
+  const rows = triangle.locator(".rows > .row");
+  await expect(rows).toHaveCount(4);
+  await expect(rows.nth(0).getByRole("button")).toHaveCount(4);
+  await expect(rows.nth(1).getByRole("button")).toHaveCount(3);
+  await expect(rows.nth(2).getByRole("button")).toHaveCount(2);
+  await expect(rows.nth(3).getByRole("button")).toHaveCount(1);
+
+  const geometry = await triangle.evaluate((element) => {
+    const boxes = (selector: string) => Array.from(element.querySelectorAll<HTMLElement>(selector))
+      .map((item) => item.getBoundingClientRect());
+    const cellRows = Array.from(element.querySelectorAll<HTMLElement>(".rows > .row"))
+      .map((row) => Array.from(row.querySelectorAll<HTMLElement>(".cell"))
+        .map((cell) => cell.getBoundingClientRect()));
+    const topMarks = boxes(".marks-top span");
+    const columnMarks = boxes(".marks-columns span");
+    const topRule = element.querySelector<HTMLElement>(".marks-top")!.getBoundingClientRect();
+    const columnRule = element.querySelector<HTMLElement>(".marks-columns")!.getBoundingClientRect();
+    const triangleBox = element.getBoundingClientRect();
+
+    return {
+      cellRows: cellRows.map((row) => row.map((cell) => ({
+        left: cell.left,
+        right: cell.right,
+        top: cell.top,
+        bottom: cell.bottom,
+        width: cell.width,
+        height: cell.height
+      }))),
+      topCenters: topMarks.map((mark) => mark.left + mark.width / 2),
+      columnCenters: columnMarks.map((mark) => mark.left + mark.width / 2),
+      ruleWidths: [topRule.width, columnRule.width],
+      triangleWidth: triangleBox.width,
+      woundsFits: element.closest<HTMLElement>(".wounds")!.scrollWidth <=
+        element.closest<HTMLElement>(".wounds")!.clientWidth,
+      pageFits: document.documentElement.scrollWidth <= document.documentElement.clientWidth
+    };
+  });
+
+  const expectedSize = Math.min(25.6, Math.max(22.4, viewportWidth * 0.048));
+  const firstRow = geometry.cellRows[0];
+  for (const row of geometry.cellRows) {
+    for (const cell of row) {
+      expect(Math.abs(cell.width - expectedSize)).toBeLessThanOrEqual(0.1);
+      expect(Math.abs(cell.height - expectedSize)).toBeLessThanOrEqual(0.1);
+      expect(Math.abs(cell.width - cell.height)).toBeLessThanOrEqual(0.1);
+    }
+    for (let index = 1; index < row.length; index += 1) {
+      expect(Math.abs(row[index].left - row[index - 1].right - 2)).toBeLessThanOrEqual(0.1);
+    }
+  }
+  for (let index = 1; index < geometry.cellRows.length; index += 1) {
+    expect(Math.abs(
+      geometry.cellRows[index][0].top - geometry.cellRows[index - 1][0].bottom - 2
+    )).toBeLessThanOrEqual(0.1);
+  }
+
+  const circleCenters = firstRow.map((cell) => cell.left + cell.width / 2);
+  for (let index = 0; index < circleCenters.length; index += 1) {
+    expect(Math.abs(geometry.columnCenters[index] - circleCenters[index])).toBeLessThanOrEqual(1);
+    expect(Math.abs(geometry.topCenters[index] - firstRow[index].left)).toBeLessThanOrEqual(1);
+  }
+  expect(Math.abs(geometry.topCenters[4] - firstRow[3].right)).toBeLessThanOrEqual(1);
+  for (const ruleWidth of geometry.ruleWidths) {
+    expect(Math.abs(ruleWidth - (firstRow[3].right - firstRow[0].left))).toBeLessThanOrEqual(1);
+  }
+  expect(geometry.triangleWidth).toBeLessThanOrEqual(110);
+  expect(geometry.woundsFits).toBe(true);
+  expect(geometry.pageFits).toBe(true);
+}
+
 test.describe("UI smoke", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
@@ -330,6 +468,139 @@ test.describe("UI smoke", () => {
       "aria-label",
       "Всего опыта"
     );
+  });
+
+  test("keeps Wounds circles compact, aligned, localized, and interactive", async ({ page }) => {
+    for (const viewportWidth of [390, 500, 900, 901, 1440, 1920]) {
+      await expectWoundsGeometry(page, viewportWidth, "Wounds");
+    }
+
+    const firstWound = page.getByRole("group", { name: "Wounds" }).locator(".cell").first();
+    await expect(firstWound).toHaveAccessibleName("Wound 1: Empty");
+    await firstWound.click();
+    await expect(firstWound).toHaveAccessibleName("Wound 1: B");
+    await expect(firstWound).toHaveText("B");
+    await firstWound.dispatchEvent("keydown", { key: " " });
+    await expect(firstWound).toHaveAccessibleName("Wound 1: A");
+    await expect(firstWound).toHaveText("A");
+    await firstWound.dispatchEvent("keydown", { key: "Enter" });
+    await expect(firstWound).toHaveAccessibleName("Wound 1: L");
+    await expect(firstWound).toHaveText("L");
+    await firstWound.dispatchEvent("keydown", { key: "Backspace" });
+    await expect(firstWound).toHaveAccessibleName("Wound 1: Empty");
+    await expect(firstWound).toHaveText("");
+    await firstWound.focus();
+    await expect(firstWound).toBeFocused();
+
+    await page.getByRole("button", { name: "RU" }).click();
+    for (const viewportWidth of [390, 900, 901, 1440, 1920]) {
+      await expectWoundsGeometry(page, viewportWidth, "Ранения");
+    }
+    await expect(page.getByText("A - Aggravated, усиливающиеся (6 мес)", { exact: true })).toBeVisible();
+    await expect(page.getByText("L - Lethal, летальное (1 мес)", { exact: true })).toBeVisible();
+    await expect(page.getByText("B - Bashing, ударные (3 дня)", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Ранение 1: Пусто" })).toBeVisible();
+  });
+
+  test("keeps Characteristics and Body/Derived in responsive independently bordered cards", async ({ page }) => {
+    const englishLabels = [
+      "Characteristics",
+      "Body",
+      "Strength",
+      "Agility",
+      "Endurance",
+      "DERIVED",
+      "Initiative modifier",
+      "Perception"
+    ];
+    const russianLabels = [
+      "ХАРАКТЕРИСТИКИ",
+      "Тело",
+      "Сила",
+      "Ловкость",
+      "Выносливость",
+      "Производные",
+      "Мод. инициативы",
+      "Восприятие"
+    ];
+
+    for (const viewportWidth of [390, 900, 901, 1440, 1920]) {
+      await expectCharacteristicsLayout(page, viewportWidth);
+      for (const label of englishLabels) {
+        await expect(page.getByText(label, { exact: true })).toBeVisible();
+      }
+    }
+
+    await page.getByRole("button", { name: "RU" }).click();
+    for (const viewportWidth of [390, 900, 901, 1440, 1920]) {
+      await expectCharacteristicsLayout(page, viewportWidth);
+      for (const label of russianLabels) {
+        await expect(page.getByText(label, { exact: true })).toBeVisible();
+      }
+    }
+
+    for (const viewportWidth of [390, 1440]) {
+      await page.setViewportSize({ width: viewportWidth, height: 900 });
+      await page.evaluate(() => {
+        document.body.style.zoom = "2";
+      });
+      const grid = page.locator(".characteristicsGrid");
+      const containment = await grid.evaluate((element) => ({
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth,
+        headingFits: Array.from(element.querySelectorAll<HTMLElement>(".ws-h1"))
+          .every((heading) => heading.scrollWidth <= heading.clientWidth)
+      }));
+      expect(containment.scrollWidth).toBeLessThanOrEqual(containment.clientWidth);
+      expect(containment.headingFits).toBe(true);
+      await page.evaluate(() => {
+        document.body.style.removeProperty("zoom");
+      });
+    }
+  });
+
+  test("preserves Body bounds and reactively updates every Derived value", async ({ page }) => {
+    const bodySheet = page.locator(".characteristicsGrid > .sheet").nth(1);
+    const bodyRatings = bodySheet.getByRole("slider");
+    await expect(bodyRatings).toHaveCount(3);
+
+    const strength = bodyRatings.nth(0);
+    const agility = bodyRatings.nth(1);
+    const endurance = bodyRatings.nth(2);
+
+    await strength.focus();
+    await page.keyboard.press("Home");
+    await page.keyboard.press("ArrowLeft");
+    await expect(strength).toHaveAttribute("aria-valuenow", "1");
+    await page.keyboard.press("End");
+    await page.keyboard.press("ArrowRight");
+    await expect(strength).toHaveAttribute("aria-valuenow", "5");
+
+    await agility.getByRole("button", { name: "Agility 4/5" }).click();
+    await endurance.getByRole("button", { name: "Endurance 3/5" }).click();
+    await expect(agility).toHaveAttribute("aria-valuenow", "4");
+    await expect(endurance).toHaveAttribute("aria-valuenow", "3");
+
+    const attributes = page.getByRole("heading", { name: "ATTRIBUTES" }).locator("..").getByRole("slider");
+    await attributes.nth(1).getByRole("button").nth(2).click();
+    await attributes.nth(5).getByRole("button").nth(1).click();
+    await attributes.nth(8).getByRole("button").nth(3).click();
+
+    const athleticsRow = page.getByText("Athletics", { exact: true }).locator("../..");
+    await athleticsRow.getByRole("slider").getByRole("button", { name: "Athletics 2/5" }).click();
+
+    const derivedValue = (label: string) => bodySheet.locator(".derivedRow")
+      .filter({ hasText: label })
+      .locator(".derivedVal");
+    await expect(derivedValue("Size")).toHaveText("5");
+    await expect(derivedValue("Defense")).toHaveText("5");
+    await expect(derivedValue("Initiative modifier")).toHaveText("6");
+    await expect(derivedValue("Speed")).toHaveText("13");
+    await expect(derivedValue("Perception")).toHaveText("7");
+
+    await page.reload();
+    await expect(derivedValue("Defense")).toHaveText("5");
+    await expect(derivedValue("Speed")).toHaveText("13");
   });
 
   test("keeps localized Attribute groups compact and aligned across the breakpoint", async ({ page }) => {

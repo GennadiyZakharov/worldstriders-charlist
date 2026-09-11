@@ -4,6 +4,7 @@
   import CharacterMeta from "./components/CharacterMeta.svelte";
   import CharacterAttributes from "./components/CharacterAttributes.svelte";
   import CharacterCharacteristics from "./components/CharacterCharacteristics.svelte";
+  import CharacterBodyCharacteristics from "./components/CharacterBodyCharacteristics.svelte";
   import ExperienceMeter from "./components/ExperienceMeter.svelte";
   import Wounds from "./components/Wounds.svelte";
   import CharacterSkills from "./components/CharacterSkills.svelte";
@@ -78,8 +79,10 @@
     soul: "soul",
     qi: "qi",
     willpower: "willpower",
-    charge: "charge",
+    charge: "charge"
+  }));
 
+  let bodyCharacteristicsLabels = $derived(getLabels(character.lang, {
     body: "body",
     strength: "strength",
     agility: "agility",
@@ -91,8 +94,6 @@
     initiativeMod: "initiativeMod",
     speed: "speed",
     perception: "perception"
-
-
   }));
 
 
@@ -262,13 +263,23 @@
     />
   </div>
 
-  <div class="sheet">
-  <CharacterCharacteristics
-          title={t(character.lang, "characteristicsTitle")}
-          labels={characteristicsLabels}
-          bind:characteristics={character.characteristics}
-          character={character}
-  />
+  <div class="characteristicsGrid">
+    <div class="sheet">
+      <CharacterCharacteristics
+              title={t(character.lang, "characteristicsTitle")}
+              labels={characteristicsLabels}
+              bind:characteristics={character.characteristics}
+              character={character}
+      />
+    </div>
+
+    <div class="sheet">
+      <CharacterBodyCharacteristics
+              labels={bodyCharacteristicsLabels}
+              bind:body={character.characteristics.body}
+              character={character}
+      />
+    </div>
   </div>
 
   <div class="sheet xpWounds">
@@ -415,6 +426,7 @@
     min-width: 260px;
   }
 
+  .characteristicsGrid,
   .perksGrid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -436,6 +448,7 @@
       min-width: 0;
     }
 
+    .characteristicsGrid,
     .perksGrid {
       grid-template-columns: minmax(0, 1fr);
     }
