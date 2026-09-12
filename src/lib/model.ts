@@ -1,6 +1,6 @@
 import type { WoundsState, Character, SkillLine, SkillEntry, CharacterCharacteristics, CharacteristicPair, ExperienceState, PerkEntry, ItemEntry } from "./types";
 
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 export const defaultWoundsState = (): WoundsState => ({
   marks: Array(10).fill(" ")
@@ -116,6 +116,7 @@ export function defaultCharacter(): Character {
     permanentPerks: [],
     temporaryPerks: [],
     anchors: [],
+    inventory: [],
 
     notes: {
       general: "",
@@ -142,6 +143,7 @@ export function normalizeCharacter(input: unknown): Character {
   const permanentPerks = normalizePerks(input.permanentPerks);
   const temporaryPerks = normalizePerks(input.temporaryPerks);
   const anchors = normalizeItems(input.anchors);
+  const inventory = normalizeItems(input.inventory);
   const notes = normalizeNotes(input.notes, base.notes);
   const wounds = normalizeWounds(input.wounds, base.wounds);
 
@@ -160,6 +162,7 @@ export function normalizeCharacter(input: unknown): Character {
     permanentPerks,
     temporaryPerks,
     anchors,
+    inventory,
     notes,
     wounds,
     updatedAt: new Date().toISOString()

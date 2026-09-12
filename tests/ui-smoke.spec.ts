@@ -9,6 +9,10 @@ function anchorSection(page: Page, title: string) {
   return page.getByRole("heading", { name: title }).locator("../..");
 }
 
+function inventorySection(page: Page, title: string) {
+  return page.getByRole("heading", { name: title }).locator("../..");
+}
+
 async function expectInlineSkillRow(
   page: Page,
   accessibleName: string,
@@ -1076,7 +1080,7 @@ temporaryPerks:
         temporary: parsed.temporaryPerks[0]
       };
     })).toEqual({
-      schemaVersion: 4,
+      schemaVersion: 5,
       permanent: { text: "Legacy perk", description: "", level: 5 },
       temporary: { text: "Malformed description", description: "", level: 2 }
     });
@@ -1285,7 +1289,48 @@ skills:
       .toHaveCount(0);
   });
 
-  test("lays out Anchors at half width and reflows responsively", async ({ page }) => {
+  test("edits localized Inventory beside Anchors and persists and resets it", async ({ page }) => {
+    const anchors = anchorSection(page, "Anchors");
+    let inventory = inventorySection(page, "Inventory");
+
+    await inventory.getByRole("button", { name: "Add" }).click();
+    await inventory.getByRole("button", { name: "Add" }).click();
+    const texts = inventory.getByRole("textbox", { name: "Inventory item" });
+    await texts.nth(0).fill("  Rope  ");
+    await texts.nth(0).blur();
+    await expect(texts.nth(0)).toHaveValue("Rope");
+    await texts.nth(1).fill("Lantern");
+
+    await inventory.getByRole("button", { name: "Description" }).nth(1).click();
+    await page.getByRole("textbox", { name: "Inventory item description" })
+      .fill("Oil-filled\ntravel lantern");
+    await page.getByRole("button", { name: "Close" }).click();
+    await inventory.getByRole("button", { name: "Delete inventory item" }).nth(0).click();
+    await expect(inventory.getByRole("textbox", { name: "Inventory item" })).toHaveValue("Lantern");
+    await expect(anchors.getByRole("textbox", { name: "Anchor text" })).toHaveCount(0);
+
+    await page.getByRole("button", { name: "RU" }).click();
+    inventory = inventorySection(page, "Инвентарь");
+    await expect(inventory.getByRole("textbox", { name: "Предмет инвентаря" }))
+      .toHaveValue("Lantern");
+    await inventory.getByRole("button", { name: "Описание" }).click();
+    await expect(page.getByRole("textbox", { name: "Описание предмета инвентаря" }))
+      .toHaveValue("Oil-filled\ntravel lantern");
+    await page.getByRole("button", { name: "Закрыть" }).click();
+
+    await page.reload();
+    inventory = inventorySection(page, "Инвентарь");
+    await expect(inventory.getByRole("textbox", { name: "Предмет инвентаря" }))
+      .toHaveValue("Lantern");
+
+    page.once("dialog", (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "Сброс" }).click();
+    await expect(inventorySection(page, "Inventory").getByRole("textbox", {
+      name: "Inventory item"
+    })).toHaveCount(0);
+  });
+
+  test("lays out Anchors and Inventory at half width and reflows responsively", async ({ page }) => {
     const anchorsGrid = page.locator(".anchorsGrid");
 
     const expectLayout = async (
@@ -1296,16 +1341,27 @@ skills:
     ) => {
       await page.setViewportSize({ width, height: 900 });
       const anchorsSheet = anchorSection(page, title).locator("..");
-      const [gridBox, sheetBox] = await Promise.all([
+      const inventoryTitle = title === "Anchors" ? "Inventory" : "Инвентарь";
+      const inventorySheet = inventorySection(page, inventoryTitle).locator("..");
+      const [gridBox, sheetBox, inventoryBox] = await Promise.all([
         anchorsGrid.boundingBox(),
-        anchorsSheet.boundingBox()
+        anchorsSheet.boundingBox(),
+        inventorySheet.boundingBox()
       ]);
       expect(gridBox).not.toBeNull();
       expect(sheetBox).not.toBeNull();
-      if (!gridBox || !sheetBox) return;
+      expect(inventoryBox).not.toBeNull();
+      if (!gridBox || !sheetBox || !inventoryBox) return;
 
-      if (stacked) expect(Math.abs(gridBox.width - sheetBox.width)).toBeLessThan(1);
-      else expect(sheetBox.width).toBeLessThan(gridBox.width * 0.51);
+      expect(Math.abs(sheetBox.width - inventoryBox.width)).toBeLessThan(1);
+      if (stacked) {
+        expect(Math.abs(gridBox.width - sheetBox.width)).toBeLessThan(1);
+        expect(sheetBox.y).toBeLessThan(inventoryBox.y);
+      } else {
+        expect(sheetBox.width).toBeLessThan(gridBox.width * 0.51);
+        expect(sheetBox.x).toBeLessThan(inventoryBox.x);
+        expect(Math.abs(sheetBox.y - inventoryBox.y)).toBeLessThan(1);
+      }
       if (anchorsContainmentOnly) {
         expect(sheetBox.x).toBeGreaterThanOrEqual(gridBox.x - 1);
         expect(sheetBox.x + sheetBox.width).toBeLessThanOrEqual(gridBox.x + gridBox.width + 1);
@@ -1404,7 +1460,7 @@ anchors:
         anchors: parsed.anchors
       };
     })).toEqual({
-      schemaVersion: 4,
+      schemaVersion: 5,
       characterName: "Preserved name",
       anchors: [
         { text: "Preserved anchor", description: "First line\nSecond line\n" },
@@ -1420,6 +1476,94 @@ anchors:
     });
     await expect(anchorSection(page, "Anchors").getByRole("textbox", { name: "Anchor text" }))
       .toHaveCount(0);
+  });
+
+  test("round-trips and safely normalizes Inventory through YAML", async ({ page }) => {
+    const inventory = inventorySection(page, "Inventory");
+    await inventory.getByRole("button", { name: "Add" }).click();
+    await inventory.getByRole("textbox", { name: "Inventory item" }).fill("YAML rope");
+    await inventory.getByRole("button", { name: "Description" }).click();
+    await page.getByRole("textbox", { name: "Inventory item description" })
+      .fill("First line\nSecond line");
+    await page.getByRole("button", { name: "Close" }).click();
+
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: "Export YAML" }).click();
+    const download = await downloadPromise;
+    const yamlStream = await download.createReadStream();
+    const chunks: Buffer[] = [];
+    for await (const chunk of yamlStream) chunks.push(Buffer.from(chunk));
+    const yaml = Buffer.concat(chunks).toString("utf8");
+    expect(loadYaml(yaml)).toHaveProperty("inventory", [
+      { text: "YAML rope", description: "First line\nSecond line" }
+    ]);
+
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "inventory.yaml",
+      mimeType: "text/yaml",
+      buffer: Buffer.from(yaml)
+    });
+    const importedInventory = inventorySection(page, "Inventory");
+    await expect(importedInventory.getByRole("textbox", { name: "Inventory item" }))
+      .toHaveValue("YAML rope");
+    await importedInventory.getByRole("button", { name: "Description" }).click();
+    await expect(page.getByRole("textbox", { name: "Inventory item description" }))
+      .toHaveValue("First line\nSecond line");
+    await page.getByRole("button", { name: "Close" }).click();
+
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "malformed-inventory.yaml",
+      mimeType: "text/yaml",
+      buffer: Buffer.from(`schemaVersion: 4
+lang: en
+notes:
+  inventory: Legacy inventory
+inventory:
+  - text: Preserved item
+    description: |
+      First line
+      Second line
+    unknownField: harmless
+  - text: 42
+    description: false
+  - malformed
+unknownRootField: harmless
+`)
+    });
+
+    await expect.poll(async () => page.evaluate(() => {
+      const value = localStorage.getItem("worldstriders.charlist.v1");
+      if (!value) return null;
+      const parsed = JSON.parse(value) as {
+        schemaVersion: number;
+        inventory: Array<{ text: string; description: string }>;
+        notes: { inventory: string };
+      };
+      return {
+        schemaVersion: parsed.schemaVersion,
+        inventory: parsed.inventory,
+        legacyInventory: parsed.notes.inventory
+      };
+    })).toEqual({
+      schemaVersion: 5,
+      inventory: [
+        { text: "Preserved item", description: "First line\nSecond line\n" },
+        { text: "", description: "" },
+        { text: "", description: "" }
+      ],
+      legacyInventory: "Legacy inventory"
+    });
+
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "legacy-without-inventory.yaml",
+      mimeType: "text/yaml",
+      buffer: Buffer.from("schemaVersion: 3\nlang: en\n")
+    });
+    await expect(inventorySection(page, "Inventory").getByRole("textbox", {
+      name: "Inventory item"
+    })).toHaveCount(0);
   });
 
   test("round-trips multiline Notes through YAML", async ({ page }) => {
@@ -1472,7 +1616,7 @@ notes:
       };
       return { schemaVersion: parsed.schemaVersion, notes: parsed.notes };
     })).toEqual({
-      schemaVersion: 4,
+      schemaVersion: 5,
       notes: {
         general: "",
         background: "Legacy background",
@@ -1505,7 +1649,7 @@ notes:
       };
       return { schemaVersion: parsed.schemaVersion, notes: parsed.notes };
     })).toEqual({
-      schemaVersion: 4,
+      schemaVersion: 5,
       notes: {
         general: "",
         background: "Preserved background",

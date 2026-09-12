@@ -9,6 +9,7 @@
   import CharacterSkills from "./components/CharacterSkills.svelte";
   import PerkList from "./components/PerkList.svelte";
   import CharacterAnchors from "./components/CharacterAnchors.svelte";
+  import CharacterInventory from "./components/CharacterInventory.svelte";
   import DiceRoller from "./components/DiceRoller.svelte";
   import TextAreaField from "./components/TextAreaField.svelte";
 
@@ -143,6 +144,16 @@
     text: t(character.lang, "anchorText"),
     description: t(character.lang, "anchorDescription"),
     descriptionTitle: t(character.lang, "anchorDescriptionTitle"),
+    close: t(character.lang, "close")
+  });
+
+  let inventoryListLabels = $derived({
+    add: t(character.lang, "add"),
+    delete: t(character.lang, "delete"),
+    deleteAction: t(character.lang, "deleteInventoryItem"),
+    text: t(character.lang, "inventoryItemText"),
+    description: t(character.lang, "inventoryItemDescription"),
+    descriptionTitle: t(character.lang, "inventoryItemDescriptionTitle"),
     close: t(character.lang, "close")
   });
 
@@ -360,6 +371,14 @@
         title={t(character.lang, "anchorsTitle")}
         labels={anchorListLabels}
         bind:anchors={character.anchors}
+      />
+    </div>
+
+    <div class="sheet">
+      <CharacterInventory
+        title={t(character.lang, "inventoryTitle")}
+        labels={inventoryListLabels}
+        bind:inventory={character.inventory}
       />
     </div>
   </div>

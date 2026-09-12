@@ -117,6 +117,7 @@ export interface Character {
   permanentPerks: PerkEntry[];
   temporaryPerks: PerkEntry[];
   anchors: ItemEntry[];
+  inventory: ItemEntry[];
   notes: Notes;
   updatedAt: string;
 }
