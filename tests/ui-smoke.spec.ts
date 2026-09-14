@@ -640,7 +640,7 @@ test.describe("UI smoke", () => {
     }
 
     await expect(page.getByRole("group", { name: "Wounds", exact: true })).toHaveCount(1);
-    await expect(page.locator(".xpColumn").getByRole("group", { name: "Wounds", exact: true }))
+    await expect(page.locator(".experienceDiceGrid").getByRole("group", { name: "Wounds", exact: true }))
       .toHaveCount(0);
 
     await page.getByRole("button", { name: "RU" }).click();
@@ -1874,6 +1874,83 @@ notes:
     await expect(page.getByRole("textbox", { name: "Notes" })).toHaveValue("");
   });
 
+  test("groups experience and dice cards in equal desktop thirds and stacks them responsively", async ({ page }) => {
+    const group = page.locator(".experienceDiceSheet");
+    const grid = group.locator(":scope > .experienceDiceGrid");
+    const cards = grid.locator(":scope > .statCard");
+    await expect(group).toHaveCount(1);
+    await expect(cards).toHaveCount(3);
+
+    const expectLayout = async (viewportWidth: number) => {
+      await page.setViewportSize({ width: viewportWidth, height: 900 });
+      const geometry = await cards.evaluateAll((elements) => elements.map((element) => {
+        const bounds = element.getBoundingClientRect();
+        return {
+          x: bounds.x,
+          y: bounds.y,
+          width: bounds.width,
+          height: bounds.height,
+          fits: element.scrollWidth <= element.clientWidth
+        };
+      }));
+      const groupFits = await group.evaluate((element) =>
+        element.scrollWidth <= element.clientWidth
+        && document.documentElement.scrollWidth <= document.documentElement.clientWidth
+      );
+
+      expect(groupFits).toBe(true);
+      expect(geometry.every((card) => card.fits)).toBe(true);
+      if (viewportWidth > 1180) {
+        expect(Math.max(...geometry.map((card) => card.width))
+          - Math.min(...geometry.map((card) => card.width))).toBeLessThanOrEqual(1);
+        expect(Math.max(...geometry.map((card) => card.y))
+          - Math.min(...geometry.map((card) => card.y))).toBeLessThan(1);
+        expect(geometry[0].x).toBeLessThan(geometry[1].x);
+        expect(geometry[1].x).toBeLessThan(geometry[2].x);
+        const gridWidth = await grid.evaluate((element) => element.clientWidth);
+        expect(geometry[0].width).toBeLessThanOrEqual(gridWidth / 3);
+      } else {
+        expect(geometry[0].y + geometry[0].height).toBeLessThan(geometry[1].y);
+        expect(geometry[1].y + geometry[1].height).toBeLessThan(geometry[2].y);
+        expect(Math.max(...geometry.map((card) => card.x))
+          - Math.min(...geometry.map((card) => card.x))).toBeLessThan(1);
+      }
+
+      if (viewportWidth === 1180) {
+        const experienceGeometry = await cards.nth(0).evaluate((element) => {
+          const bounds = (selector: string) => {
+            const rect = element.querySelector<HTMLElement>(selector)!.getBoundingClientRect();
+            return { x: rect.x, width: rect.width };
+          };
+          return {
+            fields: bounds(".fields"),
+            label: bounds(".numRow .fieldLabel"),
+            input: bounds(".numRow .numInput"),
+            milestones: bounds(".msRight")
+          };
+        });
+        expect(experienceGeometry.fields.width).toBeLessThanOrEqual(421);
+        expect(experienceGeometry.input.x - experienceGeometry.label.x).toBeLessThanOrEqual(200);
+        expect(experienceGeometry.milestones.width).toBeLessThanOrEqual(421);
+      }
+    };
+
+    await expect(cards.nth(0)).toContainText("Experience");
+    await expect(cards.nth(1)).toContainText("Special experience");
+    await expect(cards.nth(2)).toContainText("Dice Roller");
+    for (const viewportWidth of [390, 1180, 1181, 1440, 1920]) {
+      await expectLayout(viewportWidth);
+    }
+
+    await page.getByRole("button", { name: "RU" }).click();
+    await expect(cards.nth(0)).toContainText("Опыт");
+    await expect(cards.nth(1)).toContainText("Особый опыт");
+    await expect(cards.nth(2)).toContainText("Бросок кубов");
+    for (const viewportWidth of [390, 1180, 1181, 1440, 1920]) {
+      await expectLayout(viewportWidth);
+    }
+  });
+
   test("reveals, clamps, and retains dice roller options", async ({ page }) => {
     const successThreshold = page.getByRole("spinbutton", { name: "Success threshold" });
     const rerollThreshold = page.getByRole("spinbutton", { name: "Reroll threshold" });
@@ -1993,7 +2070,7 @@ notes:
         expect(threshold.width).toBeLessThanOrEqual(96);
       }
 
-      if (viewportWidth <= 480) {
+      if (geometry.section.width <= 420) {
         expect(Math.abs(geometry.thresholds[0].x - geometry.thresholds[1].x)).toBeLessThan(1);
         expect(geometry.thresholds[0].y).toBeLessThan(geometry.thresholds[1].y);
       } else {
@@ -2038,23 +2115,23 @@ notes:
     await page.getByRole("spinbutton", { name: english.diceCount }).fill("20");
     await page.getByRole("button", { name: english.roll }).click();
     await page.getByText(english.options, { exact: true }).click();
-    for (const viewportWidth of [390, 480, 481, 1440, 1920]) {
+    for (const viewportWidth of [390, 1180, 1181, 1440, 1920]) {
       await expectLayout(viewportWidth, english);
-      await page.getByRole("heading", { name: english.heading }).locator("..").screenshot({
-        path: `artifacts/screenshots/after-dice-roller-open-result-en-${viewportWidth}.png`
+      await page.locator(".experienceDiceSheet").screenshot({
+        path: `artifacts/screenshots/after-xp-dice-group-en-${viewportWidth}.png`
       });
     }
 
     await page.getByRole("button", { name: "RU" }).click();
-    for (const viewportWidth of [390, 480, 481, 1440, 1920]) {
+    for (const viewportWidth of [390, 1180, 1181, 1440, 1920]) {
       await expectLayout(viewportWidth, russian);
-      await page.getByRole("heading", { name: russian.heading }).locator("..").screenshot({
-        path: `artifacts/screenshots/after-dice-roller-open-result-ru-${viewportWidth}.png`
+      await page.locator(".experienceDiceSheet").screenshot({
+        path: `artifacts/screenshots/after-xp-dice-group-ru-${viewportWidth}.png`
       });
     }
   });
 
-  test("reflows localized dice controls at 200% text size", async ({ page }) => {
+  test("reflows the localized experience and dice group at 200% text size", async ({ page }) => {
     const captureTextLayout = async (
       language: "en" | "ru",
       heading: string,
@@ -2062,25 +2139,63 @@ notes:
       viewportWidth: number
     ) => {
       await page.setViewportSize({ width: viewportWidth, height: 900 });
+      const group = page.locator(".experienceDiceSheet");
+      const normalSizes = await group.evaluate((element) => ({
+        heading: parseFloat(getComputedStyle(element.querySelector<HTMLElement>(".diceRoller .ws-h1")!).fontSize),
+        subheading: parseFloat(getComputedStyle(element.querySelector<HTMLElement>(".xp .ws-h2")!).fontSize),
+        text: parseFloat(getComputedStyle(element.querySelector<HTMLElement>(".fieldLabel")!).fontSize),
+        label: parseFloat(getComputedStyle(element.querySelector<HTMLElement>(".diceRoller .ws-label")!).fontSize)
+      }));
       await page.evaluate(() => {
-        document.documentElement.style.fontSize = "200%";
+        const root = document.documentElement.style;
+        root.setProperty("--ws-text-size", "28px");
+        root.setProperty("--ws-label-size", "28px");
+        root.setProperty("--ws-h1-size", "36px");
+        root.setProperty("--ws-h2-size", "28px");
+        root.setProperty("--ws-h1-letter", "4px");
+        root.setProperty("--ws-h2-letter", "2px");
       });
 
-      const section = page.getByRole("heading", { name: heading }).locator("..");
-      const layout = await section.evaluate((element) => ({
-        labelsFit: Array.from(element.querySelectorAll<HTMLElement>(".field .ws-label"))
+      await expect(page.getByRole("heading", { name: heading })).toBeVisible();
+      const layout = await group.evaluate((element) => ({
+        sizes: {
+          heading: parseFloat(getComputedStyle(element.querySelector<HTMLElement>(".diceRoller .ws-h1")!).fontSize),
+          subheading: parseFloat(getComputedStyle(element.querySelector<HTMLElement>(".xp .ws-h2")!).fontSize),
+          text: parseFloat(getComputedStyle(element.querySelector<HTMLElement>(".fieldLabel")!).fontSize),
+          label: parseFloat(getComputedStyle(element.querySelector<HTMLElement>(".diceRoller .ws-label")!).fontSize)
+        },
+        labelsFit: Array.from(element.querySelectorAll<HTMLElement>(".field .ws-label, .fieldLabel"))
           .every((label) => label.scrollWidth <= label.clientWidth + 1),
+        cardsFit: Array.from(element.querySelectorAll<HTMLElement>(".statCard"))
+          .every((card) => card.scrollWidth <= card.clientWidth),
+        groupFits: element.scrollWidth <= element.clientWidth,
         pageFits: document.documentElement.scrollWidth <= document.documentElement.clientWidth
       }));
 
+      expect(layout.sizes.heading).toBeGreaterThanOrEqual(normalSizes.heading * 2);
+      expect(layout.sizes.subheading).toBeGreaterThanOrEqual(normalSizes.subheading * 2);
+      expect(layout.sizes.text).toBeGreaterThanOrEqual(normalSizes.text * 2);
+      expect(layout.sizes.label).toBeGreaterThanOrEqual(normalSizes.label * 2);
       expect(layout.labelsFit).toBe(true);
+      expect(layout.cardsFit).toBe(true);
+      expect(layout.groupFits).toBe(true);
       expect(layout.pageFits).toBe(true);
       await expect(page.getByText(options, { exact: true })).toBeVisible();
-      await section.screenshot({
-        path: `artifacts/screenshots/after-dice-roller-open-result-${language}-${viewportWidth}-text-200.png`
+      await page.locator(".experienceDiceSheet").screenshot({
+        path: `artifacts/screenshots/after-xp-dice-group-${language}-${viewportWidth}-text-200.png`
       });
       await page.evaluate(() => {
-        document.documentElement.style.fontSize = "";
+        const root = document.documentElement.style;
+        for (const property of [
+          "--ws-text-size",
+          "--ws-label-size",
+          "--ws-h1-size",
+          "--ws-h2-size",
+          "--ws-h1-letter",
+          "--ws-h2-letter"
+        ]) {
+          root.removeProperty(property);
+        }
       });
     };
 

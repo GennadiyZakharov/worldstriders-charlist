@@ -204,6 +204,8 @@
     .diceRoller {
         display: grid;
         gap: 14px;
+        min-width: 0;
+        container-type: inline-size;
     }
 
     .controls {
@@ -268,6 +270,12 @@
         text-align: center;
     }
 
+    .field .ws-label,
+    .diceRoller :global(.ws-h1) {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+
     .field {
         display: grid;
         gap: 6px;
@@ -278,7 +286,7 @@
         width: 5.5rem;
         max-width: 100%;
         min-width: 0;
-        height: 32px;
+        min-height: 40px;
         padding: 4px 8px;
         border-radius: 8px;
         border: 1px solid rgba(0, 0, 0, 0.25);
@@ -344,7 +352,7 @@
         min-height: 22px;
     }
 
-    @media (max-width: 480px) {
+    @container (max-width: 420px) {
         .optionsPanel {
             grid-template-columns: 1fr;
         }

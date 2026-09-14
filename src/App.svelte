@@ -318,9 +318,9 @@
     </div>
   </div>
 
-  <div class="sheet">
-    <div class="xpColumn">
-      <div class="xpCard">
+  <div class="sheet experienceDiceSheet">
+    <div class="experienceDiceGrid">
+      <div class="statCard">
         <ExperienceMeter
                 caption={t(character.lang, "experienceTitle")}
                 labels={experienceMeterLabels}
@@ -328,18 +328,18 @@
         />
       </div>
 
-      <div class="xpCard">
+      <div class="statCard">
         <ExperienceMeter
                 caption={t(character.lang, "specialExperienceTitle")}
                 labels={experienceMeterLabels}
                 bind:experience={character.specialExperience}
         />
       </div>
-    </div>
-  </div>
 
-  <div class="sheet">
-    <DiceRoller labels={diceRollerLabels} />
+      <div class="statCard">
+        <DiceRoller labels={diceRollerLabels} />
+      </div>
+    </div>
   </div>
 
   <!-- Skill box -->
@@ -454,14 +454,15 @@
     font-size: max(30px, var(--ws-h1-size));
   }
 
-  .xpColumn {
+  .experienceDiceGrid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
     align-items: start;
   }
 
-  .xpCard {
+  .statCard {
+    min-width: 0;
     border: 2px solid rgba(0, 70, 95, 0.9);
     border-radius: 10px;
     padding: 14px 16px;
@@ -479,11 +480,13 @@
     min-width: 0;
   }
 
-  @media (max-width: 900px) {
-    .xpColumn {
+  @media (max-width: 1180px) {
+    .experienceDiceGrid {
       grid-template-columns: 1fr;
     }
+  }
 
+  @media (max-width: 900px) {
     .characteristicsGrid,
     .perksGrid,
     .anchorsGrid {

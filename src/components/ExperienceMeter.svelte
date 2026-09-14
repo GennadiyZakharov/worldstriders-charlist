@@ -174,46 +174,63 @@
         gap: 10px;
         align-content: start;
         height: 100%;
+        min-width: 0;
+        container-type: inline-size;
     }
 
     .fields {
         display: grid;
         gap: 10px;
-        grid-template-columns: minmax(0, 110px) minmax(88px, 1fr);
         align-items: start;
+        width: min(100%, 420px);
+        margin-inline: auto;
     }
 
     .numRow {
-        display: contents;
+        display: grid;
+        grid-template-columns: minmax(0, 180px) minmax(88px, 110px);
+        gap: 10px;
+        align-items: center;
+        justify-content: center;
+        min-width: 0;
     }
 
     .fieldLabel {
         min-height: 28px;
         display: flex;
         align-items: center;
+        overflow-wrap: anywhere;
+    }
+
+    .xp :global(.ws-h2) {
+        max-width: 100%;
+        overflow-wrap: anywhere;
     }
 
     .numLabel {
-        white-space: nowrap;
+        min-width: 0;
     }
 
     .numInput {
         width: 100%;
         min-width: 0;
-        height: 28px;
+        min-height: 32px;
         border: none;
         border-bottom: 1px solid rgba(0, 0, 0, 0.28);
         border-radius: 0;
-        padding: 0 6px;
+        padding: 4px 6px;
         background: transparent;
+        box-sizing: border-box;
     }
 
     .msRow {
-        display: contents;
+        display: grid;
+        gap: 8px;
+        min-width: 0;
     }
 
     .msLabel {
-        white-space: nowrap;
+        min-width: 0;
     }
 
     .msRight {
@@ -247,20 +264,10 @@
     }
 
     .hint {
-        grid-column: 1 / -1;
         margin-top: -2px;
-        padding-left: 122px;
     }
 
-    @media (max-width: 520px) {
-        .fields {
-            grid-template-columns: 1fr;
-        }
-
-        .fieldLabel {
-            min-height: auto;
-        }
-
+    @container (max-width: 420px) {
         .msRight {
             grid-template-columns: 1fr;
             justify-items: stretch;
@@ -269,10 +276,16 @@
         .msRight :global(.dots) {
             justify-self: start;
         }
+    }
 
-        .hint {
-            padding-left: 0;
-            margin-top: 0;
+    @container (max-width: 300px) {
+        .numRow {
+            grid-template-columns: 1fr;
+            justify-content: stretch;
+        }
+
+        .fieldLabel {
+            min-height: auto;
         }
     }
 </style>
