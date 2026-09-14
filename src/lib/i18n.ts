@@ -119,6 +119,14 @@ export const DICT: Record<Lang, Record<string, string>> = {
     grace: "Grace",
     resistance: "Resistance",
 
+    superpowersTitle: "SUPERPOWERS",
+    superpowerOrigin: "Origin",
+    superpowerLevel: "Level",
+    superpowerEffect: "Effect",
+    superpowerAttribute: "Attribute",
+    superpowerSkill: "Skill",
+    deleteSuperpower: "Delete superpower",
+
     permanentPerksTitle: "PERMANENT PERKS",
     temporaryPerksTitle: "TEMPORARY PERKS",
     anchorsTitle: "Anchors",
@@ -260,6 +268,14 @@ export const DICT: Record<Lang, Record<string, string>> = {
     power: "Мощь",
     grace: "Грация",
     resistance: "Сопротивление",
+
+    superpowersTitle: "СВЕРХСПОСОБНОСТИ",
+    superpowerOrigin: "Источник",
+    superpowerLevel: "Уровень",
+    superpowerEffect: "Эффект",
+    superpowerAttribute: "Атрибут",
+    superpowerSkill: "Навык",
+    deleteSuperpower: "Удалить сверхспособность",
 
     derivedTitle: "Производные",
     size: "Размер",

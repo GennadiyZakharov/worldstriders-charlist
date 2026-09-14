@@ -5,6 +5,10 @@ function perkSection(page: Page, title: string) {
   return page.getByRole("heading", { name: title }).locator("../..");
 }
 
+function superPowerSection(page: Page, title: string) {
+  return page.getByRole("heading", { name: title }).locator("../..");
+}
+
 function anchorSection(page: Page, title: string) {
   return page.getByRole("heading", { name: title }).locator("../..");
 }
@@ -777,6 +781,216 @@ test.describe("UI smoke", () => {
     }
   });
 
+  test("adds, edits, deletes, localizes, and persists superpowers", async ({ page }) => {
+    let section = superPowerSection(page, "SUPERPOWERS");
+    await section.getByRole("button", { name: "Add" }).click();
+    await section.getByRole("button", { name: "Add" }).click();
+
+    const fillRow = async (index: number, prefix: string, level: number) => {
+      await section.getByRole("textbox", { name: "Origin" }).nth(index).fill(`${prefix} origin`);
+      await section.getByRole("textbox", { name: "Effect" }).nth(index).fill(`${prefix} effect`);
+      await section.getByRole("textbox", { name: "Attribute" }).nth(index).fill(`${prefix} attribute`);
+      await section.getByRole("textbox", { name: "Skill" }).nth(index).fill(`${prefix} skill`);
+      await section.getByRole("slider").nth(index)
+        .getByRole("button", { name: `Level ${level}/5` }).click();
+    };
+
+    await fillRow(0, "First", 2);
+    await fillRow(1, "Second", 4);
+    await section.getByRole("button", { name: "Delete superpower" }).first().click();
+
+    await expect(section.getByRole("textbox", { name: "Origin" })).toHaveValue("Second origin");
+    await expect(section.getByRole("textbox", { name: "Effect" })).toHaveValue("Second effect");
+    await expect(section.getByRole("textbox", { name: "Attribute" })).toHaveValue("Second attribute");
+    await expect(section.getByRole("textbox", { name: "Skill" })).toHaveValue("Second skill");
+    await expect(section.getByRole("slider")).toHaveAttribute("aria-valuenow", "4");
+
+    await page.getByRole("button", { name: "RU" }).click();
+    section = superPowerSection(page, "СВЕРХСПОСОБНОСТИ");
+    await expect(section.getByRole("textbox", { name: "Источник" })).toHaveValue("Second origin");
+    await expect(section.getByRole("textbox", { name: "Эффект" })).toHaveValue("Second effect");
+    await expect(section.getByRole("textbox", { name: "Атрибут" })).toHaveValue("Second attribute");
+    await expect(section.getByRole("textbox", { name: "Навык" })).toHaveValue("Second skill");
+    await expect(section.getByRole("button", { name: "Удалить сверхспособность" })).toBeVisible();
+
+    await page.reload();
+    section = superPowerSection(page, "СВЕРХСПОСОБНОСТИ");
+    await expect(section.getByRole("textbox", { name: "Источник" })).toHaveValue("Second origin");
+
+    page.once("dialog", (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "Сброс" }).click();
+    await expect(superPowerSection(page, "SUPERPOWERS").getByRole("textbox", { name: "Origin" }))
+      .toHaveCount(0);
+  });
+
+  test("round-trips and safely normalizes superpowers through YAML", async ({ page }) => {
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "superpowers.yaml",
+      mimeType: "text/yaml",
+      buffer: Buffer.from(`schemaVersion: 1
+lang: en
+meta:
+  characterName: Preserved character
+superpowers:
+  - origin: Cosmic storm
+    level: 9.8
+    effect: Flight
+    attribute: Agility
+    skill: Athletics
+    unknownField: harmless
+  - origin: 42
+    level: -3
+    effect: false
+    attribute: null
+    skill: []
+  - malformed
+unknownRootField: harmless
+`)
+    });
+
+    await expect.poll(async () => page.evaluate(() => {
+      const value = localStorage.getItem("worldstriders.charlist.v1");
+      if (!value) return null;
+      const parsed = JSON.parse(value) as {
+        schemaVersion: number;
+        meta: { characterName: string };
+        superpowers: Array<{
+          origin: string;
+          level: number;
+          effect: string;
+          attribute: string;
+          skill: string;
+        }>;
+      };
+      return {
+        schemaVersion: parsed.schemaVersion,
+        characterName: parsed.meta.characterName,
+        superpowers: parsed.superpowers
+      };
+    })).toEqual({
+      schemaVersion: 6,
+      characterName: "Preserved character",
+      superpowers: [
+        {
+          origin: "Cosmic storm",
+          level: 5,
+          effect: "Flight",
+          attribute: "Agility",
+          skill: "Athletics"
+        },
+        { origin: "", level: 1, effect: "", attribute: "", skill: "" },
+        { origin: "", level: 1, effect: "", attribute: "", skill: "" }
+      ]
+    });
+
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: "Export YAML" }).click();
+    const download = await downloadPromise;
+    const yamlStream = await download.createReadStream();
+    const chunks: Buffer[] = [];
+    for await (const chunk of yamlStream) chunks.push(Buffer.from(chunk));
+    const yaml = Buffer.concat(chunks).toString("utf8");
+    expect(loadYaml(yaml)).toHaveProperty("superpowers.0", {
+      origin: "Cosmic storm",
+      level: 5,
+      effect: "Flight",
+      attribute: "Agility",
+      skill: "Athletics"
+    });
+
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "exported-superpowers.yaml",
+      mimeType: "text/yaml",
+      buffer: Buffer.from(yaml)
+    });
+    await expect(superPowerSection(page, "SUPERPOWERS").getByRole("textbox", { name: "Origin" }).first())
+      .toHaveValue("Cosmic storm");
+
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "legacy.yaml",
+      mimeType: "text/yaml",
+      buffer: Buffer.from("schemaVersion: 5\nlang: en\n")
+    });
+    await expect(superPowerSection(page, "SUPERPOWERS").getByRole("textbox", { name: "Origin" }))
+      .toHaveCount(0);
+  });
+
+  test("keeps localized superpower fields responsive and keyboard operable", async ({ page }) => {
+    let section = superPowerSection(page, "SUPERPOWERS");
+    await section.getByRole("button", { name: "Add" }).click();
+    const slider = section.getByRole("slider");
+    await slider.focus();
+    await page.keyboard.press("Home");
+    await page.keyboard.press("ArrowLeft");
+    await expect(slider).toHaveAttribute("aria-valuenow", "1");
+    await page.keyboard.press("End");
+    await page.keyboard.press("ArrowRight");
+    await expect(slider).toHaveAttribute("aria-valuenow", "5");
+
+    const expectLayout = async (width: number, title: string) => {
+      await page.setViewportSize({ width, height: 900 });
+      section = superPowerSection(page, title);
+      const component = section.locator(".superPower");
+      const fields = component.locator(".field");
+      const containment = await section.evaluate((element) => ({
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth
+      }));
+      expect(containment.scrollWidth).toBeLessThanOrEqual(containment.clientWidth);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+        await page.evaluate(() => document.documentElement.clientWidth)
+      );
+      await expect(fields).toHaveCount(5);
+      const boxes = await fields.evaluateAll((elements) => elements.map((element) => {
+        const box = element.getBoundingClientRect();
+        const control = element.querySelector<HTMLElement>("input, .dots")?.getBoundingClientRect();
+        return { x: box.x, y: box.y, width: box.width, controlBottom: control?.bottom ?? 0 };
+      }));
+      if (width <= 520) {
+        expect(new Set(boxes.map(({ x }) => Math.round(x))).size).toBe(1);
+        const [skillBox, deleteBox] = await Promise.all([
+          section.getByRole("textbox", { name: /^(Skill|Навык)$/ }).boundingBox(),
+          section.getByRole("button", {
+            name: /^(Delete superpower|Удалить сверхспособность)$/
+          }).boundingBox()
+        ]);
+        expect(skillBox).not.toBeNull();
+        expect(deleteBox).not.toBeNull();
+        if (skillBox && deleteBox) {
+          expect(deleteBox.y).toBeGreaterThanOrEqual(skillBox.y + skillBox.height);
+        }
+      } else if (width <= 820) {
+        expect(new Set(boxes.map(({ x }) => Math.round(x))).size).toBe(2);
+      } else {
+        expect(new Set(boxes.map(({ x }) => Math.round(x))).size).toBe(5);
+        expect(Math.max(...boxes.map(({ controlBottom }) => controlBottom)) -
+          Math.min(...boxes.map(({ controlBottom }) => controlBottom))).toBeLessThan(1);
+      }
+    };
+
+    for (const width of [390, 519, 520, 521, 819, 820, 821, 1440, 1920]) {
+      await expectLayout(width, "SUPERPOWERS");
+    }
+
+    await page.getByRole("button", { name: "RU" }).click();
+    for (const width of [390, 820, 821, 1440, 1920]) {
+      await expectLayout(width, "СВЕРХСПОСОБНОСТИ");
+    }
+
+    await page.setViewportSize({ width: 390, height: 900 });
+    await page.evaluate(() => {
+      document.body.style.zoom = "2";
+    });
+    section = superPowerSection(page, "СВЕРХСПОСОБНОСТИ");
+    const containment = await section.evaluate((element) => ({
+      clientWidth: element.clientWidth,
+      scrollWidth: element.scrollWidth
+    }));
+    expect(containment.scrollWidth).toBeLessThanOrEqual(containment.clientWidth);
+  });
+
   test("edits localized multiline perk descriptions and persists them", async ({ page }) => {
     const permanent = perkSection(page, "PERMANENT PERKS");
     const temporary = perkSection(page, "TEMPORARY PERKS");
@@ -1080,7 +1294,7 @@ temporaryPerks:
         temporary: parsed.temporaryPerks[0]
       };
     })).toEqual({
-      schemaVersion: 5,
+      schemaVersion: 6,
       permanent: { text: "Legacy perk", description: "", level: 5 },
       temporary: { text: "Malformed description", description: "", level: 2 }
     });
@@ -1460,7 +1674,7 @@ anchors:
         anchors: parsed.anchors
       };
     })).toEqual({
-      schemaVersion: 5,
+      schemaVersion: 6,
       characterName: "Preserved name",
       anchors: [
         { text: "Preserved anchor", description: "First line\nSecond line\n" },
@@ -1547,7 +1761,7 @@ unknownRootField: harmless
         legacyInventory: parsed.notes.inventory
       };
     })).toEqual({
-      schemaVersion: 5,
+      schemaVersion: 6,
       inventory: [
         { text: "Preserved item", description: "First line\nSecond line\n" },
         { text: "", description: "" },
@@ -1616,7 +1830,7 @@ notes:
       };
       return { schemaVersion: parsed.schemaVersion, notes: parsed.notes };
     })).toEqual({
-      schemaVersion: 5,
+      schemaVersion: 6,
       notes: {
         general: "",
         background: "Legacy background",
@@ -1649,7 +1863,7 @@ notes:
       };
       return { schemaVersion: parsed.schemaVersion, notes: parsed.notes };
     })).toEqual({
-      schemaVersion: 5,
+      schemaVersion: 6,
       notes: {
         general: "",
         background: "Preserved background",

@@ -7,6 +7,7 @@
   import CharacterBodyCharacteristics from "./components/CharacterBodyCharacteristics.svelte";
   import ExperienceMeter from "./components/ExperienceMeter.svelte";
   import CharacterSkills from "./components/CharacterSkills.svelte";
+  import SuperPowerList from "./components/SuperPowerList.svelte";
   import PerkList from "./components/PerkList.svelte";
   import CharacterAnchors from "./components/CharacterAnchors.svelte";
   import CharacterInventory from "./components/CharacterInventory.svelte";
@@ -135,6 +136,17 @@
     description: t(character.lang, "perkDescription"),
     descriptionTitle: t(character.lang, "perkDescriptionTitle"),
     close: t(character.lang, "close")
+  });
+
+  let superPowerListLabels = $derived({
+    add: t(character.lang, "add"),
+    delete: t(character.lang, "delete"),
+    deleteAction: t(character.lang, "deleteSuperpower"),
+    origin: t(character.lang, "superpowerOrigin"),
+    level: t(character.lang, "superpowerLevel"),
+    effect: t(character.lang, "superpowerEffect"),
+    attribute: t(character.lang, "superpowerAttribute"),
+    skill: t(character.lang, "superpowerSkill")
   });
 
   let anchorListLabels = $derived({
@@ -343,6 +355,14 @@
             labels={skillLabels}
             editorLabels={skillEditorLabels}
             bind:skills={character.skills}
+    />
+  </div>
+
+  <div class="sheet">
+    <SuperPowerList
+      title={t(character.lang, "superpowersTitle")}
+      labels={superPowerListLabels}
+      bind:superpowers={character.superpowers}
     />
   </div>
 

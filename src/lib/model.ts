@@ -1,6 +1,6 @@
-import type { WoundsState, Character, SkillLine, SkillEntry, CharacterCharacteristics, CharacteristicPair, ExperienceState, PerkEntry, ItemEntry } from "./types";
+import type { WoundsState, Character, SkillLine, SkillEntry, CharacterCharacteristics, CharacteristicPair, ExperienceState, PerkEntry, ItemEntry, SuperPowerEntry } from "./types";
 
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 6;
 
 export const defaultWoundsState = (): WoundsState => ({
   marks: Array(10).fill(" ")
@@ -10,6 +10,14 @@ export const defaultPerk = (): PerkEntry => ({
   text: "",
   description: "",
   level: 0
+});
+
+export const defaultSuperPower = (): SuperPowerEntry => ({
+  origin: "",
+  level: 1,
+  effect: "",
+  attribute: "",
+  skill: ""
 });
 
 export const defaultItem = (): ItemEntry => ({
@@ -113,6 +121,7 @@ export function defaultCharacter(): Character {
       ]
     },
 
+    superpowers: [],
     permanentPerks: [],
     temporaryPerks: [],
     anchors: [],
@@ -140,6 +149,7 @@ export function normalizeCharacter(input: unknown): Character {
   const experience = normalizeExperience(input.experience, base.experience);
   const specialExperience = normalizeExperience(input.specialExperience, base.specialExperience);
   const skills = normalizeSkills(input.skills, base.skills);
+  const superpowers = normalizeSuperPowers(input.superpowers);
   const permanentPerks = normalizePerks(input.permanentPerks);
   const temporaryPerks = normalizePerks(input.temporaryPerks);
   const anchors = normalizeItems(input.anchors);
@@ -159,6 +169,7 @@ export function normalizeCharacter(input: unknown): Character {
     experience,
     specialExperience,
     skills,
+    superpowers,
     permanentPerks,
     temporaryPerks,
     anchors,
@@ -363,6 +374,23 @@ function normalizePerks(v: unknown): Character["permanentPerks"] {
             : 0;
 
     return { text, description, level };
+  });
+}
+
+function normalizeSuperPowers(v: unknown): Character["superpowers"] {
+  if (!Array.isArray(v)) return [];
+
+  return v.map((item) => {
+    const r = asRecord(item);
+    if (!r) return defaultSuperPower();
+
+    return {
+      origin: typeof r.origin === "string" ? r.origin : "",
+      level: clampInt(r.level, 1, 5, 1),
+      effect: typeof r.effect === "string" ? r.effect : "",
+      attribute: typeof r.attribute === "string" ? r.attribute : "",
+      skill: typeof r.skill === "string" ? r.skill : ""
+    };
   });
 }
 

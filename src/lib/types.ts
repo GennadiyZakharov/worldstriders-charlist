@@ -92,6 +92,14 @@ export interface PerkEntry {
   level: number; // 0..5
 }
 
+export interface SuperPowerEntry {
+  origin: string;
+  level: number; // 1..5
+  effect: string;
+  attribute: string;
+  skill: string;
+}
+
 export interface ItemEntry {
   text: string;
   description: string;
@@ -114,6 +122,7 @@ export interface Character {
   specialExperience: ExperienceState;
   wounds: WoundsState;
   skills: CharacterSkills;
+  superpowers: SuperPowerEntry[];
   permanentPerks: PerkEntry[];
   temporaryPerks: PerkEntry[];
   anchors: ItemEntry[];
